@@ -2,10 +2,21 @@
 ###   Pulling Site Parameters for D. Thoma Water Balance Model ######
 #####################################################################
 # Create output directory for maps
+figs <- './figures' # for figures
+if(dir.exists(figs) == FALSE){
+  dir.create(figs)
+} 
+rm(figs)
 
 maps = './figures/maps'
 if(dir.exists(maps) == FALSE){
   dir.create(maps)
+}
+
+park_specific = './data/park-specific' # Create folder for park-specific data (i.e. parsed data and output)
+
+if(dir.exists(park_specific) == FALSE){
+  dir.create(park_specific)
 }
 
 # Set projection to be used for all spatial data:
@@ -39,7 +50,7 @@ US_States <- st_transform(US_States, st_crs(maca))
 # select park
 
 park <- filter(nps_boundary, UNIT_CODE == SiteID)
-state <- filter(US_States, STATE_NAME == state)
+State <- filter(US_States, STATE_NAME == state)
 
 # TWO DIFFERENT OPTIONS FOR CENTROID - use 1st option if running a general RSS and using park centroid. Second option if using specific lat long.
 
@@ -56,7 +67,7 @@ if(exists("MACA_lat") == TRUE){
 # Check that spatial data looks OK so far. Precise projection doesn't matter at this point but should be close. 
 # You should see the park outline by itself, and also where it lies within the state.
 
-state_and_park <- tm_shape(state) +
+state_and_park <- tm_shape(State) +
   tm_borders() + 
   tm_fill(col = "lightgrey") +
   tm_shape(park) +
@@ -132,6 +143,7 @@ colnames(wb_sites) <- c("WB_site", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC
 wb_sites$SWC.Max = wb_sites$SWC.Max*10 # convert units for Soil Water-holding capacity
 wb_sites # check to be sure values are populated correctly. There should not be NA values. 
 
-write.csv(wb_sites, file = paste('./data/park-specific/output/', SiteID, " WB site parameters ", Sys.Date(), ".csv", sep = ""), row.names = FALSE)
+write.csv(wb_sites, file = paste('./data/park-specific/', SiteID, " WB site parameters ", Sys.Date(), ".csv", sep = ""), row.names = FALSE)
 
-
+rm(proj4, epsg, dem, soil, wb_sites,US_States,US_Counties,state_and_park,State,slope,points,park_and_centroid,
+   nps_centroids,nps_boundary,latlong,centroid,aspect)

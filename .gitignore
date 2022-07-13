@@ -9,5 +9,6 @@ Drt.all.csv
 figures/
 packrat/lib*/
 data/general/spatial-data/
-data/park-specific/
+/PARK
 .RDataTmp
+.png

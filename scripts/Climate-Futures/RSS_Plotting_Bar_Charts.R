@@ -1,49 +1,9 @@
 # RSS_Plotting_Bar_Charts.R
+DataFile <- list.files(path = DataDir, pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
+load(DataFile)
 
-################ INITIALS ##########################
+vars <- names(F_annual[,4:length(F_annual)])
 
-# Need to check all the subsets
-### NEED TO CHANGE LINE 72 for ordering scenarios on plots
-
-Scenario1<-FutureSubset[1]
-Scenario2<-FutureSubset[2]
-
-#Colors for RCP 4.5, RCP 8.5
-col.RCP2 = c("blue", "red")
-
-## All 508-compliant color scheme -- navy (hot wet), light blue (warm wet), pink (warm dry), red (hot dry)
-colors5 <-   c("white","#12045C","#9A9EE5","#F3D3CB","#E10720")
-
-colors3<-c("white",colors2)
-
-##Plot parameters
-
-#Height and width 
-PlotWidth = 15
-PlotHeight = 9
-
-#ggplot theme to control formatting parameters for plots with month on the x-axis
-PlotTheme = theme(axis.text=element_text(size=20),    #Text size for axis tick mark labels
-                  axis.title.x=element_blank(),               #Text size and alignment for x-axis label
-                  axis.title.y=element_text(size=24, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20)),              #Text size and alignment for y-axis label
-                  plot.title=element_text(size=26,face="bold",hjust=0.5, margin=margin(t=20, r=20, b=20, l=20)),      #Text size and alignment for plot title
-                  legend.title=element_text(size=24),                                                                    #Text size of legend category labels
-                  legend.text=element_text(size=22),                                                                   #Text size of legend title
-                  legend.position = "bottom")  
-
-BarPlotTheme = theme(axis.text.x=element_text(size=24),    #Text size for axis tick mark labels
-                     axis.text.y=element_text(size=20),
-                     axis.title.x=element_blank(),               #Text size and alignment for x-axis label
-                     axis.title.y=element_text(size=24, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20)),              #Text size and alignment for y-axis label
-                     plot.title=element_text(size=26,face="bold",hjust=0.5, margin=margin(t=20, r=20, b=20, l=20)),      #Text size and alignment for plot title
-                     legend.position = "none") 
-
-#X-axis labels for monthly plots
-MonthLabels = c("J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D")
-SeasonLabels = c("Winter", "Spring","Summer", "Fall")
-
-
-#################### END INITIALS ##########################
 #################################################### SUBSET DATAFRAMES ###################################################
 Monthly<-subset(Monthly,CF %in% FutureSubset); Monthly$CF<-factor(Monthly$CF, levels=c("Historical",FutureSubset))
 # Monthly$Month<-factor(Monthly$Month,levels=c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))
@@ -59,673 +19,352 @@ Season_delta<-subset(Season_delta,CF %in% FutureSubset); Season_delta$CF<-factor
 Season_delta$season<-factor(Season_delta$season,levels=c("Winter","Spring","Summer","Fall"))
 
 # Join historical and future for bar plots
-H<-H_annual[,-c(1:2)]
-Hist_annual<-aggregate(.~Year,data=H,mean);rm(H)
-Hist_annual$CF<-"Historical"
-Hist_annual<-Hist_annual[,c("Year","CF",names(Hist_annual[,2:22]))] 
-F_annual<-subset(F_annual, CF %in% FutureSubset, select = -c(GCM))
-Fut_annual<-aggregate(.~Year+CF,F_annual,mean)
-Annual<-rbind(Hist_annual,Fut_annual)
-Annual$CF<-factor(Annual$CF,levels=c("Historical",Scenario1, Scenario2), ordered=is.ordered(Annual$CF))
+H <- subset(H_annual, select = -c(GCM))
+F_annual<-subset(F_annual, CF %in% FutureSubset)
+# Fut_annual <- F_annual %>% select(-GCM) %>% group_by(Year,CF) %>% 
+#   summarise_all(mean) #drops NAs
 
-MACA_avgPr <- mean(Hist_annual$PrecipCustom)
+Fut_annual<-aggregate(.~Year+CF,subset(F_annual, select = -c(GCM)),mean)
 
-# Sample from Historical and create joined dataframes for boxplots
-# set.seed(7)
-# H_samp<-sample_n(H_annual,30); H_samp$CF<-"Historical"
-# H_samp$GCM<-NULL
-# Annual_samp<-rbind(H_samp,Fut_annual)
+Annual<-rbind(H, Fut_annual)
+Annual$CF<-factor(Annual$CF,levels=c("Historical",CFs), ordered=is.ordered(Annual$CF))
 
-set.seed(7)
-H<-subset(H_annual, select= -c(CF))
-H_samp<-merge(H,CF_GCM, by="GCM");H_samp$GCM=NULL
-H_samp<-aggregate(.~Year+CF,H_samp,mean)
-H_samp<-sample_n(H_samp,30); H_samp$CF<-"Historical"
-Annual_samp<-rbind(H_samp,Fut_annual)
-Annual_samp$CF<-factor(Annual_samp$CF,levels=c("Historical",Scenario1, Scenario2), ordered=is.ordered(Annual_samp$CF))
+MACA_avgPr <- mean(H$PrcpIn)
 
 ### Add column to change color of CF1
-Annual_samp$me.col<-"b"
-Annual_samp$me.col[which(Annual_samp$CF=="Hot Wet")]<-"w" #If not using HW, will get error
+Annual$me.col<-"b"
+Annual$me.col[which(Annual$CF=="Hot Wet")]<-"w" #If not using HW, will get error
 
 
 ############################################################### Begin output plots ############################################
+## Quadrant means scatterplots
+
+#### quadrant means
+dualscatter = ggplot(Future_Means, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, ymax=Pr75*365))
+
+dualscatter  + geom_text_repel(aes(label=GCM)) +
+  geom_point(colour="black",size=4) +
+  geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[1])]), y=mean(365*DeltaPr[which(CF==CFs[1])])), shape=8, size=7, stroke=3, colour=colors2[1]) +
+  geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[2])]), y=mean(365*DeltaPr[which(CF==CFs[2])])), shape=8, size=7, stroke=3, colour=colors2[2]) +
+  theme(axis.text=element_text(size=18),
+        axis.title.x=element_text(size=18,vjust=-0.2),
+        axis.title.y=element_text(size=18,vjust=0.2),
+        plot.title=element_text(size=18,face="bold",vjust=2,hjust=0.5),
+        legend.text=element_text(size=18), legend.title=element_text(size=16)) + 
+  ###
+  labs(title =paste(SiteID," Changes in climate means in ", Yr, " by GCM run",sep=""), 
+       x = "Changes in annual average temperature (\u00B0F)", # Change
+       y = "Changes in annual average precipitation (in)") + #change
+  scale_color_manual(name="Scenarios", values=c("black")) +
+  # scale_fill_manual(name="Scenarios",values = c("black")) + 
+  theme(legend.position="none") +
+  geom_rect(color = "black", alpha=0) + 
+  geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
+  geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2) #change
+
+ggsave("scatter-CFmeansStar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+#### quadrant means + WB selected models
+dualscatter = ggplot(Future_Means, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, ymax=Pr75*365))
+
+dualscatter  + geom_text_repel(aes(label=GCM)) +
+  geom_point(colour="black",size=4) +
+  geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[1])]), y=mean(365*DeltaPr[which(CF==CFs[1])])), shape=8, size=7, stroke=3, colour=colors2[1]) +
+  geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[2])]), y=mean(365*DeltaPr[which(CF==CFs[2])])), shape=8, size=7, stroke=3, colour=colors2[2]) +
+  geom_point(aes(x=mean(DeltaTavg[which(WB_GCM==CFs[1])]), y=mean(365*DeltaPr[which(WB_GCM==CFs[1])])), shape=21, size=10, stroke=3, colour=colors2[1]) +
+  geom_point(aes(x=mean(DeltaTavg[which(WB_GCM==CFs[2])]), y=mean(365*DeltaPr[which(WB_GCM==CFs[2])])), shape=21, size=10, stroke=3, colour=colors2[2]) +
+  geom_point(aes(x=mean(DeltaTavg[which(WB_GCM==CFs[1])]), y=mean(365*DeltaPr[which(WB_GCM==CFs[1])])), shape=20, size=2,  colour=colors2[1]) +
+  geom_point(aes(x=mean(DeltaTavg[which(WB_GCM==CFs[2])]), y=mean(365*DeltaPr[which(WB_GCM==CFs[2])])), shape=20, size=2,  colour=colors2[2]) +
+  theme(axis.text=element_text(size=18),
+        axis.title.x=element_text(size=18,vjust=-0.2),
+        axis.title.y=element_text(size=18,vjust=0.2),
+        plot.title=element_text(size=18,face="bold",vjust=2,hjust=0.5),
+        legend.text=element_text(size=18), legend.title=element_text(size=16)) + 
+  ###
+  labs(title =paste(SiteID," Changes in climate means in ", Yr, " by GCM run",sep=""), 
+       x = "Changes in annual average temperature (\u00B0F)", # Change
+       y = "Changes in annual average precipitation (in)") + #change
+  scale_color_manual(name="Scenarios", values=c("black")) +
+  # scale_fill_manual(name="Scenarios",values = c("black")) + 
+  theme(legend.position="none") +
+  geom_rect(color = "black", alpha=0) + 
+  geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
+  geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2) #change
+
+ggsave("scatter-CFmeansStar-IndivCircled.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+################################## Monthly/Seasonal delta plots #####################################
+
+Month_line_plot(Monthly_delta,xvar=Month,yvar=TavgF,grp=CF,cols=colors2,
+                title=paste0("Change in avg daily temperature in ",Yr," vs ", BasePeriod),
+                xlab = "Month", ylab="Change in temperature (\u00B0F)")
+ggsave("Monthly-line-TavgFDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+Month_line_plot(Monthly_delta,xvar=Month,yvar=TminF,grp=CF,cols=colors2,
+                title=paste0("Change in avg daily min temperature in ",Yr," vs ", BasePeriod),
+                xlab = "Month", ylab="Change in temperature (\u00B0F)")
+ggsave("Monthly-line-TminFDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+Month_line_plot(Monthly_delta,xvar=Month,yvar=TmaxF,grp=CF,cols=colors2,
+                title=paste0("Change in avg daily max temperature in ",Yr," vs ", BasePeriod),
+                xlab = "Month", ylab="Change in temperature (\u00B0F)")
+ggsave("Monthly-line-TmaxFDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+Month_bar_plot(Monthly_delta,xvar=Month,yvar=PrcpIn,grp=CF,cols=colors2,
+               title=paste0("Change in avg monthly precipitation in ",Yr," vs ", BasePeriod),
+               xlab = "Month", ylab="Change in precipitation (in)",label=MonthLabels)
+ggsave("Monthly-bar-PrcpInDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+Month_bar_plot(Season_delta,xvar=season,yvar=PrcpIn,grp=CF,cols=colors2,
+               title=paste0("Change in avg seasonal precipitation in ",Yr," vs ", BasePeriod),
+               xlab = "Season", ylab="Change in precipitation (in)",label=SeasonLabels)
+ggsave("Seasonal-bar-PrcpInDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+Month_bar_plot(Monthly_delta,xvar=Month,yvar=RHmean,grp=CF,cols=colors2,
+               title=paste0("Change in avg monthly relative humidity in ",Yr," vs ", BasePeriod),
+               xlab = "Month", ylab="Change in relative humidity (%)",label=MonthLabels)
+ggsave("Monthly-bar-RHmeanDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+Month_bar_plot(Season_delta,xvar=season,yvar=RHmean,grp=CF,cols=colors2,
+               title=paste0("Change in avg seasonal relative humidity in ",Yr," vs ", BasePeriod),
+               xlab = "Season", ylab="Change in relative humidity (%)",label=SeasonLabels)
+ggsave("Seasonal-bar-RHmeanDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+############################################### ANNUAL TMEAN AND PRECIP BAR PLOTS ######################################################################
+
+## TavgF
+var_bar_plot(Annual, "TavgF", cols=colors3, ylab="(\u00B0F)",
+             title=paste0("Average annual temperature (\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-TavgF.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
-###Scatter plot showing delta precip and tavg, color by emissions scenario, x-axis scaled 0-max, with points for averages of 3 CFs
-###Scatter plot showing delta precip and tavg, color by emissions scenario, with box for all 3 CF's
-if(grepl("Warm", Scenario1)){
-  xmin1 <- Tavg0
-  xmax1 <- Tavg
-  xmin2 <- Tavg
-  xmax2 <- Tavg100
-  col1 <- "blue"
-  col2 <- "red"
-}else{ 
-  xmin1 <- Tavg
-  xmax1 <- Tavg100
-  xmin2 <- Tavg0
-  xmax2 <- Tavg
-  col1 <- "red"
-  col2 <- "blue"
-}
-if(grepl("Dry", Scenario1) | grepl("Damp", Scenario1)){
-  ymin1 <- 365*Pr0
-  ymax1 <- 365*PrAvg
-  ymin2 <- 365*PrAvg
-  ymax2 <- 365*Pr100
-}else{
-  ymin1 <- 365*PrAvg
-  ymax1 <- 365*Pr100
-  ymin2 <- 365*Pr0
-  ymax2 <- 365*PrAvg
-}
-scatter = ggplot(Future_Means, aes(DeltaTavg, 365*DeltaPr, xmin=Tavg25, xmax=Tavg75, ymin=365*Pr25, ymax=365*Pr75))
-scatter + geom_point(aes(color=emissions),size=4) + 
-  PlotTheme + 
-  theme(axis.title.x=element_text(size=24, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20))) +
-  labs(title = paste(SiteID, "- Changes in climate means in", Year,"by GCM run"), 
-            x = "Change in annual average temperature (F)", 
-            y = "Change in average annual precipitation (in)") +
-  scale_colour_manual(values=col.RCP2)+
-  guides(color=guide_legend(title="Emissions Scenarios\n")) +
-  geom_rect(color = "blue", alpha=0) +
-   geom_hline(aes(yintercept=365*mean(Future_Means$DeltaPr)),linetype=2) +
-   geom_vline(aes(xintercept=mean(Future_Means$DeltaTavg)),linetype=2)  +
-  geom_rect(xmin=xmin1, xmax=xmax1, ymin=ymin1, ymax=ymax1, color = colors2[1], alpha=0, size=1) + 
-  geom_rect(xmin=Tavg25, xmax=Tavg75, ymin=365*Pr25, ymax=365*Pr75, color = "grey", alpha=0, size=1) +
-  geom_rect(xmin=xmin2, xmax=xmax2, ymin=ymin2, ymax=ymax2, color = colors2[2], alpha=0, size=1) +
-  geom_point(aes(x=mean(DeltaTavg), y=mean(365*DeltaPr)), shape=23, size=10, fill='black', colour='black') +
-  geom_point(aes(x=mean(DeltaTavg[which(CF==Scenario1)]), y=mean(365*DeltaPr[which(CF==Scenario1)])), shape=23, size=10, fill='black', colour='black') +
-  geom_point(aes(x=mean(DeltaTavg[which(CF==Scenario2)]), y=mean(365*DeltaPr[which(CF==Scenario2)])), shape=23, size=10, fill='black', colour='black') +
-  scale_x_continuous(limits=c(0, max(Future_Means$DeltaTavg)+.25))
-
-
-
-##Line Plot of change in MinTemp by CF/Month
-ggplot(Monthly_delta, aes(x=Month, y=TavgCustom, group=CF, colour = CF)) +
-  geom_line(size = 2, stat = "identity",colour="black") + 
-  geom_line(size = 1.5, stat = "identity") +
-  geom_point(colour= "black", size=4, aes(fill = factor(CF), shape = factor(CF))) +
-  PlotTheme +
-  labs(title = paste(SiteID, "- Change in avg. daily temperature in 2040 (2025-2055) vs 1950-1999"),
-       x = "Month", y = "Change in Temperature (Deg F)") +
-  scale_color_manual(name="",values = colors2) +
-  scale_fill_manual(name="",values = colors2) +
-  scale_shape_manual(name="",values = c(21,22)) +
-  scale_y_continuous(limits=c(0, ceiling(max(Monthly_delta$TavgCustom)))) +
-  scale_x_discrete(labels = MonthLabels)
-
-ggsave(sprintf("%s_%s_%s_Avg_Monthly_Tavg_Delta_Line.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-ggsave(sprintf("%s_%s_%s_GCM_Scatter_CF_Averages_Plot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-#################################################### MONTHLY/SEASONAL DELTA PLOTS ###############################################################3
-#Bar graph of change in average monthly precip by CF
-ggplot(Monthly_delta, aes(x=Month,y=PrecipCustom,fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  PlotTheme +
-  labs(title = paste(SiteID, "- Change in avg. monthly precip. in 2040 (2025-2055) vs 1950-1999"), 
-       x = "Month", y = "Change in Precipitation (in)") +
-  scale_fill_manual(name="",values = colors2) +
-  scale_x_discrete(labels = MonthLabels)
-
-ggsave(sprintf("%s_%s_%s_Avg_Monthly_Precip_Delta_Bar.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-#Bar graph of change in average seasonal precip by CF
-ggplot(Season_delta, aes(x=season,y=PrecipCustom,fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  PlotTheme +
-  labs(title = paste(SiteID, "- Change in avg. seasonal precip. in 2040 (2025-2055) vs 1950-1999"), 
-       x = "Season", y = "Change in Precipitation (in)") +
-  scale_fill_manual(name="",values = colors2) 
-
-ggsave(sprintf("%s_%s_%s_Avg_Season_Precip_Delta_Bar.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-#Line plot of change in MaxTemp by CF/month
-ggplot(Monthly_delta, aes(x=Month, y=TmaxCustom, group=CF, colour = CF)) +
-  geom_line(size = 2, stat = "identity",colour="black") + 
-  geom_line(size = 1.5, stat = "identity") +
-  geom_point(colour= "black", size=4, aes(fill = factor(CF), shape = factor(CF))) +
-  PlotTheme +
-  labs(title = paste(SiteID, "- Change in avg. daily Tmax in 2040 (2025-2055) vs 1950-1999"), 
-            x = "Month", y = "Change in Temperature (Deg F)") +
-  scale_color_manual(name="",values = colors2) +
-  scale_fill_manual(name="",values = colors2) +
-  scale_shape_manual(name="",values = c(21,22)) +
-  scale_y_continuous(limits=c(0, ceiling(max(Monthly_delta$TmaxCustom)))) + 
-  scale_x_discrete(labels = MonthLabels)
-
-ggsave(sprintf("%s_%s_%s_Avg_Monthly_Tmax_Delta_Line.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-##Line Plot of change in MinTemp by CF/Month
-ggplot(Monthly_delta, aes(x=Month, y=TminCustom, group=CF, colour = CF)) +
-  geom_line(size = 2, stat = "identity",colour="black") + 
-  geom_line(size = 1.5, stat = "identity") +
-  geom_point(colour= "black", size=4, aes(fill = factor(CF), shape = factor(CF))) +
-  PlotTheme +
-  labs(title = paste(SiteID, "- Change in avg. daily Tmin in 2040 (2025-2055) vs 1950-1999"),
-            x = "Month", y = "Change in Temperature (Deg F)") +
-  scale_color_manual(name="",values = colors2) +
-  scale_fill_manual(name="",values = colors2) +
-  scale_shape_manual(name="",values = c(21,22)) +
-  scale_y_continuous(limits=c(0, ceiling(max(Monthly_delta$TminCustom)))) +
-  scale_x_discrete(labels = MonthLabels)
-
-ggsave(sprintf("%s_%s_%s_Avg_Monthly_Tmin_Delta_Line.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-##Line Plot of change in MinTemp by CF/Month
-ggplot(Monthly_delta, aes(x=Month, y=TavgCustom, group=CF, colour = CF)) +
-  geom_line(size = 2, stat = "identity",colour="black") + 
-  geom_line(size = 1.5, stat = "identity") +
-  geom_point(colour= "black", size=4, aes(fill = factor(CF), shape = factor(CF))) +
-  PlotTheme +
-  labs(title = paste(SiteID, "- Change in avg. daily temperature in 2040 (2025-2055) vs 1950-1999"),
-       x = "Month", y = "Change in Temperature (Deg F)") +
-  scale_color_manual(name="",values = colors2) +
-  scale_fill_manual(name="",values = colors2) +
-  scale_shape_manual(name="",values = c(21,22)) +
-  scale_y_continuous(limits=c(0, ceiling(max(Monthly_delta$TavgCustom)))) +
-  scale_x_discrete(labels = MonthLabels)
-ggsave(sprintf("%s_%s_%s_Avg_Monthly_Tavg_Delta_Line.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-#Bar graph of change in average monthly RHmean by CF
-ggplot(Monthly_delta, aes(x=Month,y=RHmean,fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  PlotTheme +
-  labs(title = paste(SiteID, "- Change in avg. monthly relative humidity\n in 2040 (2025-2055) vs 1950-1999"), 
-       x = "Month", y = "Change in relative humidity (%)") +
-  scale_fill_manual(name="",values = colors2) +
-  scale_x_discrete(labels = MonthLabels)
-
-ggsave(sprintf("%s_%s_%s_Avg_Monthly_RHmean_Delta_Bar.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-#Bar graph of change in average seasonal RHmean by CF
-ggplot(Season_delta, aes(x=season,y=RHmean,fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  PlotTheme +
-  labs(title = paste(SiteID, "- Change in avg. seasonal relative humidity\n in 2040 (2025-2055) vs 1950-1999"), 
-       x = "Season", y = "Change in relative humidity (%)") +
-  scale_fill_manual(name="",values = colors2) 
-
-ggsave(sprintf("%s_%s_%s_Avg_Season_RHmean_Delta_Bar.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-############################################### BAR PLOTS ######################################################################
-# create dataset for bar graph of total number of days/year over hot temperature threshold
-
-####################
-#Total number of days/year over hot temperature threshold
-var<-"OverHotTemp"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, "- Avg. Tot. Days/Yr >", HotTemp, "Deg in Historical (1950-1999) & Future (2025-2055)"), 
-       y = "Days/Yr", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Days_Over_HotTemp.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, "- Avg. Tot. Days/Yr >", HotTemp, "Deg in Historical (1950-1999) & Future (2025-2055)"), 
-       y = "Days/Yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Days_Over_HotTemp-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-####################
-#Total number of days/year under cold temperature threshold
-var<-"UnderColdTemp"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, "- Avg. Tot. Days/Yr <", ColdTemp, "Deg \n in Historical (1950-1999) & Future (2025-2055)"), 
-       y = "Days/Yr", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Days_Under_ColdTemp.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-DaysUnderCold <- At
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, "- Avg. Tot. Days/Yr <", ColdTemp, "Deg \n in Historical (1950-1999) & Future (2025-2055)"), 
-       y = "Days/Yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Days_Under_ColdTemp-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-####################
-#Total number of days/year under 5th low temperature threshold
-var<-"UnderLowQ"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, " - Days/Yr with Tmin < Historic 5th Percentile (", round(HistTminLow, 1), "˚F) in ", Year, sep=""), 
-       y = "Days/Yr", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Days_Under_5th.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, " - Days/Yr with Tmin < Historic 5th Percentile (", round(HistTminLow, 1), "˚F) in ", Year, sep=""), 
-       y = "Days/Yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Days_Under_5th-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-####################
-#Total number of days/year over 95th low temperature threshold
-var<-"OverHighQ"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, " - Days/Yr with Tmax > Historic 95th Percentile (", round(HistTmaxHigh, 1), "˚F) in ", Year, sep=""), 
-       y = "Days/Yr", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Days_Over_95th.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-OverHighQ <- At
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, " - Days/Yr with Tmax > Historic 95th Percentile (", round(HistTmaxHigh, 1), "˚F) in ", Year, sep=""), 
-       y = "Days/Yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Days_Over_95th-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-####################
-#Total number of days/year over 95th precip threshold
-var<-"OverPrecip95"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, " - Days/Yr with Precip > Historic 95th Percentile (", round(HistPrecip95, 1), "in) in ", Year, sep=""), 
-       y = "Days/Yr", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Days_Over_95th_Precip.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-Over95Pr <- At # summary for presentation
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, " - Days/Yr with Precip > Historic 95th Percentile (", round(HistPrecip95, 1), "in) in ", Year, sep=""), 
-       y = "Days/Yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Days_Over_95th_Precip-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-####################
-#Total number of days/year Precip over 1" threshold
-var<-"PrecipOver1"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, " - Days/Yr with Precip > 1 in. in ", Year, sep=""), 
-       y = "Days/Yr", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Days_Over_1_Precip.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, " - Days/Yr with Precip > 1 in. in ", Year, sep=""),
-       y = "Days/Yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Days_Over_1_Precip-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-####################
-#Total number of days/year Precip over 2" threshold
-var<-"PrecipOver2"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, " - Days/Yr with Precip > 2 in. in ", Year, sep=""), 
-       y = "Days/Yr", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Days_Over_2_Precip.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, " - Days/Yr with Precip > 2 in. in ", Year, sep=""),
-       y = "Days/Yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Days_Over_2_Precip-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-####################
-#Total number of days/year Precip over 2" threshold
-var<-"FThaw"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, " - Annual freeze-thaw cycles in ", Year, sep=""), 
-       y = "Cycles/Yr", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Freeze-thaw.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, " - Annual freeze-thaw cycles in ", Year, sep=""),
-       y = "Cycles/Yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Freeze-thaw-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-# ####################
-# #Total number of Growing degree days/year (Tavg >41F)
-# var<-"GDD"
-# At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-# names(At)<-c("CF",var)
-# ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-#   geom_bar(stat="identity",position="dodge",colour="black") +
-#   BarPlotTheme +
-#   # coord_cartesian(ylim=c(0, 40)) +
-#   labs(title = paste(SiteID, " - Average annual growing degree days in ", Year, sep=""),
-#        y = "Days/Yr", colour = "Climate Future")  +
-#   scale_fill_manual(name="",values = colors3) +
-#   coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-# 
-# ggsave(sprintf("%s_%s_%s_Growing-day.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-# 
-# # Boxplot
-# p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) +
-#   geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+
-#   geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-#   BarPlotTheme +
-#   labs(title = paste(SiteID, " - Average annual growing degree days in ", Year, sep=""),
-#        y = "Days/Yr") +
-#   scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-#   scale_fill_manual(name="",values = colors3)
-# dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-# p + geom_segment(data=dat1, aes(x=xmin, xend=xmax,
-#                                 y=middle, yend=middle), colour="grey", size=1)
-# ggsave(sprintf("%s_%s_%s_Growing-day-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-# ####################
-# ####### COMMENTED OUT BECAUSE YEILDS WEIRD RESULTS IN COASTAL PARKS. MAKE SURE OUTPUT PLAUSIBLE IF USING
-# #Total number of days/year in growing season (ClimDex defn)
-# var<-"GrowLen"
-# At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-# names(At)<-c("CF",var)
-# ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-#   geom_bar(stat="identity",position="dodge",colour="black") +
-#   BarPlotTheme +
-#   # coord_cartesian(ylim=c(0, 40)) +
-#   labs(title = paste(SiteID, " - Average annual growing season length in ", Year, sep=""), 
-#        y = "Days/Yr", colour = "Climate Future")  +
-#   scale_fill_manual(name="",values = colors3) +
-#   coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-# 
-# ggsave(sprintf("%s_%s_%s_Growing-season.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-# 
-# # Boxplot
-# p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-#   geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-#   geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-#   BarPlotTheme +
-#   labs(title = paste(SiteID, " - Average annual growing season length in ", Year, sep=""),
-#        y = "Days/Yr") +
-#   scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-#   scale_fill_manual(name="",values = colors3)
-# dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-# p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-#                                 y=middle, yend=middle), colour="grey", size=1)
-# ggsave(sprintf("%s_%s_%s_Growing-season-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-# 
-
-# ####################
-# #Beginning of growing season - green-up (Julian Day)
-# var<-"BegGrow"
-# At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-# names(At)<-c("CF",var)
-# ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-#   geom_bar(stat="identity",position="dodge",colour="black") +
-#   BarPlotTheme +
-#   # coord_cartesian(ylim=c(0, 40)) +
-#   labs(title = paste(SiteID, " - Average annual green-up date (Julian day) in ", Year, sep=""), 
-#        y = "Julian day", colour = "Climate Future")  +
-#   scale_fill_manual(name="",values = colors3) +
-#   coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-# 
-# ggsave(sprintf("%s_%s_%s_Green-up.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-# 
-# # Boxplot
-# p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-#   geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-#   geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-#   BarPlotTheme +
-#   labs(title = paste(SiteID, " - Average annual green-up date (Julian day) in ", Year, sep=""), 
-#        y = "Julian day") +
-#   scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-#   scale_fill_manual(name="",values = colors3)
-# dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-# p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-#                                 y=middle, yend=middle), colour="grey", size=1)
-# ggsave(sprintf("%s_%s_%s_Green-up-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-# 
-
-####################
-
-# Total number of days/year with spring frost (GDD==T, Tmin<32)
-#var<-"Sp.Frost"
-#<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-#names(At)<-c("CF",var)
-#ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  #geom_bar(stat="identity",position="dodge",colour="black") +
-  #BarPlotTheme +
-   #coord_cartesian(ylim=c(0, 40)) +
-  #labs(title = paste(SiteID, " - Average annual spring frost days in ", Year, sep=""), 
-       #y = "Days/Yr", colour = "Climate Future")  +
-  #scale_fill_manual(name="",values = colors3) +
-  #coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-#ggsave(sprintf("%s_%s_%s_Spring_frost.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, " - Average annual spring frost days in ", Year, sep=""),
-       y = "Days/Yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Spring_frost-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-####################
-#Total number of days/year with 'dangerous' heat index values
-var<-"HI.Dan"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, " - Average annual dangerous heat index days in ", Year, sep=""), 
-       y = "Days/Yr", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Heat-index-danger.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, " - Average annual dangerous heat index days in ", Year, sep=""),
-       y = "Days/Yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Heat-index-danger-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-
-####################
-#Annual Tavg
-var<-"TavgCustom"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, " - Average annual temperature (deg F) in ", Year, sep=""), 
-       y = "Deg F", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Average-temp.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, " - Average annual temperature (deg F) in ", Year, sep=""),
-       y = "Deg F") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Heat-index-danger-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-####################
-#Annual Precip
-var<-"PrecipCustom"
-At<-aggregate(eval(parse(text=var))~CF,Annual,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = paste(SiteID, " - Average annual precipitation (in) in ", Year, sep=""), 
-       y = "inches/yr", colour = "Climate Future")  +
-  scale_fill_manual(name="",values = colors3) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-
-ggsave(sprintf("%s_%s_%s_Average-temp.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
-
-# Boxplot
-p<-ggplot(Annual_samp, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
-  geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-  geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
-  BarPlotTheme +
-  labs(title = paste(SiteID, " - Average annual precipitation (in)) in ", Year, sep=""),
-       y = "inches/yr") +
-  scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-  scale_fill_manual(name="",values = colors3)
-dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
-p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
-                                y=middle, yend=middle), colour="grey", size=1)
-ggsave(sprintf("%s_%s_%s_Heat-index-danger-Boxplot.png", SiteID, Lat, Lon), path = './figures/MACA', width = PlotWidth, height = PlotHeight)
+var_box_plot(Annual, "TavgF", cols=colors3, ylab="(\u00B0F)",
+             title=paste0("Average annual temperature (\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-TavgF.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=TavgF, cols=col, title=paste0("Average annual temperature (\u00B0F)"),
+              ylab="(\u00B0F)")
+ggsave("Annual-line-TavgF.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## PrcpIn
+var_bar_plot(Annual, "PrcpIn", cols=colors3, ylab="inches/Yr",
+             title=paste0("Average annual precipitation (in) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-PrcpIn.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "PrcpIn", cols=colors3, ylab="inches/Yr",
+             title=paste0("Average annual precipitation (in) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-PrcpIn.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=PrcpIn, cols=col, title=paste0("Average annual precipitation (in)"),
+              ylab="inches/Yr")
+ggsave("Annual-line-PrcpIn.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+############################################### THRESHOLD BAR PLOTS ######################################################################
+
+## OverHotTemp
+var_bar_plot(Annual, "OverHotTemp", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr > ", HotTemp, " (\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-OverHotTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "OverHotTemp", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr > ", HotTemp, " (\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-OverHotTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=OverHotTemp, cols=col, title=paste0("Average Days/Yr > ", HotTemp, " (\u00B0F)"),
+                                                              ylab="Days/Yr")
+ggsave("Annual-line-OverHotTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## UnderColdTemp
+var_bar_plot(Annual, "UnderColdTemp", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr < ", ColdTemp, " (\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-UnderColdTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "UnderColdTemp", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr < ", ColdTemp, " (\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-UnderColdTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=UnderColdTemp, cols=col, title=paste0("Average Days/Yr < ", ColdTemp, " (\u00B0F)"),
+              ylab="Days/Yr")
+ggsave("Annual-line-UnderColdTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## UnderLowQ
+var_bar_plot(Annual, "UnderLowQ", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr < Historical 5th Percentile (", round(HistTminLow, 1), "\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-UnderLowQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "UnderLowQ", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr < Historical 5th Percentile (", round(HistTminLow, 1), "\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-UnderLowQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=UnderLowQ, cols=col, title=paste0("Average Days/Yr < Historical 5th Percentile (", round(HistTminLow, 1), "\u00B0F)"),
+              ylab="Days/Yr")
+ggsave("Annual-line-UnderLowQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## OverHighQ
+var_bar_plot(Annual, "OverHighQ", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr > Historical 95th Percentile (", round(HistTmaxHigh, 1), "\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-OverHighQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "OverHighQ", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr > Historical 95th Percentile (", round(HistTmaxHigh, 1), "\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-OverHighQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=OverHighQ, cols=col, title=paste0("Average Days/Yr > Historical 95th Percentile (", round(HistTmaxHigh, 1), "\u00B0F)"),
+              ylab="Days/Yr")
+ggsave("Annual-line-OverHighQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## OverPrecip95
+var_bar_plot(Annual, "OverPrecip95", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr Precipitation > Historical 95th Percentile (", round(HistPrecip95, 1), " in) \n in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-OverPrecip95.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "OverPrecip95", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr Precipitation > Historical 95th Percentile (", round(HistPrecip95, 1), " in) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-OverPrecip95.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=OverPrecip95, cols=col, title=paste0("Average Days/Yr Precipitation > Historical 95th Percentile (", round(HistPrecip95, 1), " in)"),
+              ylab="Days/Yr")
+ggsave("Annual-line-OverPrecip95.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## PrecipOver1
+var_bar_plot(Annual, "PrecipOver1", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr Precipitation > 1 in. in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-PrecipOver1.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "PrecipOver1", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr Precipitation > 1 in. in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-PrecipOver1.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=PrecipOver1, cols=col, title=paste0("Average Days/Yr Precipitation > 1 in."),
+              ylab="Days/Yr")
+ggsave("Annual-line-PrecipOver1.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## PrecipOver2
+var_bar_plot(Annual, "PrecipOver2", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr Precipitation > 2 in. in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-PrecipOver2.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "PrecipOver2", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr Precipitation > 2 in. in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-PrecipOver2.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=PrecipOver2, cols=col, title=paste0("Average Days/Yr Precipitation > 2 in."),
+              ylab="Days/Yr")
+ggsave("Annual-line-PrecipOver2.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## FThaw
+var_bar_plot(Annual, "FThaw", cols=colors3, ylab="Cycles/Yr",
+             title=paste0("Average annual freeze-thaw cycles in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-FThaw.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "FThaw", cols=colors3, ylab="Cycles/Yr",
+             title=paste0("Average annual freeze-thaw cycles in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-FThaw.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=FThaw, cols=col, title=paste0("Annual freeze-thaw cycles"),
+              ylab="Cycles/Yr")
+ggsave("Annual-line-FThaw.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## GDD
+var_bar_plot(Annual, "GDD", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average annual growing degree days (Tavg > 41\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-GDD.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "GDD", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average annual growing degree days (Tavg > 41\u00B0F) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-GDD.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=GDD, cols=col, title=paste0("Annual growing degree days (Tavg > 41\u00B0F)"),
+              ylab="Days/Yr")
+ggsave("Annual-line-GDD.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## GrowLen
+var_bar_plot(Annual, "GrowLen", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average annual growing season length in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-GrowLen.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "GrowLen", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average annual growing degree season length in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-GrowLen.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=GrowLen, cols=col, title=paste0("Annual growing season length"),
+              ylab="Days/Yr")
+ggsave("Annual-line-GrowLen.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## BegGrow
+var_bar_plot(Annual, "BegGrow", cols=colors3, ylab="Julian Day",
+             title=paste0("Average annual green-up date (Julian day) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-BegGrow.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "BegGrow", cols=colors3, ylab="Julian Day",
+             title=paste0("Average annual green-up date (Julian day) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-BegGrow.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=BegGrow, cols=col, title=paste0("Annual green-up date (Julian day)"),
+              ylab="Julian Day")
+ggsave("Annual-line-BegGrow.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## Sp.Frost
+var_bar_plot(Annual, "Sp.Frost", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average annual spring frost days (Tavg>41 & Tmin<32) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-Sp.Frost.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "Sp.Frost", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average annual spring frost days (Tavg>41 & Tmin<32) in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-Sp.Frost.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=Sp.Frost, cols=col, title=paste0("Annual spring frost days (Tavg>41 & Tmin<32)"),
+              ylab="Days/Yr")
+ggsave("Annual-line-Sp.Frost.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+## HI.Dan
+var_bar_plot(Annual, "HI.Dan", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average annual dangerous heat index days in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-bar-HI.Dan.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "HI.Dan", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average annual dangerous heat index days in ", Yr, " vs ", BasePeriod))
+ggsave("Annual-box-HI.Dan.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual, var=HI.Dan, cols=col, title=paste0("Annual dangerous heat index days"),
+              ylab="Days/Yr")
+ggsave("Annual-line-HI.Dan.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ############################################### PRINT TABLES #################################################################
-A<-aggregate(.~CF,Annual[,2:23], mean) 
-write.xlsx(list("Means"=A,"A3nual"=Annual,"Season"=Season,"D_Season"=Season_delta,"Monthly"=Monthly,"Monthly_delta"=Monthly_delta), 
-           file=("./data/park-specific/output/Plot_data.xlsx"),col.names=TRUE)
+A<-aggregate(.~CF,Annual[,c(1,3:27)], mean) 
+S<-aggregate(.~CF,Annual[,c(1,3:27)],sd) #Withing CF
+WB_GCM_all <- rbind(H_annual,subset(F_annual, GCM %in% WB_GCMs$GCM))
+WB_GCM_Means <-aggregate(.~CF,WB_GCM_all[,c(1,4:24)], mean, na.rm=TRUE)
+WB_GCM_SD <-aggregate(.~CF,WB_GCM_all[,c(1,4:24)], sd, na.rm=TRUE)
 
+WB_GCM_YOY <- split(WB_GCM_all,WB_GCM_all$CF)
+for (i in 1:length(WB_GCM_YOY)){
+  # name=names(WB_GCM_YOY)[i]
+  WB_GCM_YOY[[i]][,4:24] <- 
+    lag(WB_GCM_YOY[[i]][,4:24] ,1) - WB_GCM_YOY[[i]][,4:24] 
+}
+
+WB_GCM_YOY <- ldply(WB_GCM_YOY, data.frame)
+YOY <- aggregate(.~CF,WB_GCM_YOY[,c(2,5:length(WB_GCM_YOY))], FUN=mean, na.rm=TRUE)
+
+
+write.xlsx(list("Means"=A,"Annual"=Annual,"Season"=Season,"D_Season"=Season_delta,"Monthly"=Monthly,"Monthly_delta"=Monthly_delta,
+                "SD"=S, "WB_GCM_Means"=WB_GCM_Means, "WB_GCM_SD"=WB_GCM_SD,"WB_GCM_YOY"=YOY), 
+           file=(paste0(TableDir,"Plot_data.xlsx")),col.names=TRUE)
+rm(S,A,WB_GCM_Means,WB_GCM_SD,WB_GCM_YOY,YOY)

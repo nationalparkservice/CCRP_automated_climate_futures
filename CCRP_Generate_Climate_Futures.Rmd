@@ -38,7 +38,7 @@ knitr::opts_chunk$set(
 
 library(here); library(plyr); # Use here::here when package lubridate is used
 library(plotrix); library(zoo); library(ggplot2); library(grid); library(cowplot); library(reshape2); library(raster); library(ncdf4); library(reshape2); library(WriteXLS); library(data.table); library(RColorBrewer); library(ggrepel); library(lubridate); library(dplyr); library(forcats); library(openxlsx); library("WaterBalance"); library(sf); library(raster); library(rgdal); library(R.utils); library(tmap); library(tmaptools); library(ggmap); library(ggspatial);
-library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft)
+library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon)
 
 
 ```
@@ -52,41 +52,49 @@ There are two code chunks in which the RCF user should enter information that is
 
 rm(list = ls())
 
+# -------------- Input site information -------------------------------------- #
+
+SiteID = "TUSK" 
+# Lat = 40.44039704 # Can manually input lat/lon, otherwise run get_site_info.R
+# Lon = -111.7093944
 
 # --------------- Input local folder information ----------------------------- #
 
 # When this document has finished running, the files will be copied to a local directory and all newly created files (e.g., figures) will be deleted from the repo
 
-project_root_dir <- 'C:/Users/gknowlton/OneDrive - DOI/Documents/Repos/CCRP_Climate_Futures_v1.0' # local directory where your repo is stored
-local_rss_dir <- 'C:/Users/gknowlton/OneDrive - DOI/Documents/RSS/ANTI_new' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/CONG'
+project_root_dir <- here::here()
 
-# -------------- Input site information -------------------------------------- #
+local_rss_dir <- 'C:/Users/achildress/Documents/RCF_Testing/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
+local_rss_dir <- paste0(local_rss_dir,SiteID)
 
-SiteID = "ANTI" 
-state <- "Maryland"
-Lat = 39.47010671
-Lon = -77.7380518
+if(dir.exists(local_rss_dir) == FALSE){
+  dir.create(local_rss_dir)
+}
 
-# -------------- Inputs for NOAA ClimGrid Extraction --------------------------#
 
-data.dir <- "E:/nClimGrid" # Location where NOAA ClimGrid data is stored, e.g. "E:/nClimGrid" 
+if(dir.exists(here::here( "PARK")) == FALSE){
+  dir.create(here::here( "PARK"))
+}
 
-# -------------- Input information for Climate Futures analyses (MACA) ------- #
+OutDir = paste0('./PARK/',SiteID,"/") # for .csv's
+if(dir.exists(OutDir) == FALSE){
+  dir.create(OutDir)
+}
 
-# Specify Climate Futures
+DataDir = paste0(OutDir,'input-data/') # for .csv's
+if(dir.exists(DataDir) == FALSE){
+  dir.create(DataDir)
+}
 
-FutureSubset <- c("Warm Wet","Hot Dry"); CFs = FutureSubset  # Pick pair of climate futures.
+```
 
-colors2<- c("#9A9EE5","#E10720")  # Select pair of climate futures - WarmWet/HotDry
-#colors2<- c("#F3D3CB","#12045C")  # Select pair of climate futures - HotWet/WarmDry
+# Site Info
+The get_params.R script extracts site parameters for inputting into Dave Thoma's Water Balance model (see 'Daily_WB_batch_v2.R'). The create_site_maps.R script creates a suite of maps from which the project lead can select the most appropriate for use with the RSS Powerpoint presentation. Maps output into the './figures/maps' folder. 
+```{r site-info, message=FALSE, warning=FALSE, echo = FALSE, results=HIDE}
 
-# -------------- Input information for Water Balance model ------------------- #
+source(here::here("scripts", "Misc", "get_site_info.R")) # Extract local inputs; seconds to run
 
-# WB_GCMs = c("MRI-CGCM3.rcp45","HadGEM2-ES365.rcp85") # Specific models need to be selected to run the Water Balance scripts
-
-col<- c("darkgray","#9A9EE5","#E10720")  # WarmWet/HotDry
-#col<- c("darkgray","#F3D3CB","#12045C")  # HotWet/WarmDry
-
+source(here::here("scripts", "Misc", "create_site_maps.R")) # Create site maps
 ```
 
 **Second user input chunk (information that should only be changed when directly specified)**
@@ -95,84 +103,27 @@ col<- c("darkgray","#9A9EE5","#E10720")  # WarmWet/HotDry
 
 CFs_all <- c("Warm Wet", "Hot Wet", "Central", "Warm Dry", "Hot Dry")
 
-# ----------  Information for Historical Parsing and Plotting  ------------------ #
-
-# Parsing
-
-Buffer <- 0.06 # dec degree 
-
-# Plotting
-
-doP1 <- "YES"  # Should a separate regression be calculated for the reference period (default 1900-1970)? 
-doP2 <- "YES"  # Should a separate regression be calculate for the period after the reference period (default 1971-present)? 
-beginRefYr = 1900
-endRefYr = 1970
-
-   # needed for rolling mean plot below.  
-stepYrs	= 10		  # for period plots 
-rollLen = 10      # period of calc for rolling average; default 10 = decadal
-
-dpi = 600   
-
-# ----------- Information for MACA parsing script ---- ----------------------- #
-
-#Date ranges to be extracted
-
-Future_StartYear = 2006   #2006-2099
-Future_EndYear = 2099   #2006-2099
-Hist_StartYear = 1950     #1950-2005
-Hist_EndYear = 2005      #1950-2005
-
-#Variable and scenario names corresponding to MACA data directory structure
-vars = c("pr", "tasmax", "tasmin","rhsmax","rhsmin")
-scens = c("rcp45", "rcp85")
-
-#Variable names for output tables
-VarNames = c("PrecipCustom", "TmaxCustom", "TminCustom","RHmaxCustom","RHminCustom")
-
-# GCMs to be extracted
-GCMs = c('bcc-csm1-1','bcc-csm1-1-m','BNU-ESM','CanESM2','CCSM4','CNRM-CM5','CSIRO-Mk3-6-0',
-         'GFDL-ESM2G','GFDL-ESM2M','HadGEM2-CC365','HadGEM2-ES365',
-         'inmcm4','IPSL-CM5A-MR','IPSL-CM5A-LR','IPSL-CM5B-LR',
-         'MIROC5','MIROC-ESM','MIROC-ESM-CHEM','MRI-CGCM3','NorESM1-M')
-
-Remove_files = "Y" # "N"       #Removes all climate data files saved in directory
-                                # This code can also be changed for GridMet
-
+centroids_csv <- "Y" #Switch for using Tercek csvs or downloading own data
 
 # --------- Information for Climate Futures Analyses (MACA) ------------------ #
 
 # Specify parameters:
 
-Year = 2040 #Central year
+Yr = 2040 #Central year
 Range = 30  #Number of years to summarize (should be at least 30)
+BasePeriod = "1979-2012"
+rollLen = 10 #rolling mean length for timeseries plots
 
 # Threshold percentages for defining Climate futures. Default low/high:  0.25, 0.75
 CFLow = 0.25     
 CFHigh = 0.75
 
-#Temperature/precip threshold values
-
-HotTemp = 95    # deg F. Default should be about 100 deg F
-ColdTemp = 32    # deg F
-PrecipThreshold = 0.05    # inches per day. Precip Threshold (used to measure Drought duration). For many GCMs shoud not 
-#  be 0 because models "drizzle". Some investigation necessary.
 QuantileLow = 0.05   #Quantiles for temperature threshold calculations
 QuantileHigh = 0.95
 
-# -------------- Information for GridMET  ------------------------------------ #
-
-box = c(Lat+.5,Lat-.5,Lon+.5,Lon-.5)
-startDate = "1979-01-01"
-endDate = "2020-12-31"
-
-
-# -------------- Information for Water Balance model ------------------- #
-
-# The following needs to be inputted if the park centroid will not be used to select the MACA grid cell for the water balance model:
-
-#MACA_lat <- 40.4465 
-#MACA_lon <- -108.7651
+HotTemp = 95
+ColdTemp = 32
+PrecipThreshold = 0.05
 
 # ------------ Information for drought analyses ------------------------ #
 
@@ -180,98 +131,133 @@ endDate = "2020-12-31"
 
 SPEI_per<-6 # This is the value for the period SPEI is aggregated. 6-months is standard but could change if want. 
 truncation<- -.5 # SPEI value, under which drought events are considered
-SPEI_start <- 1950
-SPEI_end <- 1999
-
-```
-
-
-## Historical Trends
-
-```{r parse-NOAA-Gridmet, message=FALSE, warning=FALSE, echo=FALSE}
-
-source(here::here("scripts", "Historical-trends", "extract-site-format-trends.R")) # Parses NOAA data. Output = "PARK_lat_long_PRISM_nClimGrid_IntermediateFiles.RData" 
-
-source(here::here("scripts", "Historical-trends", "Gridmet-THREDD-download.R")) # Parse GridMET data. Output = "GridMet.csv"
-
-```
-
-```{r Historical-trends-plots, results=hide, eval=TRUE} 
-
-# Requires "PARK_lat_long_PRISM_PptTminTmax_IntermediateFiles.RData"
-# Outputs plots into ./figures/Historical-trends
-# If you get an error re: invalid 'description' argument, it means the data is missing
-
-source(here::here("scripts", "Historical-trends", "RSS PRISM plots v1.2.R"), echo = FALSE) 
+SPEI_start <- 1980
+SPEI_end <- 2012
 
 ```
 
 
 ## Climate Futures (MACA)
-
 ```{r Climate-Futures, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
 
-#source(here::here("scripts", "Climate-Futures", "CFT_CF_parsing_v1.R")) # Parse MACA data. Output = "_init_parsed.RData". # 9-8-21: CFT parsing script is not working due to an issue with the package or MACA servers. ACR to talk to CU Boulder about the issue. For now, add _init_parsed.RData file manually to parsed-data folder. 
+if(centroids_csv == "Y") {
+  source(here::here("scripts", "Climate-Futures", "download_Tercek_csvs.R"), local = knitr::knit_global())
+} else {
+  print("Other data needed")
+  #source(here::here("scripts", "Climate-Futures", "CFT_CF_parsing_v1.R")) # Parse MACA data. Output = "_init_parsed.RData". # 9-8-21: CFT parsing script is not working due to an issue with the package or MACA servers. ACR to talk to CU Boulder about the issue. For now, add _init_parsed.RData file manually to parsed-data folder. 
+}
 
 source(here::here("scripts", "Climate-Futures", "RSS_MACA_Plot_Table_Creation.R"), local = knitr::knit_global()) # Requires "PARK_init_parsed.RData"; Output = "PARK_lat_long_Final_Environment.RData". 
+
+source(here::here("scripts", "Climate-Futures", "Plotting_Functions.R"), local = knitr::knit_global())
+
 
 source(here::here("scripts", "Climate-Futures", "RSS_MACA_Scatter and diagnostic.R"), local = knitr::knit_global()) # Creates scatter and diagnostic plots. Outputs to Figs MACA folder. 
 ```
 
-```{r CF-plots}
+## WW/HD CFs
+
+```{r WarmWet/HotDry, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
+# Specify Climate Futures
+
+FutureSubset <- CFs_all[c(1,5)]; CFs = FutureSubset  # Pick pair of climate futures.
+# WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
+
+colors2<- c("slateblue2", "red3") # Select pair of climate futures - WarmWet/HotDry
+#colors2<- c("#F3D3CB","#12045C")  # Select pair of climate futures - HotWet/WarmDry
+
+colors3<-c("white",colors2)
+col<- c("darkgray",colors2)  # WarmWet/HotDry
+#col<- c("darkgray","#F3D3CB","#12045C")  # HotWet/WarmDry
+
+CFDir = paste0(OutDir,"WarmWet_HotDry/") # for .csv's
+if(dir.exists(CFDir) == FALSE){
+  dir.create(CFDir)
+}
+
+TableDir = paste0(CFDir,"tables/") # for .csv's
+if(dir.exists(TableDir) == FALSE){
+  dir.create(TableDir)
+}
+
+FigDir = paste0(CFDir,"figures/") # for .csv's
+if(dir.exists(FigDir) == FALSE){
+  dir.create(FigDir)
+}
 
 if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At the top of the script, please enter a combination of futures, e.g. Warm Wet/Hot Dry
 
 source(here::here("scripts", "Climate-Futures", "RSS_Plotting_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
 
-```
+source(here::here("scripts", "Additional-tables-plots", "RSS_MACA_drought_char.R"))
 
-# Water Balance
+source(here::here("scripts", "Additional-tables-plots", "Return_Events.R"))
 
-The get_params.R script extracts site parameters for inputting into Dave Thoma's Water Balance model (see 'Daily_WB_batch_v2.R'). The create_site_maps.R script creates a suite of maps from which the project lead can select the most appropriate for use with the RSS Powerpoint presentation. Maps output into the './figures/maps' folder. 
-
-```{r Water-Balance, message=FALSE, warning=FALSE, echo = FALSE, results=HIDE}
-
-source(here::here("scripts", "WaterBalance", "get_params.R")) # Extract site parameters
-
-source(here::here("scripts", "Misc", "create_site_maps.R")) # Create site maps
-```
-
-```{r}
-
-if (exists("WB_GCMs") == FALSE) stop("Please specify GCMs for Water Balance")
-
-source(here::here("scripts", "WaterBalance", "Daily_WB_batch_v2.R")) # Run the Water Balance Model
-
-```
-
-
-# Summary Plots
-
-```{r Summary-Plots, message=FALSE, warning=FALSE, echo = FALSE, results=HIDE}
+source(here::here("scripts", "WaterBalance", "WBgrid_plotting.R")) # Run the Water Balance Model
 
 source(here::here("scripts", "SummaryPlots", "Summary plots.R"))
 
-source(here::here("scripts", "SummaryPlots", "Summary WB plots.R")) 
+source(here::here("scripts", "Misc", "Report_plots.R"))
+
 ```
 
-# Additional Tables and Plots
 
-```{r Additional-plots-and-tables, message= FALSE, warning=FALSE, echo=FALSE, results=HIDE}
+
+## WW/HD CFs
+
+```{r WarmWet/HotDry, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
+# Specify Climate Futures
+
+FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futures.
+
+# WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
+
+# colors2<- c("#9A9EE5","#E10720")  # Select pair of climate futures - WarmWet/HotDry
+colors2<- c("gold1","green4") # Select pair of climate futures - HotWet/WarmDry
+
+colors3<-c("white",colors2)
+# col<- c("darkgray","#9A9EE5","#E10720")  # WarmWet/HotDry
+col<- c("darkgray", colors2)  # HotWet/WarmDry
+
+CFDir = paste0(OutDir,"WarmDry_HotWet/") # for .csv's
+if(dir.exists(CFDir) == FALSE){
+  dir.create(CFDir)
+}
+
+TableDir = paste0(CFDir,"tables/") # for .csv's
+if(dir.exists(TableDir) == FALSE){
+  dir.create(TableDir)
+}
+
+FigDir = paste0(CFDir,"figures/") # for .csv's
+if(dir.exists(FigDir) == FALSE){
+  dir.create(FigDir)
+}
+
+if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At the top of the script, please enter a combination of futures, e.g. Warm Wet/Hot Dry
+
+source(here::here("scripts", "Climate-Futures", "RSS_Plotting_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
 
 source(here::here("scripts", "Additional-tables-plots", "RSS_MACA_drought_char.R"))
 
 source(here::here("scripts", "Additional-tables-plots", "Return_Events.R"))
 
-source(here::here("scripts", "Additional-tables-plots", "FLI FBI phenology plots.R"))
+source(here::here("scripts", "WaterBalance", "WBgrid_plotting.R")) # Run the Water Balance Model
 
-source(here::here("scripts", "Additional-tables-plots", "RSS Audubon summary.R"))
+source(here::here("scripts", "SummaryPlots", "Summary plots.R"))
+
+source(here::here("scripts", "Misc", "Report_plots.R"))
+
 ```
+
+
+
 # Create metadata and copy/delete files
 
 ```{r Copy-and-delete-files, message=FALSE, warning=FALSE}
 
 # This script is for copying and pasting files and folders unique to an RSS to a local folder, for the purposes of using, sharing, or archiving products. Files are then deleted from the Climate_Futures repo so that files are not inadvertently overwritten or confused with products from a different site.
+
 
 source(here::here("scripts", "Misc", "write_metadata.R"))
 
