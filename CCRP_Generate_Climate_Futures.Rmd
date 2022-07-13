@@ -54,7 +54,7 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "TUSK" 
+SiteID = "SLBE" 
 # Lat = 40.44039704 # Can manually input lat/lon, otherwise run get_site_info.R
 # Lon = -111.7093944
 
@@ -64,7 +64,7 @@ SiteID = "TUSK"
 
 project_root_dir <- here::here()
 
-local_rss_dir <- 'C:/Users/achildress/Documents/RCF_Testing/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
+local_rss_dir <- 'C:/Users/gknowlton/OneDrive - DOI/Documents/RSS/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
 local_rss_dir <- paste0(local_rss_dir,SiteID)
 
 if(dir.exists(local_rss_dir) == FALSE){
@@ -109,7 +109,7 @@ centroids_csv <- "Y" #Switch for using Tercek csvs or downloading own data
 
 # Specify parameters:
 
-Yr = 2040 #Central year
+Yr = 2050 #Central year
 Range = 30  #Number of years to summarize (should be at least 30)
 BasePeriod = "1979-2012"
 rollLen = 10 #rolling mean length for timeseries plots
@@ -163,7 +163,7 @@ source(here::here("scripts", "Climate-Futures", "RSS_MACA_Scatter and diagnostic
 FutureSubset <- CFs_all[c(1,5)]; CFs = FutureSubset  # Pick pair of climate futures.
 # WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
-colors2<- c("slateblue2", "red3") # Select pair of climate futures - WarmWet/HotDry
+colors2<- c("#05689F", "#CA0020") # Select pair of climate futures - WarmWet/HotDry
 #colors2<- c("#F3D3CB","#12045C")  # Select pair of climate futures - HotWet/WarmDry
 
 colors3<-c("white",colors2)
@@ -203,9 +203,9 @@ source(here::here("scripts", "Misc", "Report_plots.R"))
 
 
 
-## WW/HD CFs
+## WD/HW CFs
 
-```{r WarmWet/HotDry, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
+```{r WarmDry/HotWet, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
 # Specify Climate Futures
 
 FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futures.
@@ -213,7 +213,7 @@ FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futu
 # WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
 # colors2<- c("#9A9EE5","#E10720")  # Select pair of climate futures - WarmWet/HotDry
-colors2<- c("gold1","green4") # Select pair of climate futures - HotWet/WarmDry
+colors2<- c("#6EB2D4","#F6B294") # Select pair of climate futures - HotWet/WarmDry
 
 colors3<-c("white",colors2)
 # col<- c("darkgray","#9A9EE5","#E10720")  # WarmWet/HotDry

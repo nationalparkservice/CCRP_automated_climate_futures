@@ -10,8 +10,8 @@ load(DataFile)
 ##Color schemes
 
 #Colors for CF values plotted side by side (match order of CFs vector)
-colors5 <-  c("slateblue2", "green4", "gold1", "red3","white")
-colors5.2 <- c("slateblue2", "green4", "white", "gold1", "red3")
+colors5 <-  c("#05689F", "#6EB2D4", "#F6B294", "#CA0020","white")
+colors5.2 <- c("#05689F", "#6EB2D4", "white", "#F6B294", "#CA0020")
 
 #Colors for RCP 4.5, RCP 8.5
 col.RCP2 = c("blue", "red")
@@ -50,7 +50,7 @@ dualscatter  + geom_text_repel(aes(label=GCM)) +
   geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2) #change
 
-ggsave("scatter1.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_2050_BWscatter.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 ####### Scatterplot with CF color
 FM<-Future_Means
@@ -81,7 +81,7 @@ ggplot(FM, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, 
   geom_hline(aes(yintercept=mean(FM$DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(FM$DeltaTavg)),linetype=2)  #change
 
-ggsave("scatter2.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_2050_ColorScatter.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 #~~~~~~~~~~~~~~
 # Presetation only scatterplots
@@ -100,7 +100,7 @@ dualscatter  + geom_point(colour="black",size=4) +
             y = paste("Changes in ",Longy,sep="")) + #change
   theme(legend.position="none") +
   xlim(0, max(Future_Means$DeltaTavg))
-ggsave("scatter3.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_2050_ScatterOnlyPoints.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 # Points only w/ box
 dualscatter = ggplot(Future_Means, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, ymax=Pr75*365))
@@ -120,7 +120,7 @@ dualscatter  + geom_point(colour="black",size=4) +
   geom_rect(color = "black", alpha=0) + 
   geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2)  #change
-ggsave("scatter4.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_2050_Points&Box.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 
 
@@ -141,7 +141,7 @@ scatter + geom_point(aes(color=emissions),size=4) +
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2)  
 #scale_y_continuous(limits=c(-3.75,3.75))
 
-ggsave("scatter5.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("DeltaTempVPrcp_emissions_scatter&box.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 ###Scatter plot showing delta precip and tavg, color by emissions scenario, x-axis scaled 0-max
 scatter = ggplot(Future_Means, aes(DeltaTavg, 365*DeltaPr, xmin=Tavg25, xmax=Tavg75, ymin=365*Pr25, ymax=365*Pr75))
@@ -155,11 +155,11 @@ scatter + geom_point(aes(color=emissions),size=4) +
   geom_point(aes(x=mean(DeltaTavg), y=mean(365*DeltaPr)), shape=23, size=10, fill='black', colour='black') +
   scale_x_continuous(limits=c(0, max(Future_Means$DeltaTavg)+.25))
 
-ggsave("scatter6.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("DeltaTempVPrcp_emissions_scatter_scaled", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 #  scatter plots with GCM name identifying points. For all, and separate 4.5 and 8.5 plots
 
-plot_name <- "scatter7.png"
+plot_name <- "AllGCM_Scatter.png"
 OFName <- paste0(OutDir, plot_name)
 
 png(filename = OFName, width = 1280, height = 1280)
@@ -172,7 +172,7 @@ text(365*DeltaPr ~ DeltaTavg,data=Future_Means, subset = emissions == "RCP 8.5",
 dev.off()
 
 
-plot_name <- "scatter8.png"
+plot_name <- "RCP_4.5_Scatter.png"
 OFName <- paste0(OutDir, plot_name)
 
 png(OFName, width = 1280, height = 1280)
@@ -181,7 +181,7 @@ plot(365*DeltaPr ~ DeltaTavg, data=Future_Means, subset = emissions == "RCP 4.5"
 text(365*DeltaPr ~ DeltaTavg, data=Future_Means, subset = emissions == "RCP 4.5", label=GCM, pos=3, cex=1.5, col="blue")
 dev.off()
 
-plot_name <- "scatter9.png"
+plot_name <- "RCP_8.5_Scatter.png"
 OFName <- paste0(OutDir, plot_name)
 
 png(OFName, width = 1280, height = 1280)

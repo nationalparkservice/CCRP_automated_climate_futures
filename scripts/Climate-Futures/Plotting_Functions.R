@@ -7,12 +7,12 @@ SeasonLabels = c("Winter", "Spring","Summer", "Fall")
 degF <- "(\u00B0F)"
 
 #Height and width 
-PlotWidth = 15
-PlotHeight = 9
+PlotWidth = 9
+PlotHeight = 6
 
 #Panel plot width and height
-PanelWidth = 15
-PanelHeight = 15
+PanelWidth = 9
+PanelHeight = 9 
 
 #ggplot theme to control formatting parameters for plots with month on the x-axis
 PlotTheme = theme(axis.text=element_text(size=20),    #Text size for axis tick mark labels
