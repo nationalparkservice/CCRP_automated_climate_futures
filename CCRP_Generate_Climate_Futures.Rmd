@@ -71,6 +71,7 @@ if(dir.exists(local_rss_dir) == FALSE){
   dir.create(local_rss_dir)
 }
 
+
 if(dir.exists(here::here( "PARK")) == FALSE){
   dir.create(here::here( "PARK"))
 }
