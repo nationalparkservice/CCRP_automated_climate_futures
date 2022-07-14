@@ -200,7 +200,7 @@ ggplot(Monthly_delta, aes(x=Month,y=PrcpIn,fill=CF)) +
   scale_fill_manual(name="Climate Future",values = colors5.2) + 
   scale_x_discrete(labels = MonthLabels)
 
-ggsave("Monthly-bar-PrcpInDelta.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("PrcpInDelta-Monthly-bar.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 
 #Bar graph of seasonal precip by CF
@@ -211,7 +211,7 @@ ggplot(Season_delta, aes(x=season,y=PrcpIn,fill=CF)) +
             x = "Season", y = "Change in Precipitation (in)") +
   scale_fill_manual(name="Climate Future",values = colors5.2)
 
-ggsave("Seasonal-bar-PrcpInDelta.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("PrcpInDelta-Seasonal-bar.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 
 #Line plot of change in MaxTemp by CF/month
@@ -227,7 +227,7 @@ ggplot(Monthly_delta, aes(x=Month, y=TmaxF, group=CF, colour = CF)) +
   scale_y_continuous(limits=c(0, ceiling(max(Monthly_delta$TmaxF)))) + 
   scale_x_discrete(labels = MonthLabels)
 
-ggsave("Monthly-line-TmaxFDelta.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TmaxFDelta-Monthly-line.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 
 ####Line Plot of change in MinTemp by CF/Month
@@ -243,7 +243,7 @@ ggplot(Monthly_delta, aes(x=Month, y=TminF, group=CF, colour = CF)) +
   scale_y_continuous(limits=c(0, ceiling(max(Monthly_delta$TminF))))+ 
   scale_x_discrete(labels = MonthLabels)
 
-ggsave("Monthly-line-TminFDelta.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TminFDelta-Monthly-line.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 
 ###PROGRAM COMPLETE###

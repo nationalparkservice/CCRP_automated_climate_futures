@@ -14,7 +14,7 @@ legend <- grid_arrange_shared_legend(a,b+ rremove("y.text"),
                                      ncol=2,nrow=1,position="bottom", 
                                      top=textGrob(paste0("Historical and future projections for ", SiteID),
                                               gp=gpar(fontface="bold", col="black", fontsize=26)))
-ggsave("Panel-TminF-TmaxF.png",legend, path = FigDir, height=PanelHeight, width=PanelWidth)
+ggsave("TminF-TmaxF-Panel.png",legend, path = FigDir, height=PanelHeight, width=PanelWidth)
 
 
 # Extreme heat: heat index + Tmax95
@@ -28,7 +28,7 @@ figure <- ggarrange(a + rremove("ylab") + rremove("x.text"), b + rremove("ylab")
                     nrow = 2)
 
 annotate_figure(figure, left = textGrob("Days/Yr", rot = 90, vjust = 1, gp = gpar(cex = 2)))
-ggsave("Panel-OverHotTemp-HI.Dan.png", path = FigDir, height=PanelHeight, width=PanelWidth)
+ggsave("OverHotTemp-HI.Dan-Panel.png", path = FigDir, height=PanelHeight, width=PanelWidth)
 
 
 # Extreme precip: return intervals + LT-runoff
@@ -45,7 +45,7 @@ a <- ggplot(allregressions, aes(x=return, y=modeled, group=CF, colour = CF)) +
   
 b <- LT_plot(WBAvgs, Runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Runoff (in/year)",title="Mean annual runoff ")
 legend <- grid_arrange_shared_legend(a,b,nrow=2,ncol=1,position="bottom")
-ggsave("Panel-recurrenceinterval-Runoff.in.png",legend, path = FigDir, height=PanelHeight, width=PanelWidth)
+ggsave("Recurrenceinterval-Runoff.in-Panel.png",legend, path = FigDir, height=PanelHeight, width=PanelWidth)
 
 
 # Extreme precip: return intervals + OverPrecip95
@@ -63,7 +63,7 @@ a <- ggplot(allregressions, aes(x=return, y=modeled, group=CF, colour = CF)) +
 b <- var_bar_plot(Annual, "OverPrecip95", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr Precipitation > Historical 95th Percentile (", round(HistPrecip95, 1), " in)\n in ", Yr, " vs ", BasePeriod))
 g <- grid.arrange(a,b,nrow=2)
-ggsave("Panel-recurrenceinterval-OverPrecip95.png", plot=g,path = FigDir, height=PanelHeight, width=PanelWidth)
+ggsave("Recurrenceinterval-OverPrecip95-Panel.png", plot=g,path = FigDir, height=PanelHeight, width=PanelWidth)
 
 
 

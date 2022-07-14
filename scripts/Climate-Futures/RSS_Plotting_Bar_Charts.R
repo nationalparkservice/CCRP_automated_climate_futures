@@ -62,7 +62,7 @@ dualscatter  + geom_text_repel(aes(label=GCM)) +
   geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2) #change
 
-ggsave("scatter-CFmeansStar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("CFmeansStar-scatter.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 #### quadrant means + WB selected models
 dualscatter = ggplot(Future_Means, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, ymax=Pr75*365))
@@ -91,7 +91,7 @@ dualscatter  + geom_text_repel(aes(label=GCM)) +
   geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2) #change
 
-ggsave("scatter-CFmeansStar-IndivCircled.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("CFmeansStar-IndivCircled-scatter.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ################################## Monthly/Seasonal delta plots #####################################
@@ -99,37 +99,37 @@ ggsave("scatter-CFmeansStar-IndivCircled.png", width = PlotWidth, height = PlotH
 Month_line_plot(Monthly_delta,xvar=Month,yvar=TavgF,grp=CF,cols=colors2,
                 title=paste0("Change in avg daily temperature in ",Yr," vs ", BasePeriod),
                 xlab = "Month", ylab="Change in temperature (\u00B0F)")
-ggsave("Monthly-line-TavgFDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("TavgFDelta-Monthly-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 Month_line_plot(Monthly_delta,xvar=Month,yvar=TminF,grp=CF,cols=colors2,
                 title=paste0("Change in avg daily min temperature in ",Yr," vs ", BasePeriod),
                 xlab = "Month", ylab="Change in temperature (\u00B0F)")
-ggsave("Monthly-line-TminFDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("TminFDelta-Monthly-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 Month_line_plot(Monthly_delta,xvar=Month,yvar=TmaxF,grp=CF,cols=colors2,
                 title=paste0("Change in avg daily max temperature in ",Yr," vs ", BasePeriod),
                 xlab = "Month", ylab="Change in temperature (\u00B0F)")
-ggsave("Monthly-line-TmaxFDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("TmaxFDelta-Monthly-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 Month_bar_plot(Monthly_delta,xvar=Month,yvar=PrcpIn,grp=CF,cols=colors2,
                title=paste0("Change in avg monthly precipitation in ",Yr," vs ", BasePeriod),
                xlab = "Month", ylab="Change in precipitation (in)",label=MonthLabels)
-ggsave("Monthly-bar-PrcpInDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrcpInDelta-Monthly-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 Month_bar_plot(Season_delta,xvar=season,yvar=PrcpIn,grp=CF,cols=colors2,
                title=paste0("Change in avg seasonal precipitation in ",Yr," vs ", BasePeriod),
                xlab = "Season", ylab="Change in precipitation (in)",label=SeasonLabels)
-ggsave("Seasonal-bar-PrcpInDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrcpInDelta-Seasonal-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 Month_bar_plot(Monthly_delta,xvar=Month,yvar=RHmean,grp=CF,cols=colors2,
                title=paste0("Change in avg monthly relative humidity in ",Yr," vs ", BasePeriod),
                xlab = "Month", ylab="Change in relative humidity (%)",label=MonthLabels)
-ggsave("Monthly-bar-RHmeanDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("RHmeanDelta-Monthly-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 Month_bar_plot(Season_delta,xvar=season,yvar=RHmean,grp=CF,cols=colors2,
                title=paste0("Change in avg seasonal relative humidity in ",Yr," vs ", BasePeriod),
                xlab = "Season", ylab="Change in relative humidity (%)",label=SeasonLabels)
-ggsave("Seasonal-bar-RHmeanDelta.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("RHmeanDelta-Seasonal-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ############################################### ANNUAL TMEAN AND PRECIP BAR PLOTS ######################################################################
@@ -137,29 +137,29 @@ ggsave("Seasonal-bar-RHmeanDelta.png", width = PlotWidth, height = PlotHeight, p
 ## TavgF
 var_bar_plot(Annual, "TavgF", cols=colors3, ylab="(\u00B0F)",
              title=paste0("Average annual temperature (\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-TavgF.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("TavgF-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "TavgF", cols=colors3, ylab="(\u00B0F)",
              title=paste0("Average annual temperature (\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-TavgF.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("TavgF-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=TavgF, cols=col, title=paste0("Average annual temperature (\u00B0F)"),
               ylab="(\u00B0F)")
-ggsave("Annual-line-TavgF.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("TavgF-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## PrcpIn
 var_bar_plot(Annual, "PrcpIn", cols=colors3, ylab="inches/Yr",
              title=paste0("Average annual precipitation (in) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-PrcpIn.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrcpIn-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "PrcpIn", cols=colors3, ylab="inches/Yr",
              title=paste0("Average annual precipitation (in) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-PrcpIn.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrcpIn-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=PrcpIn, cols=col, title=paste0("Average annual precipitation (in)"),
               ylab="inches/Yr")
-ggsave("Annual-line-PrcpIn.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrcpIn-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ############################################### THRESHOLD BAR PLOTS ######################################################################
@@ -167,183 +167,183 @@ ggsave("Annual-line-PrcpIn.png", width = PlotWidth, height = PlotHeight, path = 
 ## OverHotTemp
 var_bar_plot(Annual, "OverHotTemp", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr > ", HotTemp, " (\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-OverHotTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("OverHotTemp-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "OverHotTemp", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr > ", HotTemp, " (\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-OverHotTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("OverHotTemp-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=OverHotTemp, cols=col, title=paste0("Average Days/Yr > ", HotTemp, " (\u00B0F)"),
                                                               ylab="Days/Yr")
-ggsave("Annual-line-OverHotTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("OverHotTemp-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## UnderColdTemp
 var_bar_plot(Annual, "UnderColdTemp", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr < ", ColdTemp, " (\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-UnderColdTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("UnderColdTemp-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "UnderColdTemp", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr < ", ColdTemp, " (\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-UnderColdTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("UnderColdTemp-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=UnderColdTemp, cols=col, title=paste0("Average Days/Yr < ", ColdTemp, " (\u00B0F)"),
               ylab="Days/Yr")
-ggsave("Annual-line-UnderColdTemp.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("UnderColdTemp-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## UnderLowQ
 var_bar_plot(Annual, "UnderLowQ", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr < Historical 5th Percentile (", round(HistTminLow, 1), "\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-UnderLowQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("UnderLowQ-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "UnderLowQ", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr < Historical 5th Percentile (", round(HistTminLow, 1), "\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-UnderLowQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("UnderLowQ-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=UnderLowQ, cols=col, title=paste0("Average Days/Yr < Historical 5th Percentile (", round(HistTminLow, 1), "\u00B0F)"),
               ylab="Days/Yr")
-ggsave("Annual-line-UnderLowQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("UnderLowQ-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## OverHighQ
 var_bar_plot(Annual, "OverHighQ", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr > Historical 95th Percentile (", round(HistTmaxHigh, 1), "\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-OverHighQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("OverHighQ-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "OverHighQ", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr > Historical 95th Percentile (", round(HistTmaxHigh, 1), "\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-OverHighQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("OverHighQ-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=OverHighQ, cols=col, title=paste0("Average Days/Yr > Historical 95th Percentile (", round(HistTmaxHigh, 1), "\u00B0F)"),
               ylab="Days/Yr")
-ggsave("Annual-line-OverHighQ.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("OverHighQ-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## OverPrecip95
 var_bar_plot(Annual, "OverPrecip95", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr Precipitation > Historical 95th Percentile (", round(HistPrecip95, 1), " in) \n in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-OverPrecip95.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("OverPrecip95-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "OverPrecip95", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr Precipitation > Historical 95th Percentile (", round(HistPrecip95, 1), " in) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-OverPrecip95.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("OverPrecip95-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=OverPrecip95, cols=col, title=paste0("Average Days/Yr Precipitation > Historical 95th Percentile (", round(HistPrecip95, 1), " in)"),
               ylab="Days/Yr")
-ggsave("Annual-line-OverPrecip95.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("OverPrecip95-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## PrecipOver1
 var_bar_plot(Annual, "PrecipOver1", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr Precipitation > 1 in. in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-PrecipOver1.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrecipOver1-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "PrecipOver1", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr Precipitation > 1 in. in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-PrecipOver1.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrecipOver1-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=PrecipOver1, cols=col, title=paste0("Average Days/Yr Precipitation > 1 in."),
               ylab="Days/Yr")
-ggsave("Annual-line-PrecipOver1.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrecipOver1-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## PrecipOver2
 var_bar_plot(Annual, "PrecipOver2", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr Precipitation > 2 in. in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-PrecipOver2.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrecipOver2-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "PrecipOver2", cols=colors3, ylab="Days/Yr",
              title=paste0("Average Days/Yr Precipitation > 2 in. in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-PrecipOver2.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrecipOver2-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=PrecipOver2, cols=col, title=paste0("Average Days/Yr Precipitation > 2 in."),
               ylab="Days/Yr")
-ggsave("Annual-line-PrecipOver2.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("PrecipOver2-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## FThaw
 var_bar_plot(Annual, "FThaw", cols=colors3, ylab="Cycles/Yr",
              title=paste0("Average annual freeze-thaw cycles in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-FThaw.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("FThaw-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "FThaw", cols=colors3, ylab="Cycles/Yr",
              title=paste0("Average annual freeze-thaw cycles in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-FThaw.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("FThaw-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=FThaw, cols=col, title=paste0("Annual freeze-thaw cycles"),
               ylab="Cycles/Yr")
-ggsave("Annual-line-FThaw.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("FThaw-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## GDD
 var_bar_plot(Annual, "GDD", cols=colors3, ylab="Days/Yr",
              title=paste0("Average annual growing degree days (Tavg > 41\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-GDD.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("GDD-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "GDD", cols=colors3, ylab="Days/Yr",
              title=paste0("Average annual growing degree days (Tavg > 41\u00B0F) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-GDD.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("GDD-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=GDD, cols=col, title=paste0("Annual growing degree days (Tavg > 41\u00B0F)"),
               ylab="Days/Yr")
-ggsave("Annual-line-GDD.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("GDD-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## GrowLen
 var_bar_plot(Annual, "GrowLen", cols=colors3, ylab="Days/Yr",
              title=paste0("Average annual growing season length in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-GrowLen.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("GrowLen-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "GrowLen", cols=colors3, ylab="Days/Yr",
              title=paste0("Average annual growing degree season length in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-GrowLen.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("GrowLen-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=GrowLen, cols=col, title=paste0("Annual growing season length"),
               ylab="Days/Yr")
-ggsave("Annual-line-GrowLen.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("GrowLen-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## BegGrow
 var_bar_plot(Annual, "BegGrow", cols=colors3, ylab="Julian Day",
              title=paste0("Average annual green-up date (Julian day) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-BegGrow.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("BegGrow-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "BegGrow", cols=colors3, ylab="Julian Day",
              title=paste0("Average annual green-up date (Julian day) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-BegGrow.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("BegGrow-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=BegGrow, cols=col, title=paste0("Annual green-up date (Julian day)"),
               ylab="Julian Day")
-ggsave("Annual-line-BegGrow.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("BegGrow-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## Sp.Frost
 var_bar_plot(Annual, "Sp.Frost", cols=colors3, ylab="Days/Yr",
              title=paste0("Average annual spring frost days (Tavg>41 & Tmin<32) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-Sp.Frost.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("Sp.Frost-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "Sp.Frost", cols=colors3, ylab="Days/Yr",
              title=paste0("Average annual spring frost days (Tavg>41 & Tmin<32) in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-Sp.Frost.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("Sp.Frost-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=Sp.Frost, cols=col, title=paste0("Annual spring frost days (Tavg>41 & Tmin<32)"),
               ylab="Days/Yr")
-ggsave("Annual-line-Sp.Frost.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("Sp.Frost-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## HI.Dan
 var_bar_plot(Annual, "HI.Dan", cols=colors3, ylab="Days/Yr",
              title=paste0("Average annual dangerous heat index days in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-bar-HI.Dan.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("HI.Dan-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "HI.Dan", cols=colors3, ylab="Days/Yr",
              title=paste0("Average annual dangerous heat index days in ", Yr, " vs ", BasePeriod))
-ggsave("Annual-box-HI.Dan.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("HI.Dan-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual, var=HI.Dan, cols=col, title=paste0("Annual dangerous heat index days"),
               ylab="Days/Yr")
-ggsave("Annual-line-HI.Dan.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("HI.Dan-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ############################################### PRINT TABLES #################################################################
