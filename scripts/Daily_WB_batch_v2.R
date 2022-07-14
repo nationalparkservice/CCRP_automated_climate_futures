@@ -204,10 +204,9 @@ H_annual$CF<-"Historical"
 # Average over sites and subset historical to be 30 years
 Hist<-aggregate(cbind(deficit,AET,P,Tmean,SOIL_in,sum_d,sum_aet)~year+CF,mean,data=H_annual,na.rm=TRUE)
 Fut<-aggregate(cbind(deficit,AET,P,Tmean,SOIL_in,sum_d,sum_aet)~year+CF,mean,data=F_annual,na.rm=TRUE)
-set.seed(50) # set seed so same every time
-Hist.subset<-sample_n(Hist,size=length(Fut$CF)/length(unique(Fut$CF)),replace=F)
 
-Annual<-rbind(Hist.subset,Fut)
+
+Annual<-rbind(Hist,Fut)
 Annual$CF = factor(Annual$CF, levels = c("Historical",CFs))
 
 ggplot(Annual, aes(x=deficit, y=AET, colour=CF)) + geom_point(size=3)+ geom_smooth(method="lm", se=FALSE, size=2)+
