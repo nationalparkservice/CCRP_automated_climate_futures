@@ -54,7 +54,7 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "SLBE" 
+SiteID = "GRSA" 
 # Lat = 40.44039704 # Can manually input lat/lon, otherwise run get_site_info.R
 # Lon = -111.7093944
 
@@ -92,9 +92,9 @@ if(dir.exists(DataDir) == FALSE){
 The get_params.R script extracts site parameters for inputting into Dave Thoma's Water Balance model (see 'Daily_WB_batch_v2.R'). The create_site_maps.R script creates a suite of maps from which the project lead can select the most appropriate for use with the RSS Powerpoint presentation. Maps output into the './figures/maps' folder. 
 ```{r site-info, message=FALSE, warning=FALSE, echo = FALSE, results=HIDE}
 
-source(here::here("scripts", "Misc", "get_site_info.R")) # Extract local inputs; seconds to run
+source(here::here("scripts", "get_site_info.R")) # Extract local inputs; seconds to run
 
-source(here::here("scripts", "Misc", "create_site_maps.R")) # Create site maps
+source(here::here("scripts", "create_site_maps.R")) # Create site maps
 ```
 
 **Second user input chunk (information that should only be changed when directly specified)**
@@ -141,18 +141,18 @@ SPEI_end <- 2012
 ```{r Climate-Futures, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
 
 if(centroids_csv == "Y") {
-  source(here::here("scripts", "Climate-Futures", "download_Tercek_csvs.R"), local = knitr::knit_global())
+  source(here::here("scripts", "download_Tercek_csvs.R"), local = knitr::knit_global())
 } else {
   print("Other data needed")
   #source(here::here("scripts", "Climate-Futures", "CFT_CF_parsing_v1.R")) # Parse MACA data. Output = "_init_parsed.RData". # 9-8-21: CFT parsing script is not working due to an issue with the package or MACA servers. ACR to talk to CU Boulder about the issue. For now, add _init_parsed.RData file manually to parsed-data folder. 
 }
 
-source(here::here("scripts", "Climate-Futures", "RSS_MACA_Plot_Table_Creation.R"), local = knitr::knit_global()) # Requires "PARK_init_parsed.RData"; Output = "PARK_lat_long_Final_Environment.RData". 
+source(here::here("scripts", "RSS_MACA_Plot_Table_Creation.R"), local = knitr::knit_global()) # Requires "PARK_init_parsed.RData"; Output = "PARK_lat_long_Final_Environment.RData". 
 
-source(here::here("scripts", "Climate-Futures", "Plotting_Functions.R"), local = knitr::knit_global())
+source(here::here("scripts", "Plotting_Functions.R"), local = knitr::knit_global())
 
 
-source(here::here("scripts", "Climate-Futures", "RSS_MACA_Scatter and diagnostic.R"), local = knitr::knit_global()) # Creates scatter and diagnostic plots. Outputs to Figs MACA folder. 
+source(here::here("scripts", "RSS_MACA_Scatter and diagnostic.R"), local = knitr::knit_global()) # Creates scatter and diagnostic plots. Outputs to Figs MACA folder. 
 ```
 
 ## WW/HD CFs
@@ -163,7 +163,7 @@ source(here::here("scripts", "Climate-Futures", "RSS_MACA_Scatter and diagnostic
 FutureSubset <- CFs_all[c(1,5)]; CFs = FutureSubset  # Pick pair of climate futures.
 # WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
-colors2<- c("#05689F", "#CA0020") # Select pair of climate futures - WarmWet/HotDry
+colors2<- c("#6EB2D4", "#CA0020") # Select pair of climate futures - WarmWet/HotDry
 #colors2<- c("#F3D3CB","#12045C")  # Select pair of climate futures - HotWet/WarmDry
 
 colors3<-c("white",colors2)
@@ -187,17 +187,21 @@ if(dir.exists(FigDir) == FALSE){
 
 if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At the top of the script, please enter a combination of futures, e.g. Warm Wet/Hot Dry
 
-source(here::here("scripts", "Climate-Futures", "RSS_Plotting_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
+source(here::here("scripts", "RSS_Plotting_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
 
-source(here::here("scripts", "Additional-tables-plots", "RSS_MACA_drought_char.R"))
+source(here::here("scripts", "get_params.R"))
 
-source(here::here("scripts", "Additional-tables-plots", "Return_Events.R"))
+source(here::here("scripts", "Daily_WB_batch_v2.R"))
 
-source(here::here("scripts", "WaterBalance", "WBgrid_plotting.R")) # Run the Water Balance Model
+source(here::here("scripts", "RSS_MACA_drought_char.R"))
 
-source(here::here("scripts", "SummaryPlots", "Summary plots.R"))
+source(here::here("scripts", "WBgrid_plotting.R")) # Run the Water Balance Model
 
-source(here::here("scripts", "Misc", "Report_plots.R"))
+source(here::here("scripts", "Return_Events.R"))
+
+source(here::here("scripts", "Summary plots.R"))
+
+source(here::here("scripts", "Report_plots.R"))
 
 ```
 
@@ -213,7 +217,7 @@ FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futu
 # WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
 # colors2<- c("#9A9EE5","#E10720")  # Select pair of climate futures - WarmWet/HotDry
-colors2<- c("#6EB2D4","#F6B294") # Select pair of climate futures - HotWet/WarmDry
+colors2<- c("#05689F","#F6B294") # Select pair of climate futures - HotWet/WarmDry
 
 colors3<-c("white",colors2)
 # col<- c("darkgray","#9A9EE5","#E10720")  # WarmWet/HotDry
@@ -236,17 +240,17 @@ if(dir.exists(FigDir) == FALSE){
 
 if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At the top of the script, please enter a combination of futures, e.g. Warm Wet/Hot Dry
 
-source(here::here("scripts", "Climate-Futures", "RSS_Plotting_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
+source(here::here("scripts", "RSS_Plotting_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
 
-source(here::here("scripts", "Additional-tables-plots", "RSS_MACA_drought_char.R"))
+source(here::here("scripts", "RSS_MACA_drought_char.R"))
 
-source(here::here("scripts", "Additional-tables-plots", "Return_Events.R"))
+source(here::here("scripts", "Return_Events.R"))
 
-source(here::here("scripts", "WaterBalance", "WBgrid_plotting.R")) # Run the Water Balance Model
+source(here::here("scripts", "WBgrid_plotting.R")) # Run the Water Balance Model
 
-source(here::here("scripts", "SummaryPlots", "Summary plots.R"))
+source(here::here("scripts", "Summary plots.R"))
 
-source(here::here("scripts", "Misc", "Report_plots.R"))
+source(here::here("scripts", "Report_plots.R"))
 
 ```
 
@@ -259,9 +263,9 @@ source(here::here("scripts", "Misc", "Report_plots.R"))
 # This script is for copying and pasting files and folders unique to an RSS to a local folder, for the purposes of using, sharing, or archiving products. Files are then deleted from the Climate_Futures repo so that files are not inadvertently overwritten or confused with products from a different site.
 
 
-source(here::here("scripts", "Misc", "write_metadata.R"))
+source(here::here("scripts", "write_metadata.R"))
 
-source(here::here("scripts", "Misc", "copy_paste_delete_files.R")) # copies files and folders to specified local folder
+source(here::here("scripts", "copy_paste_delete_files.R")) # copies files and folders to specified local folder
 
 
 ```

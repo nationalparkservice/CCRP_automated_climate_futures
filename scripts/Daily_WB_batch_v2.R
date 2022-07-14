@@ -5,7 +5,7 @@
 
 #Formatted input data as a daily time series. Needs to include the following columns: Date, ppt_mm, tmax_C, tmin_C, and tmean_C (temp.'s in deg. Celsius)
 
-DataFile <- list.files(path = './data/park-specific/output', pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
+DataFile <- list.files(path = file.path(OutDir,"input-data/"), pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
 load(DataFile)
 
 
@@ -24,8 +24,10 @@ Method = "Oudin"  #Hamon is default method for daily PRISM and MACA data (contai
 DateFormat = "%m/%d/%Y"
 
 #Output directory
-OutDir = "./figures/water-balance"
-
+WBdir = file.path(FigDir,"water-balance/")# './figures/maps'
+if(dir.exists(WBdir) == FALSE){
+  dir.create(WBdir)
+}
 
 #Select GCMs - Include RCP
 unique(ALL_FUTURE$GCM)
@@ -36,41 +38,47 @@ colors3<-c("gray",colors2)
 ############################################################ CREATE CLIMATE INPUTS #############################################################
 #### Historical
 # Convert pr.In to mm and F to C
-ALL_HIST$ppt_mm <- (ALL_HIST$PrecipCustom*25.4)
-ALL_HIST$tmax_C <- 5/9*(ALL_HIST$TmaxCustom - 32)
-ALL_HIST$tmin_C <- 5/9*(ALL_HIST$TminCustom - 32)
-ALL_HIST$tmean_C <- (ALL_HIST$tmax_C + ALL_HIST$tmin_C)/2
+Gridmet$ppt_mm <- (Gridmet$PrcpIn*25.4)
+Gridmet$tmax_C <- 5/9*(Gridmet$TmaxF - 32)
+Gridmet$tmin_C <- 5/9*(Gridmet$TminF - 32)
+Gridmet$tmean_C <- (Gridmet$tmax_C + Gridmet$tmin_C)/2
 
 #### Projected
 # Convert pr.In to mm
-ALL_FUTURE$ppt_mm <- (ALL_FUTURE$PrecipCustom*25.4)
-ALL_FUTURE$tmax_C <- 5/9*(ALL_FUTURE$TmaxCustom - 32)
-ALL_FUTURE$tmin_C <- 5/9*(ALL_FUTURE$TminCustom - 32)
+ALL_FUTURE$ppt_mm <- (ALL_FUTURE$PrcpIn*25.4)
+ALL_FUTURE$tmax_C <- 5/9*(ALL_FUTURE$TmaxF - 32)
+ALL_FUTURE$tmin_C <- 5/9*(ALL_FUTURE$TminF - 32)
 ALL_FUTURE$tmean_C <- (ALL_FUTURE$tmax_C + ALL_FUTURE$tmin_C)/2
 #Add YrMon column
 
 
-if(dir.exists(OutDir) == FALSE){
-  dir.create(OutDir)
+if(dir.exists(WBdir) == FALSE){
+  dir.create(WBdir)
 }
 
 ClimData<-data.frame(Date=as.numeric(),ppt_mm=as.numeric(),tmean_C=as.numeric(),GCM=as.character())
 # Loop through selected GCMs
-for(i in 1:nrow(WB_GCMs)){
-  gcm <- WB_GCMs$GCM[i]
-  x<-subset(ALL_HIST,GCM == gcm, select=c("Date","ppt_mm","tmean_C","GCM"))
-  y<-subset(ALL_FUTURE,GCM == gcm, select=c("Date","ppt_mm","tmean_C","GCM"))
-  ClimData = rbind(ClimData,x,y)
-}
-ClimData$GCM<-factor(ClimData$GCM,levels=WB_GCMs$GCM)
+ClimData <- ALL_FUTURE %>% filter(GCM %in% WB_GCMs$GCM) %>% 
+  select(c("Date","ppt_mm","tmean_C","GCM")) %>%
+  bind_rows(Gridmet %>% select(c("Date","ppt_mm","tmean_C","GCM")))
+
+#for(i in 1:nrow(WB_GCMs)){
+#  gcm <- WB_GCMs$GCM[i]
+#  x<-subset(Gridmet, select=c("Date","ppt_mm","tmean_C","GCM"))
+#  y<-subset(ALL_FUTURE,GCM == gcm, select=c("Date","ppt_mm","tmean_C","GCM"))
+#  ClimData = rbind(ClimData,x,y)
+#}
+ClimData$GCM<-factor(ClimData$GCM,levels=unique(ClimData$GCM))
+
+WB_GCMs <- WB_GCMs %>% add_row(GCM = Gridmet$GCM, C = 0)
 ######################################################### END CLIMATE INPUTS ####################################################################
 
 
 ######################################################### CALCULATE WB VARIABLES ################################################################
 AllDailyWB<-list()
 
-for (j in 1:nrow(WB_GCMs)){
-  gcm = WB_GCMs$GCM[j]
+for (j in 1:length(levels(ClimData$GCM))){
+  gcm = levels(ClimData$GCM)[j]
   DailyWB = subset(ClimData,GCM=gcm)
   for(i in 1:nrow(wb_sites)){
     ID = wb_sites$WB_site[i]
@@ -164,17 +172,22 @@ AnnualWB$sum_w_et_dsoil = aggregate(W_ET_DSOIL ~ year+GCM, data=aggregate(W_ET_D
 AnnualWB$sum_d = aggregate(D ~ year+GCM, data=aggregate(D~year+GCM+ID,data=WBData,sum), mean)[,3]
 AnnualWB$sum_gdd = aggregate(GDD ~ year+GCM, data=aggregate(GDD~year+GCM+ID,data=WBData,sum), mean)[,3]
 
-write.csv(MonthlyWB,"./data/park-specific/output/MonthlyWB.csv",row.names=F)
-write.csv(AnnualWB,"./data/park-specific/output/AnnualWB.csv",row.names=F)
+write.csv(MonthlyWB, file.path(TableDir,"MonthlyWB.csv"), row.names=F)
+write.csv(AnnualWB,file.path(TableDir,"AnnualWB.csv"), row.names=F)
 
 
 #######################################################################################################################
 ######################################### PLOTTING ####################################################################
 # Inputs
-F.start = 2025
-F.end = 2055
-MonthlyWB<-merge(MonthlyWB,WB_GCMs,by="GCM")
-AnnualWB<-merge(AnnualWB,WB_GCMs,by="GCM")
+F.start = (Yr - (Range/2))
+F.end = (Yr + (Range/2))
+
+GCMsHist_plot <- WB_GCMs %>% 
+  add_row(GCM = unique(Gridmet$GCM),
+          CF = "Historical")
+  
+MonthlyWB<-merge(MonthlyWB,GCMsHist_plot,by="GCM")
+AnnualWB<-merge(AnnualWB,GCMsHist_plot,by="GCM")
 
 # Convert to Imperial units
 AnnualWB$deficit<-AnnualWB$sum_d * 0.039
@@ -210,7 +223,7 @@ ggplot(Annual, aes(x=deficit, y=AET, colour=CF)) + geom_point(size=3)+ geom_smoo
   theme(axis.text = element_text(size=20), axis.title = element_text(size=20), legend.text=element_text(size=14),
         plot.title=element_text(size=22)) #+xlim(20,45)+ylim(2,16)
 
-ggsave(paste("Water Balance-",SiteID,".png",sep=""), path = OutDir, width = 15, height = 9)
+ggsave(paste("Water Balance-",SiteID,".png",sep=""), path = WBdir, width = 15, height = 9)
 
 ggplot(Annual, aes(x=deficit, colour=CF,fill=CF,linetype=CF),show.legend=F) +geom_density(alpha=0.3,size=1.5) +
   scale_colour_manual(values=colors3) +
@@ -222,7 +235,7 @@ ggplot(Annual, aes(x=deficit, colour=CF,fill=CF,linetype=CF),show.legend=F) +geo
   theme(axis.text = element_text(size=20), axis.title = element_text(size=20), legend.text=element_text(size=20), legend.background=element_rect(fill = "White", size = 0.5),
         plot.title=element_text(size=22, hjust=0),legend.position = c(.8,.8)) 
 
-ggsave(paste(SiteID,"-Deficit_density_panel.png",sep=""), path = OutDir, width = 15, height = 9)
+ggsave(paste(SiteID,"-Deficit_density_panel.png",sep=""), path = WBdir, width = 15, height = 9)
 
 ggplot(Annual, aes(x=SOIL_in, colour=CF,fill=CF,linetype=CF),show.legend=F) +geom_density(alpha=0.3,size=1.5) +
   scale_colour_manual(values=colors3) +
@@ -234,7 +247,7 @@ ggplot(Annual, aes(x=SOIL_in, colour=CF,fill=CF,linetype=CF),show.legend=F) +geo
   theme(axis.text = element_text(size=20), axis.title = element_text(size=20), legend.text=element_text(size=14),
         plot.title=element_text(size=22, hjust=0),legend.position = c(.8,.8)) 
 
-ggsave(paste(SiteID,"-SOIL_in_density_panel.png",sep=""), path = OutDir, width = 15, height = 9)
+ggsave(paste(SiteID,"-SOIL_in_density_panel.png",sep=""), path = WBdir, width = 15, height = 9)
 
 
 ########################
@@ -274,7 +287,7 @@ plot_1
 plot_1 + geom_point(data=Annual, aes(x=sum_d, y=sum_aet, colour=CF), size=3) + 
   geom_smooth(data=Annual, aes(x=sum_d, y=sum_aet, colour=CF),method="lm", se=FALSE, size=2) + 
   scale_colour_manual("Scenario",values=colors3)
-ggsave(paste(SiteID,"-WB-biome effects.png",sep=""), path = OutDir, width = 15, height = 9)
+ggsave(paste(SiteID,"-WB-biome effects.png",sep=""), path = WBdir, width = 15, height = 9)
 
 ### Monthly
 MonthlyWB$year<-as.numeric(substr(MonthlyWB$yrmon, 1, 4))
@@ -316,7 +329,7 @@ ggplot(data, aes(x=mon, y=SOIL_IN, group=CF, colour = CF)) +
   scale_fill_manual(name="",values = colors2) +
   scale_shape_manual(name="",values = c(21,22))
 
-ggsave("MonthlySoil Moisture.png", path = OutDir, width = 15, height = 9)
+ggsave("MonthlySoil Moisture.png", path = WBdir, width = 15, height = 9)
 
 ggplot(data, aes(x=mon, y=deficit, group=CF, colour = CF)) +
   geom_line(colour = "black",size=2.5, stat = "identity") + # adds black outline
@@ -334,6 +347,6 @@ ggplot(data, aes(x=mon, y=deficit, group=CF, colour = CF)) +
   scale_fill_manual(name="",values = colors2) +
   scale_shape_manual(name="",values = c(21,22))
 
-ggsave("Monthly Deficit.png", path = OutDir, width = 15, height = 9)
+ggsave("Monthly Deficit.png", path = WBdir, width = 15, height = 9)
 
 

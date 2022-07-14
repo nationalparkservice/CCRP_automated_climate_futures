@@ -155,7 +155,7 @@ scatter + geom_point(aes(color=emissions),size=4) +
   geom_point(aes(x=mean(DeltaTavg), y=mean(365*DeltaPr)), shape=23, size=10, fill='black', colour='black') +
   scale_x_continuous(limits=c(0, max(Future_Means$DeltaTavg)+.25))
 
-ggsave("DeltaTempVPrcp_emissions_scatter_scaled", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("DeltaTempVPrcp_emissions_scatter_scaled.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 #  scatter plots with GCM name identifying points. For all, and separate 4.5 and 8.5 plots
 
@@ -247,3 +247,4 @@ ggsave("TminFDelta-Monthly-line.png", width = PlotWidth, height = PlotHeight, pa
 
 
 ###PROGRAM COMPLETE###
+
