@@ -195,5 +195,38 @@ ggsave("Runoff.in-spaghetti.png", width = PlotWidth, height = PlotHeight, path =
 
 rm(Hist.SWE,CF1.SWE,CF2.SWE,SWEgrid,Hist.runoff,CF1.runoff,CF2.runoff, runoffgrid)
 
+# aet spaghetti
 
+
+Hist.AET<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"AET.in",col=col[1],CF="Historical")
+CF1.AET<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"AET.in",col=col[2], CF=CFs[1])
+CF2.AET<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"AET.in",col=col[3], CF=CFs[2])
+
+aetgrid <- ggarrange(Hist.AET, CF1.AET, CF2.AET, ncol = 1, nrow = 3,common.legend = T)
+
+annotate_figure(aetgrid, left = textGrob("AET (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
+                bottom = textGrob("Water year day", gp = gpar(cex = 1.3)),
+                top = textGrob("Daily AET for each climate future by water year",
+                               gp=gpar(fontface="bold", col="black",  fontsize=26)))
+ggsave("AET.in-spaghetti.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+# SoilMoisture spaghetti
+
+
+Hist.SM<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"SM.in",col=col[1],CF="Historical")
+CF1.SM<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"SM.in",col=col[2], CF=CFs[1])
+CF2.SM<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"SM.in",col=col[3], CF=CFs[2])
+
+SMgrid <- ggarrange(Hist.SM, CF1.SM, CF2.SM, ncol = 1, nrow = 3,common.legend = T)
+
+annotate_figure(aetgrid, left = textGrob("Soil Moisture (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
+                bottom = textGrob("Water year day", gp = gpar(cex = 1.3)),
+                top = textGrob("Daily Soil Moisture for each climate future by water year",
+                               gp=gpar(fontface="bold", col="black",  fontsize=26)))
+ggsave("SM.in-spaghetti.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
+rm(Hist.SWE,CF1.SWE,CF2.SWE,SWEgrid,Hist.runoff,CF1.runoff,CF2.runoff, runoffgrid,Hist.AET,CF1.AET,CF2.AET,aetgrid,Hist.SM,
+   CF1.SM,CF2.SM,SMgrid)
 

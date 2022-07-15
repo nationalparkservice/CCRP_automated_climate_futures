@@ -15,19 +15,19 @@ PanelWidth = 9
 PanelHeight = 9 
 
 #ggplot theme to control formatting parameters for plots with month on the x-axis
-PlotTheme = theme(axis.text=element_text(size=20),    #Text size for axis tick mark labels
+PlotTheme = theme(axis.text=element_text(size=14),    #Text size for axis tick mark labels
                   axis.title.x=element_blank(),               #Text size and alignment for x-axis label
-                  axis.title.y=element_text(size=24, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20)),              #Text size and alignment for y-axis label
-                  plot.title=element_text(size=26,face="bold",hjust=0.5, margin=margin(t=20, r=20, b=20, l=20)),      #Text size and alignment for plot title
-                  legend.title=element_text(size=24),                                                                    #Text size of legend category labels
-                  legend.text=element_text(size=22),                                                                   #Text size of legend title
+                  axis.title.y=element_text(size=18, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20)),              #Text size and alignment for y-axis label
+                  plot.title=element_text(size=20,face="bold",hjust=0.5, margin=margin(t=20, r=20, b=20, l=20)),      #Text size and alignment for plot title
+                  legend.title=element_text(size=18),                                                                    #Text size of legend category labels
+                  legend.text=element_text(size=16),                                                                   #Text size of legend title
                   legend.position = "bottom")  
 
-BarPlotTheme = theme(axis.text.x=element_text(size=24),    #Text size for axis tick mark labels
-                     axis.text.y=element_text(size=20),
+BarPlotTheme = theme(axis.text.x=element_text(size=18),    #Text size for axis tick mark labels
+                     axis.text.y=element_text(size=14),
                      axis.title.x=element_blank(),               #Text size and alignment for x-axis label
-                     axis.title.y=element_text(size=24, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20)),              #Text size and alignment for y-axis label
-                     plot.title=element_text(size=26,face="bold",hjust=0.5, margin=margin(t=20, r=20, b=20, l=20)),      #Text size and alignment for plot title
+                     axis.title.y=element_text(size=18, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20)),              #Text size and alignment for y-axis label
+                     plot.title=element_text(size=20,face="bold",hjust=0.5, margin=margin(t=20, r=20, b=20, l=20)),      #Text size and alignment for plot title
                      legend.position = "none") 
 
 ############ PLOT FUNCTIONS #############
@@ -50,9 +50,9 @@ ggplot(data, aes(x={{xvar}}, y={{yvar}}, group={{grp}}, colour = {{grp}})) +
 dot_plot <- function(data, xvar, yvar, grp, cols, title,xlab,ylab,labels){
   ggplot(data, aes(x={{xvar}},y={{yvar}},fill={{grp}})) +
     geom_vline(xintercept=0, linetype="dashed", color = "black") + 
-    geom_point(stat="identity",size=8,colour="black",aes(fill = factor({{grp}}), shape = factor({{grp}}))) +
+    geom_point(stat="identity",size=6,colour="black",aes(fill = factor({{grp}}), shape = factor({{grp}}))) +
     PlotTheme +
-    theme(axis.title.x=element_text(size=20, vjust=0.5)) +
+    theme(axis.title.x=element_text(size=14, vjust=0.5)) +
     labs(title = title, 
          x = xlab, y = ylab) +
     scale_fill_manual(name="",values =cols) +
@@ -135,7 +135,7 @@ spaghetti_plot_wateryr <- function(data, var, col,CF){
       coord_cartesian(ylim = c(0, max(eval(parse(text=paste0("WBData","$",var))))))+
       # scale_x_date(breaks = date_breaks("months"),labels = date_format("%b")) +
       PlotTheme + 
-      theme(plot.title=element_text(size=16,hjust=0.5,face="plain", margin=margin(t=1, r=1, b=1, l=1))) +
+      theme(plot.title=element_text(size=10,hjust=0.5,face="plain", margin=margin(t=1, r=1, b=1, l=1))) +
       labs(title = CF, 
            x = "", y = "")
 }
