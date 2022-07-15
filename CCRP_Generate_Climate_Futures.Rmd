@@ -191,9 +191,11 @@ source(here::here("scripts", "RSS_Plotting_Bar_Charts.R")) # Requires "PARK_lat_
 
 source(here::here("scripts", "get_params.R"))
 
-source(here::here("scripts", "Daily_WB_batch_v2.R"))
+source(here::here("scripts","Daily_WB_Model.R"))
 
-source(here::here("scripts", "RSS_MACA_drought_char.R"))
+#source(here::here("scripts", "Daily_WB_batch_v2.R"))
+
+#source(here::here("scripts", "RSS_MACA_drought_char.R"))
 
 source(here::here("scripts", "WBgrid_plotting.R")) # Run the Water Balance Model
 
