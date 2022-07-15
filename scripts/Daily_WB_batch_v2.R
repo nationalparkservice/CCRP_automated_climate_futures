@@ -208,6 +208,8 @@ Fut<-aggregate(cbind(deficit,AET,P,Tmean,SOIL_in,sum_d,sum_aet)~year+CF,mean,dat
 
 Annual<-rbind(Hist,Fut)
 Annual$CF = factor(Annual$CF, levels = c("Historical",CFs))
+Annual <- Annual %>% 
+  drop_na()
 
 ggplot(Annual, aes(x=deficit, y=AET, colour=CF)) + geom_point(size=3)+ geom_smooth(method="lm", se=FALSE, size=2)+
   
@@ -222,7 +224,7 @@ ggplot(Annual, aes(x=deficit, y=AET, colour=CF)) + geom_point(size=3)+ geom_smoo
   theme(axis.text = element_text(size=20), axis.title = element_text(size=20), legend.text=element_text(size=14),
         plot.title=element_text(size=22)) #+xlim(20,45)+ylim(2,16)
 
-ggsave(paste("Water Balance-",SiteID,".png",sep=""), path = WBdir, width = 15, height = 9)
+ggsave(paste("Water Balance-",SiteID,".png",sep=""), path = FigDir, width = 9, height = 6)
 
 ggplot(Annual, aes(x=deficit, colour=CF,fill=CF,linetype=CF),show.legend=F) +geom_density(alpha=0.3,size=1.5) +
   scale_colour_manual(values=colors3) +
@@ -234,7 +236,7 @@ ggplot(Annual, aes(x=deficit, colour=CF,fill=CF,linetype=CF),show.legend=F) +geo
   theme(axis.text = element_text(size=20), axis.title = element_text(size=20), legend.text=element_text(size=20), legend.background=element_rect(fill = "White", size = 0.5),
         plot.title=element_text(size=22, hjust=0),legend.position = c(.8,.8)) 
 
-ggsave(paste(SiteID,"-Deficit_density_panel.png",sep=""), path = WBdir, width = 15, height = 9)
+ggsave(paste(SiteID,"-Deficit_density_panel.png",sep=""), path = FigDir, width = 9, height =6)
 
 ggplot(Annual, aes(x=SOIL_in, colour=CF,fill=CF,linetype=CF),show.legend=F) +geom_density(alpha=0.3,size=1.5) +
   scale_colour_manual(values=colors3) +
@@ -246,7 +248,7 @@ ggplot(Annual, aes(x=SOIL_in, colour=CF,fill=CF,linetype=CF),show.legend=F) +geo
   theme(axis.text = element_text(size=20), axis.title = element_text(size=20), legend.text=element_text(size=14),
         plot.title=element_text(size=22, hjust=0),legend.position = c(.8,.8)) 
 
-ggsave(paste(SiteID,"-SOIL_in_density_panel.png",sep=""), path = WBdir, width = 15, height = 9)
+ggsave(paste(SiteID,"-SOIL_in_density_panel.png",sep=""), path = FigDir, width = 9, height = 6)
 
 
 ########################
@@ -286,7 +288,7 @@ plot_1
 plot_1 + geom_point(data=Annual, aes(x=sum_d, y=sum_aet, colour=CF), size=3) + 
   geom_smooth(data=Annual, aes(x=sum_d, y=sum_aet, colour=CF),method="lm", se=FALSE, size=2) + 
   scale_colour_manual("Scenario",values=colors3)
-ggsave(paste(SiteID,"-WB-biome effects.png",sep=""), path = WBdir, width = 15, height = 9)
+ggsave(paste(SiteID,"-WB-biome effects.png",sep=""), path = FigDir, width = 9, height = 6)
 
 ### Monthly
 MonthlyWB$year<-as.numeric(substr(MonthlyWB$yrmon, 1, 4))
@@ -298,10 +300,9 @@ H_monthly<-subset(MonthlyWB,year<2000)
 F_monthly<-subset(MonthlyWB,year>=F.start & year<=F.end)
 H_monthly$CF<-"Historical"
 
-set.seed(50) # set seed so same every time
-MHist.subset<-sample_n(H_monthly,size=length(F_monthly$CF)/length(unique(F_monthly$CF)),replace=F)
 
-Mon<-aggregate(cbind(SOIL_in,deficit)~Month+CF,mean,data=MHist.subset,na.rm=TRUE)
+
+Mon<-aggregate(cbind(SOIL_in,deficit)~Month+CF,mean,data=H_monthly,na.rm=TRUE)
 Fut<-aggregate(cbind(SOIL_in,deficit)~Month+CF,mean,data=F_monthly,na.rm=TRUE)
 Monthly<-rbind(Mon,Fut)
 Monthly$CF = factor(Monthly$CF)
@@ -328,7 +329,7 @@ ggplot(data, aes(x=mon, y=SOIL_IN, group=CF, colour = CF)) +
   scale_fill_manual(name="",values = colors2) +
   scale_shape_manual(name="",values = c(21,22))
 
-ggsave("MonthlySoil Moisture.png", path = WBdir, width = 15, height = 9)
+ggsave("MonthlySoil Moisture.png", path = FigDir, width = 9, height = 6)
 
 ggplot(data, aes(x=mon, y=deficit, group=CF, colour = CF)) +
   geom_line(colour = "black",size=2.5, stat = "identity") + # adds black outline
@@ -346,6 +347,6 @@ ggplot(data, aes(x=mon, y=deficit, group=CF, colour = CF)) +
   scale_fill_manual(name="",values = colors2) +
   scale_shape_manual(name="",values = c(21,22))
 
-ggsave("Monthly Deficit.png", path = WBdir, width = 15, height = 9)
+ggsave("Monthly Deficit.png", path = FigDir, width = 9, height = 6)
 
 

@@ -52,6 +52,8 @@ cat("WATER BALANCE MODEL INFORMATION")
 cat("\n")
 cat(paste("Models used in Water Balance analysis:", WB_GCMs[1], WB_GCMs[2])) 
 cat("\n")
+cat(paste("PET Method:", Method))
+("\n")
 
 # Drought analysis
 
