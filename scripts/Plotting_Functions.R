@@ -57,7 +57,8 @@ dot_plot <- function(data, xvar, yvar, grp, cols, title,xlab,ylab,labels){
          x = xlab, y = ylab) +
     scale_fill_manual(name="",values =cols) +
     scale_shape_manual(name="",values = c(seq(21,21+length(cols)-1,1))) +
-    scale_y_discrete(labels=rev(labels), limits=rev)
+    scale_y_discrete(labels=rev(labels), limits=rev) +
+    geom_hline(aes(yintercept=0),linetype=2)
 }
 
 
@@ -71,25 +72,26 @@ Month_bar_plot <- function(data, xvar, yvar, grp, cols, title,xlab, ylab,labels)
     scale_x_discrete(labels = labels)
 }
 
-
-var_bar_plot <- function(data,var, cols, title, ylab){
-At<-aggregate(eval(parse(text=var))~CF,data=data,mean);
-names(At)<-c("CF",var)
-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) +
-  geom_bar(stat="identity",position="dodge",colour="black") +
-  BarPlotTheme +
-  # coord_cartesian(ylim=c(0, 40)) +
-  labs(title = title, 
-       y = ylab, colour = "Climate Future")  +
-  scale_fill_manual(name="",values = cols) +
-  coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep="")))), max(eval(parse(text=paste("At$",var,sep=""))))))
-}
+var_bar_plot <- function(data,var, cols, title, ylab){ 
+  At<-aggregate(eval(parse(text=var))~CF,data=data,mean); 
+  names(At)<-c("CF",var) 
+  p<-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) + 
+      geom_bar(stat="identity",position="dodge",colour="black") + 
+      BarPlotTheme + 
+     # coord_cartesian(ylim=c(0, 40)) + 
+     labs(title = title,  
+      y = ylab, colour = "Climate Future")  + 
+     scale_fill_manual(name="",values = cols)  
+      if(min(eval(parse(text=paste("At$",var,sep=""))))<20) {p = p + coord_cartesian(ylim = c(0, max(eval(parse(text=paste("At$",var,sep=""))))))}  
+      else{p= p + coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep=""))))*.9, max(eval(parse(text=paste("At$",var,sep=""))))))} 
+  p 
+ } 
 
 
 var_box_plot <- function(data,var, cols, title, ylab){
   p<-ggplot(data, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
     geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
-    geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
+    # geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
     BarPlotTheme +
     labs(title = title, 
          y = ylab) +
@@ -102,7 +104,12 @@ var_box_plot <- function(data,var, cols, title, ylab){
 
 
 var_line_plot <- function(data,var, cols, title, ylab) {
-ggplot(data, aes(x=as.numeric(Year), y={{var}}, col=CF, fill=CF)) + 
+data %>% group_by(Year,CF) %>%
+  mutate(min = min({{var}},na.rm=TRUE),
+         max = max({{var}},na.rm=TRUE),
+         mean = mean({{var}},na.rm=TRUE)) %>% 
+  ggplot(aes(x=as.numeric(Year), y=mean, col=CF, fill=CF)) +
+  geom_ribbon(aes(x=as.numeric(as.character(Year)), ymin=min, ymax=max, fill=CF), alpha=0.5) +
   geom_line(size=2) + geom_point(col="black", size=2, shape=16) +
   geom_point() +
   labs(title = title, x="Year", y=ylab) +
