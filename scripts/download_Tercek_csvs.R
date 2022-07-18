@@ -69,39 +69,39 @@ Future_all <- Future_all %>% #dplyr::filter(GCM %in% wbGCMs) %>%
   mutate(VPD = VPD(TminF, TmaxF, RHminPct, RHmaxPct),
          DOY = yday(Date))
 
-#### Extract WB data ############
-#  1,124,960 obs with all GCMs.   731,224 obs after filter
-
-##############  Initials   ################
-WBFileURL <- "https://parkfutures.s3.us-west-2.amazonaws.com/park-centroid-wb/"
-
-hName <- str_c(SiteID, "_water_balance_historical.zip")
-checkFile(hName,WBFileURL)  
-
-fName <- str_c(SiteID, "_water_balance_future.zip")
-checkFile(fName,WBFileURL)
-
-file.rename(paste0(SiteID,"_water_balance_historical.csv"),paste0(DataDir,SiteID,"_water_balance_historical.csv"))
-file.rename(paste0(SiteID,"_water_balance_future.csv"),paste0(DataDir,SiteID,"_water_balance_future.csv"))
-file.remove(list.files(path = DataDir, pattern = '.zip', full.names = TRUE))
-
-histWB <- read.csv(paste(DataDir, SiteID,"_water_balance_historical.csv", sep=''))
-futWB <- read.csv(paste(DataDir, SiteID, "_water_balance_future.csv", sep=''))
-
-
-rm(hName, fName)
-
-WBdat <- rbind(histWB, futWB)
-rm(histWB, futWB)   
-
-names(WBdat) <- c("Date","GCM","D.in","AET.in","SM.in","Runoff.in","Rain.in",   # Date be consistent with Janelle's code
-                  "SWEaccum.in","PET.in")
-
-WBdat <- WBdat %>% mutate(Year=year(Date),
-                          Month=month(Date),
-                          DOY = yday(Date))  %>%
-  mutate(  Seas=case_when
-           (3 > Month | Month > 11 ~"Win",
-             6 > Month & 2 < Month ~ "Spr",
-             9 > Month & 5 < Month ~ "Sum",
-             12 > Month & 8 < Month ~ "Fall"))    
+# #### Extract WB data ############
+# #  1,124,960 obs with all GCMs.   731,224 obs after filter
+# 
+# ##############  Initials   ################
+# WBFileURL <- "https://parkfutures.s3.us-west-2.amazonaws.com/park-centroid-wb/"
+# 
+# hName <- str_c(SiteID, "_water_balance_historical.zip")
+# checkFile(hName,WBFileURL)  
+# 
+# fName <- str_c(SiteID, "_water_balance_future.zip")
+# checkFile(fName,WBFileURL)
+# 
+# file.rename(paste0(SiteID,"_water_balance_historical.csv"),paste0(DataDir,SiteID,"_water_balance_historical.csv"))
+# file.rename(paste0(SiteID,"_water_balance_future.csv"),paste0(DataDir,SiteID,"_water_balance_future.csv"))
+# file.remove(list.files(path = DataDir, pattern = '.zip', full.names = TRUE))
+# 
+# histWB <- read.csv(paste(DataDir, SiteID,"_water_balance_historical.csv", sep=''))
+# futWB <- read.csv(paste(DataDir, SiteID, "_water_balance_future.csv", sep=''))
+# 
+# 
+# rm(hName, fName)
+# 
+# WBdat <- rbind(histWB, futWB)
+# rm(histWB, futWB)   
+# 
+# names(WBdat) <- c("Date","GCM","D.in","AET.in","SM.in","Runoff.in","Rain.in",   # Date be consistent with Janelle's code
+#                   "SWEaccum.in","PET.in")
+# 
+# WBdat <- WBdat %>% mutate(Year=year(Date),
+#                           Month=month(Date),
+#                           DOY = yday(Date))  %>%
+#   mutate(  Seas=case_when
+#            (3 > Month | Month > 11 ~"Win",
+#              6 > Month & 2 < Month ~ "Spr",
+#              9 > Month & 5 < Month ~ "Sum",
+#              12 > Month & 8 < Month ~ "Fall"))    
