@@ -28,9 +28,10 @@ cat("\n")
 
 cat("\n")
 if(centroids_csv == "Y"){
-  cat("Gridmet, MACA, and water balance data downloaded from Tercek .csv files")
+  cat("Gridmet, MACA, and water balance data downloaded from Park .csv files")
 } else {
     cat("MACA and gridmet data downloaded from lat/lon. Water balance calculated from R package.")
+    cat(paste0("PET equation = ", PET_Method))
 }
 cat("\n")
 inputs <- list.files(path = DataDir) # RData files created from parsed data
