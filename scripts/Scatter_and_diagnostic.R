@@ -77,7 +77,7 @@ ggplot(FM, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, 
   geom_vline(aes(xintercept=mean(FM$DeltaTavg)),linetype=2)  #change
 
 ggsave("TempVsPrcp_AllGCMs_ColorScatter.png", width = PlotWidth, height = PlotHeight, path = OutDir)
-
+rm(FM)
 #~~~~~~~~~~~~~~
 # Presetation only scatterplots
 #~~~~~~~~~~~~~~
