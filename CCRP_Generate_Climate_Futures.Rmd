@@ -54,7 +54,7 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "GRSA" 
+SiteID = "VAFO" 
 # Lat = 40.44039704 # Can manually input lat/lon, otherwise run get_site_info.R
 # Lon = -111.7093944
 
@@ -64,7 +64,7 @@ SiteID = "GRSA"
 
 project_root_dir <- here::here()
 
-local_rss_dir <- 'C:/Users/gknowlton/OneDrive - DOI/Documents/RSS/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
+local_rss_dir <- 'C:/Users/achildress/Documents/RCF_Testing/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
 local_rss_dir <- paste0(local_rss_dir,SiteID)
 
 if(dir.exists(local_rss_dir) == FALSE){
@@ -103,6 +103,12 @@ source(here::here("scripts", "create_site_maps.R")) # Create site maps
 
 CFs_all <- c("Warm Wet", "Hot Wet", "Central", "Warm Dry", "Hot Dry")
 
+##Color schemes
+
+#Colors for CF values plotted side by side (match order of CFs vector)
+colors5 <-  c("#6EB2D4", "#05689F", "#F6B294", "#CA0020","white")
+colors5.2 <- c("#6EB2D4", "#05689F", "white", "#F6B294", "#CA0020")
+
 centroids_csv <- "Y" #Switch for using Tercek csvs or downloading own data
 
 # --------- Information for Climate Futures Analyses (MACA) ------------------ #
@@ -124,6 +130,12 @@ QuantileHigh = 0.95
 HotTemp = 95
 ColdTemp = 32
 PrecipThreshold = 0.05
+
+# ------------ Information for WB analyses ------------------------ #
+
+#Method for PET calculation 
+PET_Method = "Oudin"  #Hamon is default method for daily PRISM and MACA data (containing only Tmax, Tmin, and Date). 
+
 
 # ------------ Information for drought analyses ------------------------ #
 
@@ -147,12 +159,12 @@ if(centroids_csv == "Y") {
   #source(here::here("scripts", "Climate-Futures", "CFT_CF_parsing_v1.R")) # Parse MACA data. Output = "_init_parsed.RData". # 9-8-21: CFT parsing script is not working due to an issue with the package or MACA servers. ACR to talk to CU Boulder about the issue. For now, add _init_parsed.RData file manually to parsed-data folder. 
 }
 
-source(here::here("scripts", "RSS_MACA_Plot_Table_Creation.R"), local = knitr::knit_global()) # Requires "PARK_init_parsed.RData"; Output = "PARK_lat_long_Final_Environment.RData". 
+source(here::here("scripts", "Plot_Table_Creation.R"), local = knitr::knit_global()) # Requires "PARK_init_parsed.RData"; Output = "PARK_lat_long_Final_Environment.RData". 
 
 source(here::here("scripts", "Plotting_Functions.R"), local = knitr::knit_global())
 
 
-source(here::here("scripts", "RSS_MACA_Scatter and diagnostic.R"), local = knitr::knit_global()) # Creates scatter and diagnostic plots. Outputs to Figs MACA folder. 
+source(here::here("scripts", "Scatter_and_diagnostic.R"), local = knitr::knit_global()) # Creates scatter and diagnostic plots. Outputs to Figs MACA folder. 
 ```
 
 ## WW/HD CFs
@@ -163,7 +175,7 @@ source(here::here("scripts", "RSS_MACA_Scatter and diagnostic.R"), local = knitr
 FutureSubset <- CFs_all[c(1,5)]; CFs = FutureSubset  # Pick pair of climate futures.
 # WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
-colors2<- c("#6EB2D4", "#CA0020") # Select pair of climate futures - WarmWet/HotDry
+colors2<- colors5[c(1,4)] # Select pair of climate futures - WarmWet/HotDry
 #colors2<- c("#F3D3CB","#12045C")  # Select pair of climate futures - HotWet/WarmDry
 
 colors3<-c("white",colors2)
@@ -187,17 +199,15 @@ if(dir.exists(FigDir) == FALSE){
 
 if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At the top of the script, please enter a combination of futures, e.g. Warm Wet/Hot Dry
 
-source(here::here("scripts", "RSS_Plotting_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
+source(here::here("scripts", "Threshold_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
 
 source(here::here("scripts", "get_params.R"))
 
 source(here::here("scripts","Daily_WB_Model.R"))
 
-#source(here::here("scripts", "Daily_WB_batch_v2.R"))
+source(here::here("scripts", "Drought_characteristics.R"))
 
-#source(here::here("scripts", "RSS_MACA_drought_char.R"))
-
-source(here::here("scripts", "WBgrid_plotting.R")) # Run the Water Balance Model
+# source(here::here("scripts", "WBgrid_plotting.R")) # Run the Water Balance Model
 
 source(here::here("scripts", "Return_Events.R"))
 
@@ -219,7 +229,7 @@ FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futu
 # WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
 # colors2<- c("#9A9EE5","#E10720")  # Select pair of climate futures - WarmWet/HotDry
-colors2<- c("#05689F","#F6B294") # Select pair of climate futures - HotWet/WarmDry
+colors2<- colors5[c(2,3)] # Select pair of climate futures - HotWet/WarmDry
 
 colors3<-c("white",colors2)
 # col<- c("darkgray","#9A9EE5","#E10720")  # WarmWet/HotDry
@@ -242,13 +252,17 @@ if(dir.exists(FigDir) == FALSE){
 
 if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At the top of the script, please enter a combination of futures, e.g. Warm Wet/Hot Dry
 
-source(here::here("scripts", "RSS_Plotting_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
+source(here::here("scripts", "Threshold_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
 
-source(here::here("scripts", "RSS_MACA_drought_char.R"))
+source(here::here("scripts", "get_params.R"))
+
+source(here::here("scripts","Daily_WB_Model.R"))
+
+source(here::here("scripts", "Drought_characteristics.R"))
 
 source(here::here("scripts", "Return_Events.R"))
 
-source(here::here("scripts", "WBgrid_plotting.R")) # Run the Water Balance Model
+# source(here::here("scripts", "WBgrid_plotting.R")) # Run the Water Balance Model
 
 source(here::here("scripts", "Summary plots.R"))
 
