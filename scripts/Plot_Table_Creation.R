@@ -245,7 +245,7 @@ WB_GCMs <- WB_GCMs %>% rowwise() %>% mutate(CF = ifelse(split$PrcpMean>0.5, gsub
 Future_Means %>% rowwise() %>% 
   mutate(CF = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",CF),CF)) %>% 
   mutate(corners = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",corners),corners)) %>% 
-  mutate(cap = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",pca),pca)) -> Future_Means
+  mutate(pca = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",pca),pca)) -> Future_Means
 
 Future_Means$CF=as.factor(Future_Means$CF)
 Future_Means$CF = factor(Future_Means$CF,ordered=TRUE,levels=CFs_all)

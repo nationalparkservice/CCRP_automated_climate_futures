@@ -45,7 +45,7 @@ dualscatter  + geom_text_repel(aes(label=GCM)) +
   geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2) #change
 
-ggsave("TempVsPrcp_AllGCMs_2050_BWscatter.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_BWscatter.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 ####### Scatterplot with CF color
 FM<-Future_Means
@@ -53,7 +53,7 @@ FM<-Future_Means
 FM$CFnew<-as.character(FM$CF)
 # FM$CFnew[which(FM$CFnew %ni% FutureSubset)]<-"Not Selected"
 FM$CFnew[which(FM$CFnew=="Central")]<-"Not Selected"
-FM$CFnew<-factor(FM$CFnew,levels=c(CFs_all,"Not_Selected"))
+FM$CFnew<-factor(FM$CFnew,levels=c(CFs_all[-c(3)],"Not Selected"))
 levels(FM$CFnew)
 
 ggplot(FM, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, ymax=Pr75*365)) +
@@ -76,7 +76,7 @@ ggplot(FM, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, 
   geom_hline(aes(yintercept=mean(FM$DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(FM$DeltaTavg)),linetype=2)  #change
 
-ggsave("TempVsPrcp_AllGCMs_2050_ColorScatter.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_ColorScatter.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 #~~~~~~~~~~~~~~
 # Presetation only scatterplots
@@ -95,7 +95,7 @@ dualscatter  + geom_point(colour="black",size=4) +
             y = paste("Changes in ",Longy,sep="")) + #change
   theme(legend.position="none") +
   xlim(0, max(Future_Means$DeltaTavg))
-ggsave("TempVsPrcp_AllGCMs_2050_ScatterOnlyPoints.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_ScatterOnlyPoints.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 # Points only w/ box
 dualscatter = ggplot(Future_Means, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, ymax=Pr75*365))
@@ -115,7 +115,7 @@ dualscatter  + geom_point(colour="black",size=4) +
   geom_rect(color = "black", alpha=0) + 
   geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2)  #change
-ggsave("TempVsPrcp_AllGCMs_2050_Points&Box.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_Points&Box.png", width = PlotWidth, height = PlotHeight, path = OutDir)
 
 
 
@@ -151,39 +151,6 @@ scatter + geom_point(aes(color=emissions),size=4) +
   scale_x_continuous(limits=c(0, max(Future_Means$DeltaTavg)+.25))
 
 ggsave("DeltaTempVPrcp_emissions_scatter_scaled.png", width = PlotWidth, height = PlotHeight, path = OutDir)
-
-#  scatter plots with GCM name identifying points. For all, and separate 4.5 and 8.5 plots
-
-plot_name <- "AllGCM_Scatter.png"
-OFName <- paste0(OutDir, plot_name)
-
-png(filename = OFName, width = 1280, height = 1280)
-plot(Future_Means$DeltaTavg, 365*Future_Means$DeltaPr, pch=20, main=paste("RCP 4.5 & 8.5", Yr), 
-            xlab="Delta T Avg", ylab="Delta Prcip (in/yr)", cex.axis=1.5, cex.lab=1.5)
-text(365*DeltaPr ~ DeltaTavg,data=Future_Means,subset = emissions == "RCP 4.5", col="blue",
-      labels=Future_Means$GCM, pos=3, cex=1.5)
-text(365*DeltaPr ~ DeltaTavg,data=Future_Means, subset = emissions == "RCP 8.5", col="red",
-     labels=Future_Means$GCM, pos=3, cex=1.5)
-dev.off()
-
-
-plot_name <- "RCP_4.5_Scatter.png"
-OFName <- paste0(OutDir, plot_name)
-
-png(OFName, width = 1280, height = 1280)
-plot(365*DeltaPr ~ DeltaTavg, data=Future_Means, subset = emissions == "RCP 4.5", pch=20, main= paste("RCP 4.5", Yr), 
-     xlab="Delta T Avg", ylab="Delta Prcip (in/yr)", cex.axis=1.5, cex.lab=1.5)
-text(365*DeltaPr ~ DeltaTavg, data=Future_Means, subset = emissions == "RCP 4.5", label=GCM, pos=3, cex=1.5, col="blue")
-dev.off()
-
-plot_name <- "RCP_8.5_Scatter.png"
-OFName <- paste0(OutDir, plot_name)
-
-png(OFName, width = 1280, height = 1280)
-plot(365*DeltaPr ~ DeltaTavg, data=Future_Means, subset = emissions == "RCP 8.5",
-     pch=20, main=paste("RCP 8.5", Yr), xlab="Delta T Avg", ylab="Delta Prcip (in/yr)", cex.axis=1.5, cex.lab=1.5)
-text(365*DeltaPr ~ DeltaTavg, data=Future_Means, subset = emissions == "RCP 8.5", label=GCM, pos=3, cex=1.5, col="red")
-dev.off()
 
 #################################### DIAGNOSTIC CHANGE PLOTS ##############################################
 #Bar graph of monthly precip/tmax/tmin by CF
