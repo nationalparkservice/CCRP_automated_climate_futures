@@ -54,7 +54,7 @@ ggmap(myMap, aes(x=x, y=y)) +
   geom_sf(data = park, inherit.aes = FALSE, aes(color = "Park"), fill = NA,lwd=1) + 
   geom_sf(data = maca_grid_crop, inherit.aes = FALSE, aes(color="MACA grid"), fill = NA, lwd=0.25) +
   geom_sf(data = maca.sf, inherit.aes = FALSE,fill = NA,lwd= 1.5, aes(colour="Selected CMIP5 cell")) +
-  scale_color_manual(values = c("Park" = "black", 
+  scale_color_manual(values = c("Park" = "chartreuse4", 
                                 "MACA grid" = alpha("black", 0.25), 
                                 "Selected CMIP5 cell" = "orange")) + 
   annotation_scale() + 
@@ -101,7 +101,7 @@ ggmap(myMap2, aes(x=x, y=y)) +
   geom_sf(data = adjacent_poly_sf, inherit.aes = FALSE, aes(color = "MACA grid"), fill = NA, lwd = 1) + 
   geom_sf(data = maca.sf, inherit.aes = FALSE,fill = NA,lwd= 1.5, aes(colour="Selected CMIP5 cell")) +
   geom_sf(data = park, inherit.aes = FALSE, aes(color = "Park"), fill = NA,lwd=1) +
-  scale_color_manual(values = c("Park" = alpha("black", 0.25), 
+  scale_color_manual(values = c("Park" = alpha("chartreuse4"), 
     "MACA grid" = alpha("black", 0.5),
                                 "Selected CMIP5 cell" = "orange")) + 
   annotation_scale() + 
