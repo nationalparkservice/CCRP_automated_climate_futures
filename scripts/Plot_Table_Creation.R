@@ -230,7 +230,8 @@ PC2<- c(rownames(pca.df)[which.min(pca.df$PC2)],rownames(pca.df)[which.max(pca.d
 
 Future_Means %>% mutate(pca = ifelse(GCM %in% PC1, as.character(CF), 
                                      ifelse(GCM %in% PC2, as.character(CF),NA))) -> Future_Means 
-Future_Means %>%  drop_na(pca) %>% select(c(GCM,CF)) -> WB_GCMs 
+Future_Means %>% mutate(select = eval(parse(text=paste0(Indiv_method)))) -> Future_Means
+Future_Means %>% drop_na(select) %>% select(c(GCM,CF)) -> WB_GCMs 
 
 rm(lx,ux,ly,uy,ww,wd,hw,hd, pts, FM, pca,pca.df,PC1,PC2) 
 
@@ -245,7 +246,8 @@ WB_GCMs <- WB_GCMs %>% rowwise() %>% mutate(CF = ifelse(split$PrcpMean>0.5, gsub
 Future_Means %>% rowwise() %>% 
   mutate(CF = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",CF),CF)) %>% 
   mutate(corners = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",corners),corners)) %>% 
-  mutate(pca = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",pca),pca)) -> Future_Means
+  mutate(pca = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",pca),pca)) %>% 
+  mutate(select = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",select),select))-> Future_Means
 
 Future_Means$CF=as.factor(Future_Means$CF)
 Future_Means$CF = factor(Future_Means$CF,ordered=TRUE,levels=CFs_all)
