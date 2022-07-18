@@ -2,16 +2,11 @@
 
 ######### INITIALS #########
 
-#Create output directory for MACA figs
+# #Create output directory for MACA figs
+# 
+# DataFile <- list.files(path = DataDir, pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
+# load(DataFile)
 
-DataFile <- list.files(path = DataDir, pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
-load(DataFile)
-
-##Color schemes
-
-#Colors for CF values plotted side by side (match order of CFs vector)
-colors5 <-  c("#05689F", "#6EB2D4", "#F6B294", "#CA0020","white")
-colors5.2 <- c("#05689F", "#6EB2D4", "white", "#F6B294", "#CA0020")
 
 #Colors for RCP 4.5, RCP 8.5
 col.RCP2 = c("blue", "red")

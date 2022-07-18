@@ -3,10 +3,10 @@
 
 ############################################################# USER INPUTS ##################################################################### 
 
-#Formatted input data as a daily time series. Needs to include the following columns: Date, ppt_mm, tmax_C, tmin_C, and tmean_C (temp.'s in deg. Celsius)
-
-DataFile <- list.files(path = file.path(OutDir,"input-data/"), pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
-load(DataFile)
+# #Formatted input data as a daily time series. Needs to include the following columns: Date, ppt_mm, tmax_C, tmin_C, and tmean_C (temp.'s in deg. Celsius)
+# 
+# DataFile <- list.files(path = file.path(OutDir,"input-data/"), pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
+# load(DataFile)
 
 
 #rm(list=setdiff(ls(), c("ALL_HIST","ALL_FUTURE","site","CF_GCM")))
@@ -16,9 +16,6 @@ load(DataFile)
 n<-nrow(wb_sites)
 #Threshold temperature (deg C) for growing degree-days calculation
 T.Base = 0 
-
-#Method for PET calculation 
-Method = "Oudin"  #Hamon is default method for daily PRISM and MACA data (containing only Tmax, Tmin, and Date). 
 
 #Date format
 DateFormat = "%m/%d/%Y"
@@ -32,7 +29,6 @@ DateFormat = "%m/%d/%Y"
 #Select GCMs - Include RCP
 unique(ALL_FUTURE$GCM)
 
-colors3<-c("gray",colors2)
 ############################################################ END USER INPUTS ###################################################################
 
 ############################################################ CREATE CLIMATE INPUTS #############################################################
@@ -106,13 +102,13 @@ for (j in 1:length(levels(ClimData$GCM))){
     DailyWB$MELT = get_melt(DailyWB$tmean_C, DailyWB$jtemp, hock=4, DailyWB$SNOW, Snowpack.Init)
     DailyWB$PACK = get_snowpack(DailyWB$jtemp, DailyWB$SNOW, DailyWB$MELT)
     DailyWB$W = DailyWB$MELT + DailyWB$RAIN
-    if(Method == "Hamon"){
+    if(PET_Method == "Hamon"){
       DailyWB$PET = ET_Hamon_daily(DailyWB)
     } else {
-      if(Method == "Penman-Monteith"){
+      if(PET_Method == "Penman-Monteith"){
         DailyWB$PET = ET_PenmanMonteith_daily(DailyWB)
       } else {
-        if(Method == "Oudin"){
+        if(PET_Method == "Oudin"){
           DailyWB$PET = get_OudinPET(DailyWB$doy, Lat, DailyWB$PACK, DailyWB$tmean_C, Slope, Aspect, Shade.Coeff)
         } else {
           print("Error - PET method not found")
