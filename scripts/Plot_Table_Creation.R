@@ -215,42 +215,25 @@ Future_Means %>% mutate(corners = ifelse(GCM == ww,"Warm Wet",
                                          ifelse(GCM == wd, "Warm Dry",
                                                 ifelse(GCM == hw, "Hot Wet",
                                                        ifelse( GCM == hd, "Hot Dry",NA))))) -> Future_Means
-#### Select WB GCMs
-WB_Means <- subset(Future_Means, GCM %in% unique(WBdat$GCM))
-lx = min(WB_Means$DeltaTavg)
-ux = max(WB_Means$DeltaTavg)
-ly = min(WB_Means$DeltaPr)
-uy = max(WB_Means$DeltaPr)
 
-#convert to points
-ww = c(lx,uy)
-wd = c(lx,ly)
-hw = c(ux,uy)
-hd = c(ux,ly)
+FM <- Future_Means %>% select("GCM","DeltaPr","DeltaTavg") %>%  
+  remove_rownames %>% column_to_rownames(var="GCM") 
 
-pts <- WB_Means
+pca <- prcomp(FM, center = TRUE,scale. = TRUE) 
 
-#calc Euclidian dist of each point from corners
-pts$WW.distance <- sqrt((pts$DeltaTavg - ww[1])^2 + (pts$DeltaPr - ww[2])^2)
-pts$WD.distance <- sqrt((pts$DeltaTavg - wd[1])^2 + (pts$DeltaPr - wd[2])^2)
-pts$HW.distance <- sqrt((pts$DeltaTavg - hw[1])^2 + (pts$DeltaPr - hw[2])^2)
-pts$HD.distance <- sqrt((pts$DeltaTavg - hd[1])^2 + (pts$DeltaPr - hd[2])^2)
+ggsave("PCA-loadings.png", plot=autoplot(pca, data = FM, loadings = TRUE,label=TRUE),width = PlotWidth, height = PlotHeight, path = OutDir) 
 
-pts %>% filter(CF == "Warm Wet") %>% slice(which.min(WW.distance)) %>% .$GCM -> ww
-pts %>% filter(CF == "Warm Dry") %>% slice(which.min(WD.distance)) %>% .$GCM -> wd
-pts %>% filter(CF == "Hot Wet") %>% slice(which.min(HW.distance)) %>% .$GCM -> hw
-pts %>% filter(CF == "Hot Dry") %>% slice(which.min(HD.distance)) %>% .$GCM -> hd
+pca.df<-as.data.frame(pca$x) 
 
-WB_Means %>% mutate(WB_GCM = ifelse(GCM == ww,"Warm Wet",
-                                         ifelse(GCM == wd, "Warm Dry",
-                                                ifelse(GCM == hw, "Hot Wet",
-                                                       ifelse( GCM == hd, "Hot Dry",NA))))) -> WB_Means
+PC1 <- factor(c(rownames(pca.df)[which.min(pca.df$PC1)],rownames(pca.df)[which.max(pca.df$PC1)])) 
+PC2<- c(rownames(pca.df)[which.min(pca.df$PC2)],rownames(pca.df)[which.max(pca.df$PC2)]) 
 
-WB_Means  %>% filter(CF %in% CFs_all) %>% drop_na(WB_GCM) %>% select(c(GCM,CF)) -> WB_GCMs
+Future_Means %>% mutate(pca = ifelse(GCM %in% PC1, as.character(CF), 
+                                     ifelse(GCM %in% PC2, as.character(CF),NA))) -> Future_Means 
+Future_Means %>%  drop_na(pca) %>% select(c(GCM,CF)) -> WB_GCMs 
 
-Future_Means<-left_join(Future_Means, WB_Means[,c("GCM","WB_GCM")], by="GCM")
+rm(lx,ux,ly,uy,ww,wd,hw,hd, pts, FM, pca,pca.df,PC1,PC2) 
 
-rm(lx,ux,ly,uy,ww,wd,hw,hd, pts, WB_Means)
 
 #######################
 ## CHANGE CF NAMES FOR DRY/DAMP
@@ -262,7 +245,7 @@ WB_GCMs <- WB_GCMs %>% rowwise() %>% mutate(CF = ifelse(split$PrcpMean>0.5, gsub
 Future_Means %>% rowwise() %>% 
   mutate(CF = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",CF),CF)) %>% 
   mutate(corners = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",corners),corners)) %>% 
-  mutate(WB_GCM = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",WB_GCM),WB_GCM)) -> Future_Means
+  mutate(cap = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",pca),pca)) -> Future_Means
 
 Future_Means$CF=as.factor(Future_Means$CF)
 Future_Means$CF = factor(Future_Means$CF,ordered=TRUE,levels=CFs_all)
@@ -271,9 +254,6 @@ Future_Means$CF = factor(Future_Means$CF,ordered=TRUE,levels=CFs_all)
 CF_GCM = data.frame(GCM = Future_Means$GCM, CF = Future_Means$CF)
 Future_all = merge(Future_all, CF_GCM[1:2], by="GCM")
 Baseline_all$CF = "Historical"
-WBdat <- merge(WBdat, CF_GCM[1:2], by="GCM",all.x=T)
-WBdat$CF = factor(WBdat$CF, levels=c(levels(WBdat$CF), "Historical"))
-WBdat$CF[is.na(WBdat$CF)] = "Historical"
 
 ################################ SUMMARIZE TEMPERATURE, PRECIP, RH BY MONTH & SEASON #######################
 Baseline_all$Month<-format(Baseline_all$Date,"%m")
@@ -294,9 +274,10 @@ Precip = aggregate(PrcpIn~Month+Year+GCM+CF,Baseline_all,sum,na.rm=TRUE)
 Precip = aggregate(PrcpIn~Month+GCM+CF,Precip,mean,na.rm=TRUE)
 Baseline_all$RHmean<-(Baseline_all$RHmaxPct+Baseline_all$RHminPct)/2
 RHmean = aggregate(RHmean~Month+GCM+CF,Baseline_all,mean,na.rm=TRUE)
+VPD = aggregate(VPD~Month+GCM+CF,Baseline_all,mean,na.rm=TRUE)
 
-H_Monthly<-Reduce(function(...)merge(...,all=T),list(Tmax,Tmin,Tmean,Precip,RHmean))
-rm(Tmax,Tmin,Tmean,Precip,RHmean)
+H_Monthly<-Reduce(function(...)merge(...,all=T),list(Tmax,Tmin,Tmean,Precip,RHmean,VPD))
+rm(Tmax,Tmin,Tmean,Precip,RHmean,VPD)
 
 # Future
 Tmax = aggregate(TmaxF~Month+GCM+CF,Future_all,mean,na.rm=TRUE)
@@ -306,9 +287,10 @@ Precip = aggregate(PrcpIn~Month+Year+GCM+CF,Future_all,sum,na.rm=TRUE)
 Precip = aggregate(PrcpIn~Month+GCM+CF,Precip,mean,na.rm=TRUE)
 Future_all$RHmean<-(Future_all$RHmaxPct+Future_all$RHminPct)/2
 RHmean = aggregate(RHmean~Month+GCM+CF,Future_all,mean,na.rm=TRUE)
+VPD= aggregate(VPD~Month+GCM+CF,Future_all,mean,na.rm=TRUE)
 
-F_Monthly<-Reduce(function(...)merge(...,all=T),list(Tmax,Tmin,Tmean,Precip,RHmean))
-rm(Tmax,Tmin,Tmean,Precip,RHmean)
+F_Monthly<-Reduce(function(...)merge(...,all=T),list(Tmax,Tmin,Tmean,Precip,RHmean,VPD))
+rm(Tmax,Tmin,Tmean,Precip,RHmean,VPD)
 
 
 #### Create tables with seasonal tmax/tmin/tmean/precip/RHmean delta by CF
@@ -320,9 +302,10 @@ Precip = aggregate(PrcpIn~season+Year+GCM+CF,Baseline_all,sum,na.rm=TRUE)
 Precip = aggregate(PrcpIn~season+GCM+CF,Precip,mean,na.rm=TRUE)
 Baseline_all$RHmean<-(Baseline_all$RHmaxPct+Baseline_all$RHminPct)/2
 RHmean = aggregate(RHmean~season+GCM+CF,Baseline_all,mean,na.rm=TRUE)
+VPD = aggregate(VPD~season+GCM+CF,Baseline_all,mean,na.rm=TRUE)
 
-H_Season<-Reduce(function(...)merge(...,all=T),list(Tmax,Tmin,Tmean,Precip,RHmean))
-rm(Tmax,Tmin,Tmean,Precip,RHmean)
+H_Season<-Reduce(function(...)merge(...,all=T),list(Tmax,Tmin,Tmean,Precip,RHmean,VPD))
+rm(Tmax,Tmin,Tmean,Precip,RHmean,VPD)
 
 # Future
 Tmax = aggregate(TmaxF~season+GCM+CF,Future_all,mean,na.rm=TRUE)
@@ -332,41 +315,44 @@ Precip = aggregate(PrcpIn~season+Year+GCM+CF,Future_all,sum,na.rm=TRUE)
 Precip = aggregate(PrcpIn~season+GCM+CF,Precip,mean,na.rm=TRUE)
 Future_all$RHmean<-(Future_all$RHmaxPct+Future_all$RHminPct)/2
 RHmean = aggregate(RHmean~season+GCM+CF,Future_all,mean,na.rm=TRUE)
+VPD = aggregate(VPD~season+GCM+CF,Future_all,mean,na.rm=TRUE)
 
-F_Season<-Reduce(function(...)merge(...,all=T),list(Tmax,Tmin,Tmean,Precip,RHmean))
-rm(Tmax,Tmin,Tmean,Precip,RHmean)
+F_Season<-Reduce(function(...)merge(...,all=T),list(Tmax,Tmin,Tmean,Precip,RHmean,VPD))
+rm(Tmax,Tmin,Tmean,Precip,RHmean,VPD)
 
 
 ################################ SUMMARIZE TEMPERATURE AND PRECIP BY MONTH & SEASON #######################
 
 # Monthly abs
-H_MonMean<-aggregate(cbind(TmaxF,TminF,TavgF,PrcpIn,RHmean)~Month,H_Monthly,mean)
-H_MonMean$CF<-"Historical";H_MonMean<-H_MonMean[,c("Month","CF",names(H_MonMean[,2:6]))]
-F_MonCF<-aggregate(cbind(TmaxF,TminF,TavgF,PrcpIn,RHmean)~Month+CF,F_Monthly,mean)
+H_MonMean<-aggregate(cbind(TmaxF,TminF,TavgF,PrcpIn,RHmean,VPD)~Month,H_Monthly,mean)
+H_MonMean$CF<-"Historical";H_MonMean<-H_MonMean[,c("Month","CF",names(H_MonMean[,2:7]))]
+F_MonCF<-aggregate(cbind(TmaxF,TminF,TavgF,PrcpIn,RHmean,VPD)~Month+CF,F_Monthly,mean)
 Monthly<-rbind(H_MonMean,F_MonCF)
 Monthly$CF<-factor(Monthly$CF,levels = c(CFs_all,"Historical"))
 
 # Monthly delta
 Monthly_delta<-F_MonCF
-for (i in 3:7){
+for (i in 3:8){
   Monthly_delta[,i]<-F_MonCF[,i]-H_MonMean[,i][match(F_MonCF$Month,H_MonMean$Month)]
 }
 Monthly_delta$CF<-factor(Monthly_delta$CF,levels = c(CFs_all))
+Monthly_delta$PrcpPct <- (Monthly_delta$PrcpIn/H_MonMean$PrcpIn)*100
 
 # Seasonal abs
-H_SeasMean<-aggregate(cbind(TmaxF,TminF,TavgF,PrcpIn,RHmean)~season,H_Season,mean)
-H_SeasMean$CF<-"Historical";H_SeasMean<-H_SeasMean[,c("season","CF",names(H_SeasMean[,2:6]))]
-F_SeasCF<-aggregate(cbind(TmaxF,TminF,TavgF,PrcpIn,RHmean)~season+CF,F_Season,mean)
+H_SeasMean<-aggregate(cbind(TmaxF,TminF,TavgF,PrcpIn,RHmean,VPD)~season,H_Season,mean)
+H_SeasMean$CF<-"Historical";H_SeasMean<-H_SeasMean[,c("season","CF",names(H_SeasMean[,2:7]))]
+F_SeasCF<-aggregate(cbind(TmaxF,TminF,TavgF,PrcpIn,RHmean,VPD)~season+CF,F_Season,mean)
 Season<-rbind(H_SeasMean,F_SeasCF)
 Season$CF<-factor(Season$CF,levels = c(CFs_all,"Historical"))
 Season$season = factor(Season$season, levels = c("Winter","Spring","Summer","Fall"))
 
 # Season delta
 Season_delta<-F_SeasCF
-for (i in 3:7){
+for (i in 3:8){
   Season_delta[,i]<-F_SeasCF[,i]-H_SeasMean[,i][match(F_SeasCF$season,H_SeasMean$season)]
 }; Season_delta$CF<-factor(Season_delta$CF,levels = c(CFs_all))
 Season_delta$season = factor(Season_delta$season, levels = c("Winter","Spring","Summer","Fall"))
+Season_delta$PrcpPct <- (Season_delta$PrcpIn/H_SeasMean$PrcpIn)*100
 
 ########################################## END MONTH & SEASON SUMMARY ##########################################
 
