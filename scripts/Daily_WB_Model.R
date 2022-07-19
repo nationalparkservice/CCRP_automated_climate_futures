@@ -1,20 +1,7 @@
 ##### Water Balance Calculations 
 
-
-############################################################# USER INPUTS ##################################################################### 
-
-# #Formatted input data as a daily time series. Needs to include the following columns: Date, ppt_mm, tmax_C, tmin_C, and tmean_C (temp.'s in deg. Celsius)
-# 
-# DataFile <- list.files(path = file.path(OutDir,"input-data/"), pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
-# load(DataFile)
-
-
-#rm(list=setdiff(ls(), c("ALL_HIST","ALL_FUTURE","site","CF_GCM")))
-
-#Site characteristics 
-#sites = read.csv("C:/Users/adillon/Documents/RSS/CONG/WB/CONG_site_characteristics.csv") #CSV file containing properties for all sites
 n<-nrow(wb_sites)
-#Threshold temperature (deg C) for growing degree-days calculation
+WB_GCMs %>% filter(CF %in% CFs) -> WB_GCMs
 T.Base = 0 
 
 #Date format
@@ -52,18 +39,11 @@ ALL_FUTURE$tmean_C <- (ALL_FUTURE$tmax_C + ALL_FUTURE$tmin_C)/2
 #  dir.create(WBdir)
 #}
 
-ClimData<-data.frame(Date=as.numeric(),ppt_mm=as.numeric(),tmean_C=as.numeric(),GCM=as.character())
-# Loop through selected GCMs
+# Subset selected GCMs
 ClimData <- ALL_FUTURE %>% filter(GCM %in% WB_GCMs$GCM) %>% 
   select(c("Date","ppt_mm","tmean_C","GCM")) %>%
   bind_rows(Gridmet %>% select(c("Date","ppt_mm","tmean_C","GCM")))
 
-#for(i in 1:nrow(WB_GCMs)){
-#  gcm <- WB_GCMs$GCM[i]
-#  x<-subset(Gridmet, select=c("Date","ppt_mm","tmean_C","GCM"))
-#  y<-subset(ALL_FUTURE,GCM == gcm, select=c("Date","ppt_mm","tmean_C","GCM"))
-#  ClimData = rbind(ClimData,x,y)
-#}
 ClimData$GCM<-factor(ClimData$GCM,levels=unique(ClimData$GCM))
 
 WB_GCMs <- WB_GCMs %>% 
@@ -173,35 +153,8 @@ AnnualWB$runoff.mm = aggregate(W_ET_DSOIL ~ year+GCM, data=aggregate(W_ET_DSOIL~
 AnnualWB$sum_d.mm = aggregate(D ~ year+GCM, data=aggregate(D~year+GCM+ID,data=WBData,sum), mean)[,3]
 AnnualWB$sum_gdd.C = aggregate(GDD ~ year+GCM, data=aggregate(GDD~year+GCM+ID,data=WBData,sum), mean)[,3]
 
-write.csv(MonthlyWB, file.path(TableDir,"MonthlyWB.csv"), row.names=F)
-write.csv(AnnualWB,file.path(TableDir,"AnnualWB.csv"), row.names=F)
-
-################ WB GRID PLOTTING AFTER THIS............ ##################
-
-
-
-######################################################### AGGREGATE OUTPUTS TO MONThLY/ANNUAL ################################################################
-
-
-
-#MonthlyWB$max_SWEaccum.in = aggregate(SWEaccum.in~yrmon+GCM,data=WBData,max)[,3] #Max_pack -- conversion?
-#MonthlyWB$sum_runoff.in = aggregate(Runoff.in~yrmon+GCM,data=aggregate(Runoff.in~yrmon+GCM,data=WBData,sum),mean)[,3] #AnnualWB$runoff -- conversion?
-#MonthlyWB$sum_pet.in = aggregate(PET.in~yrmon+GCM,data=aggregate(PET.in~yrmon+GCM,data=WBData,sum),mean)[,3] #sum_pet -- conversion?
-#MonthlyWB$avg_SM.in = aggregate(SM.in ~ yrmon+GCM, data=WBData, FUN=mean)[,3] #avg_soil -- conversion?
-#MonthlyWB$sum_aet.in = aggregate(AET.in~yrmon+GCM,data=aggregate(AET.in~yrmon+GCM,data=WBData,sum),mean)[,3]#sum_aet -- conversion?
-#MonthlyWB$sum_d.in = aggregate(D.in~yrmon+GCM,data=aggregate(D.in~yrmon+GCM,data=WBData,sum),mean)[,3] #sum_d -- conversion?
-#
-#AnnualWB$max_SWEaccum.in = aggregate(SWEaccum.in ~ Year+GCM, data=WBData, max)[,3]
-#AnnualWB$sum_runoff.in = aggregate(Runoff.in ~ Year+GCM, data=aggregate(Runoff.in~Year+GCM,data=WBData,sum), mean)[,3]
-#AnnualWB$sum_pet.in = aggregate(PET.in ~ Year+GCM, data=aggregate(PET.in~Year+GCM,data=WBData,sum), mean)[,3]
-#AnnualWB$avg_SM.in = aggregate(SM.in ~ Year+GCM, data=WBData, FUN=mean)[,3]
-#AnnualWB$sum_aet.in = aggregate(AET.in ~ Year+GCM, data=aggregate(AET.in~Year+GCM,data=WBData,sum), mean)[,3]
-#AnnualWB$sum_d.in = aggregate(D.in ~ Year+GCM, data=aggregate(D.in~Year+GCM,data=WBData,sum), mean)[,3]
-
-#MonthlyWB %>% mutate_at(3:9,funs(round(.,1))) %>% write.csv(.,paste0(TableDir,"WB-Monthly.csv"),row.names=FALSE)
-#AnnualWB %>% mutate_at(3:9,funs(round(.,1))) %>% write.csv(.,paste0(TableDir,"WB-Annual.csv"),row.names=FALSE)
-
-
+MonthlyWB %>% mutate_at(3:length(MonthlyWB),funs(round(.,1))) %>% write.csv(.,paste0(TableDir,"WB-Monthly.csv"),row.names=FALSE)
+AnnualWB %>% mutate_at(3:length(AnnualWB),funs(round(.,1))) %>% write.csv(.,paste0(TableDir,"WB-Annual.csv"),row.names=FALSE)
 
 #######################################################################################################################
 ######################################### PLOTTING ####################################################################
@@ -217,40 +170,22 @@ AnnualWB <- AnnualWB %>% drop_na()
 # Conversions to Imperial Units
 
 #Annual Conversions
-AnnualWB$sum_p.in <- (AnnualWB$sum_p.mm/ 25.4)
-AnnualWB$avg_t.F <- (AnnualWB$avg_t.C * (9/5) + 32)
-AnnualWB$sum_rain.in <- (AnnualWB$sum_rain.mm/ 25.4)
 AnnualWB$sum_snow.in <- (AnnualWB$sum_snow.mm/ 25.4)
 AnnualWB$max_pack.in <- (AnnualWB$max_pack.mm/ 25.4)
-AnnualWB$sum_melt.in <- (AnnualWB$sum_melt.mm/ 25.4)
-AnnualWB$sum_w.in <- (AnnualWB$sum_w.mm/ 25.4)
 AnnualWB$sum_pet.in <- (AnnualWB$sum_pet.mm/ 25.4)
-AnnualWB$sum_w_pet.in <- (AnnualWB$sum_w_pet.mm/ 25.4)
 AnnualWB$avg_soil.in <- (AnnualWB$avg_soil.mm/ 25.4)
 AnnualWB$sum_aet.in <- (AnnualWB$sum_aet.mm/ 25.4)
 AnnualWB$runoff.in <- (AnnualWB$runoff.mm/ 25.4)
 AnnualWB$sum_d.in <- (AnnualWB$sum_d.mm/ 25.4)
-AnnualWB$sum_gdd.F <- (AnnualWB$sum_gdd.C * (9/5) + 32)
-
-AnnualWB <- subset(AnnualWB, select = -c(3:16))
 
 #Monthly Conversions
-MonthlyWB$sum_p.in <- (MonthlyWB$sum_p.mm/ 25.4)
-MonthlyWB$avg_t.F <- (MonthlyWB$avg_t.C * (9/5) + 32)
-MonthlyWB$sum_rain.in <- (MonthlyWB$sum_rain.mm/ 25.4)
 MonthlyWB$sum_snow.in <- (MonthlyWB$sum_snow.mm/ 25.4)
 MonthlyWB$max_pack.in <- (MonthlyWB$max_pack.mm/ 25.4)
-MonthlyWB$sum_melt.in <- (MonthlyWB$sum_melt.mm/ 25.4)
-MonthlyWB$sum_w.in <- (MonthlyWB$sum_w.mm/ 25.4)
 MonthlyWB$sum_pet.in <- (MonthlyWB$sum_pet.mm/ 25.4)
-MonthlyWB$sum_w_pet.in <- (MonthlyWB$sum_w_pet.mm/ 25.4)
 MonthlyWB$avg_soil.in <- (MonthlyWB$avg_soil.mm/ 25.4)
 MonthlyWB$sum_aet.in <- (MonthlyWB$sum_aet.mm/ 25.4)
 MonthlyWB$runoff.in <- (MonthlyWB$runoff.mm/ 25.4)
 MonthlyWB$sum_d.in <- (MonthlyWB$sum_d.mm/ 25.4)
-#MonthlyWB$sum_gdd.F <- (MonthlyWB$sum_gdd.C * (9/5) + 32)
-
-MonthlyWB <- subset(MonthlyWB, select = -c(3:15))
 
 
 ggplot(AnnualWB, aes(x=sum_d.in, y=sum_aet.in, colour=CF)) +  
