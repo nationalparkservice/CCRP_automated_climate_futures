@@ -185,7 +185,7 @@ MonthlyWB %>% mutate(sum_snow.in = sum_snow.mm/ 25.4,
                      avg_soil.in=avg_soil.mm/ 25.4,
                      sum_aet.in = sum_aet.mm/ 25.4,
                      runoff.in = runoff.mm/ 25.4,
-                     sum_d.in = sum_d.mm/ 25.4)%>% 
+                     sum_d.in = sum_d.mm/ 25.4) %>% 
   mutate(Month = substr(MonthlyWB$yrmon, 5, 7)) %>% group_by(CF, Month) %>% 
   summarise_at(vars(sum_snow.in,max_pack.in,sum_pet.in,avg_soil.in,sum_aet.in, runoff.in,sum_d.in),mean) -> MonthlyWB_in
 
