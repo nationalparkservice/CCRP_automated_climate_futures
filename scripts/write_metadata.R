@@ -31,8 +31,6 @@ if(centroids_csv == "Y"){
   cat("Gridmet, MACA, and water balance data downloaded from Park .csv files")
 } else {
     cat("MACA and gridmet data downloaded from lat/lon. Water balance calculated from R package.")
-    cat(paste0("PET equation = ", PET_Method))
-    cat("Jennings coefficients applied to snow melt.")
 }
 cat("\n")
 inputs <- list.files(path = DataDir) # RData files created from parsed data
@@ -52,9 +50,10 @@ cat("\n")
 cat("\n")
 cat("WATER BALANCE MODEL INFORMATION")
 cat("\n")
-cat(paste("Models used in Water Balance analysis:", WB_GCMs[1], WB_GCMs[2])) 
+cat(paste("Models used in Water Balance analysis:", WB_GCMs)) 
 cat("\n")
-cat(paste("PET Method:", Method))
+cat(paste("PET Method:", PET_Method))
+cat("Jennings coefficients applied to snow melt.")
 ("\n")
 
 # Drought analysis
@@ -68,6 +67,13 @@ cat(paste("SPEI truncation value:", truncation))
 cat("\n")
 cat(paste("SPEI baseline starts in", SPEI_start), "and ends in", SPEI_end)
 cat("\n")
+
+
+# Return events
+cat("\n")
+cat("RETURN EVENTS ANALYSIS")
+cat("\n")
+cat("Return events modeled using GEV")
 
 # # Bias correction text
 # # NOTE: This will probably be moved to a Methods document at some point
