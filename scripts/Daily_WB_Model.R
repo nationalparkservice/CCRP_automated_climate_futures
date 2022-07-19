@@ -211,14 +211,15 @@ ggsave("avg_SM.in-Density.png", path = FigDir, width = PlotWidth, height = PlotH
 
 
 ### Monthly Plots
-MonthlyWB$Month <- substr(MonthlyWB$yrmon, 5, 7)
-MonthlyWB_mean <- aggregate(.~CF+Month, MonthlyWB[,3:18],mean)
-MonthlyWB_H <- subset(MonthlyWB_mean, CF == "Historical")
+MonthlyWB %>% mutate(Month = substr(MonthlyWB$yrmon, 5, 7)) %>% group_by(CF, Month) %>% 
+  summarise_at(vars(sum_snow.in,max_pack.in,sum_pet.in,avg_soil.in,sum_aet.in, runoff.in,sum_d.in),mean) -> MonthlyWB
+
+MonthlyWB_H <- subset(MonthlyWB, CF == "Historical")
 MonthlyWB_delta = list()
-split<-split(MonthlyWB_mean,MonthlyWB_mean$CF)
+split<-split(MonthlyWB,MonthlyWB$CF)
 for(i in 1:length(split)){
   MD <- split[[i]]
-  MD[,3:16] <- MD[,3:16] - MonthlyWB_H[,3:16]
+  MD[,3:length(MD)] <- MD[,3:length(MD)] - MonthlyWB_H[,3:length(MonthlyWB_H)]
   MonthlyWB_delta[[i]] <- MD ; rm(MD)
 }
 MonthlyWB_delta<- ldply(MonthlyWB_delta, data.frame)
@@ -232,22 +233,11 @@ Month_line_plot(MonthlyWB_delta, Month, avg_soil.in, grp=CF, cols=colors2,
                 xlab="Month", ylab="Change in soil moisture (inches)")
 ggsave("avg_SM.in-Monthly-line.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
-dot_plot(MonthlyWB_delta, avg_soil.in, Month, grp=CF, cols=colors2,
-         title = paste("Change in average monthly soil moisture in", Yr, "vs Historical (",BasePeriod,")"),
-         xlab="Change in soil moisture (inches)",ylab="Month",labels=MonthLabels)
-ggsave("avg_SM.in-Monthly-dot.png", path = FigDir, width = PlotWidth, height = PlotHeight)
-
 ## sum_d.in
 Month_line_plot(MonthlyWB_delta, Month, sum_d.in, grp=CF, cols=colors2, 
                 title= paste("Change in average monthly water deficit in", Yr, "vs Historical (",BasePeriod,")"),
                 xlab="Month", ylab="Change in deficit (inches)")
 ggsave("sum_d.in-Monthly-line.png", path = FigDir, width = PlotWidth, height = PlotHeight)
-
-dot_plot(MonthlyWB_delta, sum_d.in, Month, grp=CF, cols=colors2,
-         title = paste("Change in average monthly water deficit in", Yr, "vs Historical (",BasePeriod,")"),
-         xlab="Change in deficit (inches)",ylab="Month",labels=MonthLabels)
-ggsave("sum_d.in-Monthly-dot.png", path = FigDir, width = PlotWidth, height = PlotHeight)
-
 
 ## runoff.in
 Month_line_plot(MonthlyWB_delta, Month, runoff.in, grp=CF, cols=colors2, 
@@ -255,23 +245,11 @@ Month_line_plot(MonthlyWB_delta, Month, runoff.in, grp=CF, cols=colors2,
                 xlab="Month", ylab="Change in runoff (inches)")
 ggsave("sum_runoff.in-Monthly-line.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
-dot_plot(MonthlyWB_delta, runoff.in, Month, grp=CF, cols=colors2,
-         title = paste("Change in average monthly runoff in", Yr, "vs Historical (",BasePeriod,")"),
-         xlab="Change in runoff (inches)",ylab="Month",labels=MonthLabels)
-ggsave("sum_runoff.in-Monthly-dot.png", path = FigDir, width = PlotWidth, height = PlotHeight)
-
-
 ## max_pack.in
 Month_line_plot(MonthlyWB_delta, Month, max_pack.in, grp=CF, cols=colors2, 
                 title= paste("Change in average monthly SWE in", Yr, "vs Historical (",BasePeriod,")"),
                 xlab="Month", ylab="Change in SWE (inches)")
 ggsave("sum_SWEaccum.in-Monthly-line.png", path = FigDir, width = PlotWidth, height = PlotHeight)
-
-dot_plot(MonthlyWB_delta, max_pack.in, Month, grp=CF, cols=colors2,
-         title = paste("Change in average monthly SWE in", Yr, "vs Historical (",BasePeriod,")"),
-         xlab="Change in SWE (inches)",ylab="Month",labels=MonthLabels)
-ggsave("sum_SWEaccum.in-Monthly-dot.png", path = FigDir, width = PlotWidth, height = PlotHeight)
-
 
 ## sum_aet.in
 Month_line_plot(MonthlyWB_delta, Month, sum_aet.in, grp=CF, cols=colors2, 
@@ -279,14 +257,9 @@ Month_line_plot(MonthlyWB_delta, Month, sum_aet.in, grp=CF, cols=colors2,
                 xlab="Month", ylab="Change in AET (inches)")
 ggsave("sum_aet.in-Monthly-line.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
-dot_plot(MonthlyWB_delta, sum_aet.in, Month, grp=CF, cols=colors2,
-         title = paste("Change in average monthly AET in", Yr, "vs Historical (",BasePeriod,")"),
-         xlab="Change in AET (inches)",ylab="Month",labels=MonthLabels)
-ggsave("sum_aet.in-Monthly-dot.png", path = FigDir, width = PlotWidth, height = PlotHeight)
-
-
 ### Additional plots
 # Max SWE
+AnnualWB <- rename(AnnualWB, Year=year)
 # AnnualWB$max_SWEaccum.in <- aggregate(SWEaccum.in ~ Year+GCM, data=aggregate(SWEaccum.in~Year+GCM,data=WBData,sum), mean)[,3]
 density_plot(AnnualWB, xvar=max_pack.in,cols=col,title=paste(SiteID,"maximum annual SWE in", Yr,  "and Historical Period (", BasePeriod,")",sep=" "),
              xlab="Max SWE (in)")
@@ -317,7 +290,7 @@ WBData$CF<-factor(WBData$CF, levels=c("Historical",CFs))
 WBData <- WBData %>% drop_na()
 
 # SWE spaghetti
-Hist.SWE<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"SWEaccum.in",col=col[1],CF="Historical")
+Hist.SWE<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"PACK",col=col[1],CF="Historical")
 CF1.SWE<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"SWEaccum.in",col=col[2], CF=CFs[1])
 CF2.SWE<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"SWEaccum.in",col=col[3], CF=CFs[2])
 
