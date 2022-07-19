@@ -12,85 +12,31 @@ SPEI_annual_bar <- function(data, period.box=T, title){
 }
 
 ############################### FORMAT DATAFRAMES  ############################################
-#WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
-
-# Historical
-Grid <- Gridmet
-Grid$TavgC<-(Grid$TavgF-32)*5/9
-Grid$Prcpmm<-Grid$PrcpIn*25.4
-Grid$Month<-format(Grid$Date,format="%m")
-d<-aggregate(Prcpmm~Month+Year,Grid,sum)
-d2<-aggregate(TavgC~Month+Year,Grid,mean)
-drt<-merge(d,d2,by=c("Month","Year"));rm(d,d2,Grid)
-drt<-drt[with(drt, order(Year, Month)),]
-drt$PET<-thornthwaite(drt$TavgC,lat = Lat)
-
-# Run SPEI on gridmet
-tp<-ts(drt$Prcpmm,frequency=12,start=c(1979,1))
-tpet<-ts(drt$PET,frequency=12,start=c(1979,1))
-SPEI<-spei(tp - tpet, SPEI_per, ref.start=c(SPEI_start,1),ref.end=c(SPEI_end,12))
-plot(x=SPEI,main="Gridmet") #eventually prob want to figure out how to make x-axis date
-
-drt$SPEI<-SPEI$fitted;drt$SPEI[which(is.na(drt$SPEI))]<-0 #records used to normalize data are NAs - convert to 0s
-names(drt)[6]<-"SPEI"
-drt3<-aggregate(cbind(Prcpmm,SPEI)~Year,drt,mean)
-
-F<-subset(ALL_FUTURE, GCM %in% WB_GCMs$GCM, select=c(Date,Year,GCM,PrcpIn,TavgF))
-F$Month<-format(F$Date,format="%m")
-F$Prcpmm<-F$PrcpIn*25.4
-F$TavgC<-(F$TavgF-32)*5/9
-
-M<-aggregate(Prcpmm~Month+Year+GCM,F,sum)
-Mon<-aggregate(TavgC~Month+Year+GCM,F,mean)
-Mon<-merge(Mon,M,by=c("Month","Year","GCM"));rm(M)
-Mon$PET<-thornthwaite(Mon$TavgC,lat=Lat)
-
-# add in Historical data for baseline calc
-hist.sample <- subset(drt, Year > 1979 & Year < 1982)#MACA starts at 2023 but need continuous data for timeseries calc - create data for 2021&2022 from 1980-1981
-hist.sample$Year = c(rep(2021,12), rep(2022,12))
-drt<-rbind(drt,hist.sample); rm(hist.sample)
-
-drt$GCM<-WB_GCMs$GCM[1]
-d<-drt; d$GCM <- WB_GCMs$GCM[2]
-drt<-rbind(drt,d)
-d<-subset(drt, select=c("Month","Year","GCM","TavgC","Prcpmm","PET"))
-Mon <- rbind(d,Mon)
-
-Mon<-merge(Mon,CF_GCM,by="GCM")
-Mon$CF<-factor(Mon$CF,levels=unique(Mon$CF))
-MON<-aggregate(cbind(Prcpmm,PET)~Month+Year+CF,Mon,mean) 
-MON<-MON[with(MON, order(CF,Year, Month)),]
-
-CF.split<-split(MON,MON$CF) #Splits df into array by CF
-# this step is done because each CF has unique historical record and SPEI normalized to average conditions at beginning of record
-
-for (i in 1:length(CF.split)){
-  name=names(CF.split)[i]
-  t<-CF.split[[i]]
-  tp<-ts(t$Prcpmm,frequency=12,start=c(SPEI_start,1))
-  tpet<-ts(t$PET,frequency=12,start=c(SPEI_start,1))
+MonthlyWB <- MonthlyWB %>% mutate(Month = substr(MonthlyWB$yrmon, 5, 7),
+                          Year = substr(MonthlyWB$yrmon, 1, 4),
+                          Date = as.POSIXct(paste(Year,Month,"01",sep="-"),format="%Y-%m-%d")) %>% 
+  arrange(Year,Month)
+M1 <- list()
+for (i in 1:length(CFs)){
+  M = MonthlyWB %>% filter(CF %in% c("Historical",CFs[i])) %>% 
+    complete(Date = seq(min(Date), max(Date), by = "1 month"), 
+             fill = list(value = NA)) 
+  
+  tp<-ts(M$sum_p.mm,frequency=12,start=c(SPEI_start,1)); tp[is.na(tp)]<-0
+  tpet<-ts(M$sum_pet.mm,frequency=12,start=c(SPEI_start,1)); tpet[is.na(tpet)]<-0
   SPEI<-spei(tp-tpet,SPEI_per,ref.start=c(SPEI_start,1),ref.end=c(SPEI_end,12))
-  CF.split[[i]]$SPEI <- SPEI$fitted[1:length(SPEI$fitted)]
-  plot(x=SPEI,main=name) #eventually prob want to figure out how to make x-axis date
+  M$SPEI = SPEI$fitted[1:length(SPEI$fitted)]
+  M1[[i]]<-M %>% drop_na()
 }
-
-all2<- ldply(CF.split, data.frame) #convert back to df
-all2$SPEI[which(is.na(all2$SPEI))]<-0 #records used to normalize data are NAs - convert to 0s
+all2<- ldply(M1, data.frame) #convert back to df
 all2$SPEI[which(is.infinite(all2$SPEI))]<- -5 #getting some -Inf values that are large jumps, temp fix
 
 # 
 # all3<-subset(all2,Month==9) #Because we aggregated drought years as only applying to growing season
 #                             # If you are doing for place where winter drought would be important, use following line
-all3<-aggregate(cbind(Prcpmm,SPEI)~Year+CF,all2,mean)
+all3<-aggregate(cbind(sum_p.mm,SPEI)~Year+CF,all2,mean)
 
 ###################################### PLOT ANNUAL TIME-SERIES #################################################
-# Gridmet
-drt3$col[drt3$SPEI>=0]<-"above average"
-drt3$col[drt3$SPEI<0]<-"below average"
-drt3$col<-factor(drt3$col, levels=c("above average","below average"))
-
-SPEI_annual_bar(drt3, period.box=F,title="SPEI values for Historical Period (gridMET)")
-ggsave("SPEI-gridmet-Annual-bar.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
 # MACA prep dataframe
 all3$col[all3$SPEI>=0]<-"above average"
@@ -99,7 +45,7 @@ all3$col<-factor(all3$col, levels=c("above average","below average"))
 all3$Year<-as.numeric(all3$Year)
 
 # CF 
-CF1<-subset(all3, CF %in% CFs[1] )
+CF1<-subset(all3, CF %in% c("Historical",CFs[1]) )
 
 SPEI_annual_bar(subset(CF1,Year>=Yr-Range/2 & Year<=Yr+Range/2), period.box=T,
                 title=paste("SPEI values for", CFs[1], "climate future", sep = " " )) 
@@ -110,7 +56,7 @@ SPEI_annual_bar(CF1, period.box=T,
 ggsave("SPEI-CF1-gridmet-Annual-bar.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
 # CF 2
-CF2<-subset(all3, CF %in% CFs[2] )
+CF2<-subset(all3, CF %in% c("Historical",CFs[2]) )
 
 SPEI_annual_bar(subset(CF2,Year>=Yr-Range/2 & Year<=Yr+Range/2), period.box=T,
                 title=paste("SPEI values for", CFs[2], "climate future", sep = " " )) 
@@ -122,7 +68,7 @@ ggsave("SPEI-CF2-gridmet-Annual-bar.png", path = FigDir, width = PlotWidth, heig
 
 
 # Split into periods
-drt3<-subset(drt3, Year <=2012)
+drt3<-subset(all3, Year <=2012)
 min(drt3$SPEI)
 
 Future.drt<-subset(all3, Year >= Yr-Range/2 & Year <= Yr+Range/2)
@@ -289,7 +235,7 @@ for (i in 1:length(Drought_char$CF)){
 Drought_char<-rbind(Hist_char,Drought_char) 
 
 # csv for averages for each CF for hist and future periods
-write.csv(Drought_char,paste0(TableDir,"Drought_char.csv"),row.names=FALSE)
+write.csv(Drought_char,paste0(TableDir,"Drought_characteristics.csv"),row.names=FALSE)
 
 
 ########################################### BAR PLOTS ###############################################
