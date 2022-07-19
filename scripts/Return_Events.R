@@ -26,7 +26,7 @@ return50base$modeled<-predict(regression,newdata=return50base)
 return50base$GCM<-"Historical"
 
 ### CFs future 
-Future_subset <- subset(Future_all, GCM %in% WB_GCMs$GCM & CF %in% CFs)
+Future_subset <- ALL_FUTURE %>% filter(GCM %in% WB_GCMs$GCM) %>%  left_join(WB_GCMs)
 Future_split <- aggregate(PrcpIn~Year+GCM,Future_subset,max)
 
 Future_GCM<-split(Future_split,Future_split$GCM)
@@ -73,9 +73,9 @@ allreturns<-rbind(return50base, return50future)
 allreturns$CF<-factor(allreturns$CF, levels=c("Historical",CFs))
 
 #Bar graph 50-year return int for a 24-hour event
-var_bar_plot(allreturns,"modeled", cols=colors3, title="Extreme precipitation 50-year recurrence interval", 
+var_bar_plot(allreturns,"modeled", cols=colors3, title="50-year extreme precipitation (1:50) events", 
              ylab="Precipitation (inches/day)")
-ggsave("Bar-50yrRecurrence.png", path=FigDir, width = PlotWidth, height = PlotHeight)
+ggsave("50yr-PrecipEvent-bar.png", path=FigDir, width = PlotWidth, height = PlotHeight)
 
 
 ######line plot of return int regressions
@@ -87,7 +87,7 @@ allregressions<-rbind(max100base, max100future)
 allregressions$CF<-factor(allregressions$CF, levels=c("Historical",CFs))
 
 #line plots of regressions
-ggplot(allregressions, aes(x=return, y=modeled, group=CF, colour = CF)) +
+RE <- ggplot(allregressions, aes(x=return, y=modeled, group=CF, colour = CF)) +
   geom_line(size = 2, stat = "identity",colour="black") + 
   geom_line(size = 1.5, stat = "identity") +
   geom_point(colour= "black", size=4, aes(fill = factor(CF), shape = factor(CF))) +
@@ -97,7 +97,38 @@ ggplot(allregressions, aes(x=return, y=modeled, group=CF, colour = CF)) +
   scale_color_manual(name="",values = colors3) +
   scale_fill_manual(name="",values = colors3) +
   scale_shape_manual(name="",values = c(21,22,23))
-ggsave("line-recurrence-interval-curve.png", path=FigDir, width = PlotWidth, height = PlotHeight)
+ggsave(plot=RE,"Precip-Return-Event-curve.png", path=FigDir, width = PlotWidth, height = PlotHeight)
+
+RE + geom_vline(aes(xintercept=50),linetype=2,colour="black",size=1) +
+  geom_segment(aes(x=1,xend=50,y=allreturns$modeled[which(allreturns$CF=="Historical")],yend=allreturns$modeled[which(allreturns$CF=="Historical")]),linetype=1,colour="grey",size=1) +
+  geom_segment(aes(x=1,xend=50,y=allreturns$modeled[which(allreturns$CF==CFs[1])],yend=allreturns$modeled[which(allreturns$CF==CFs[1])]),linetype=1,colour=colors2[1],size=1) +
+  geom_segment(aes(x=1,xend=50,y=allreturns$modeled[which(allreturns$CF==CFs[2])],yend=allreturns$modeled[which(allreturns$CF==CFs[2])]),linetype=1,colour=colors2[2],size=1)
+ggsave("Precip-Return-Event-curve-50yr-lines.png", path=FigDir, width = PlotWidth, height = PlotHeight)
 
 write.csv(allregressions, paste0(TableDir,"precip_recurrence_interval.csv"),row.names = FALSE)
 
+Hist_return50 <- round(allreturns$modeled[which(allreturns$CF=="Historical")],0)
+CF1_return50 <- allregressions %>% filter(CF == CFs[1]) %>% slice(which.min(abs(modeled - Hist_return50))) %>% select(return)
+CF2_return50 <- allregressions %>% filter(CF == CFs[2]) %>% slice(which.min(abs(modeled - Hist_return50))) %>% select(return)
+
+RE + geom_hline(aes(yintercept=Hist_return50),linetype=2,colour="black",size=1) + 
+  geom_segment(aes(x=50,xend=50,y=0,yend=Hist_return50),linetype=1,colour="grey",size=1) +
+  geom_segment(aes(x=CF1_return50[1,],xend=CF1_return50[1,],y=0,yend=Hist_return50),linetype=1,colour=colors2[1],size=1) +
+  geom_segment(aes(x=CF2_return50[1,],xend=CF2_return50[1,],y=0,yend=Hist_return50),linetype=1,colour=colors2[2],size=1) 
+ggsave("Precip-Return-Event-curve-prcp-lines.png", path=FigDir, width = PlotWidth, height = PlotHeight)
+
+allregressions = allregressions %>% mutate(prob = 1/return)
+
+ggplot(allregressions, aes(x=prob, y=modeled, group=CF, colour = CF)) +
+  geom_line(size = 2, stat = "identity",colour="black") + 
+  geom_line(size = 1.5, stat = "identity") +
+  geom_point(colour= "black", size=4, aes(fill = factor(CF), shape = factor(CF))) +
+  PlotTheme + theme(axis.title.x=element_text(size=24, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20))) +
+  labs(title = paste(SiteID, " - Probability of 24-hour precipitation total",sep=""),
+       x = "Probability of occurrence)", y = "Precipitation (inches/day)") +
+  scale_color_manual(name="",values = colors3) +
+  scale_fill_manual(name="",values = colors3) +
+  scale_shape_manual(name="",values = c(21,22,23))
+ggsave(plot=RE,"Precip-Probability-curve.png", path=FigDir, width = PlotWidth, height = PlotHeight)
+
+write.csv(allregressions, paste0(TableDir,"precip_recurrence_interval.csv"),row.names = FALSE)
