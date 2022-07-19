@@ -287,12 +287,17 @@ WBData$WaterYr <- hydro.day.new(WBData$Date)
 
 WBData<-merge(WBData,WB_GCMs,by="GCM", all.x=T)
 WBData$CF<-factor(WBData$CF, levels=c("Historical",CFs))
-WBData <- WBData %>% drop_na()
+WBData <- WBData %>% drop_na %>% rename(Year=year) %>% mutate(
+  PACK.in=PACK/ 25.4,
+  Runoff.in=W_ET_DSOIL /25.4,
+  AET.in = AET / 25.4, 
+  SOIL.in = SOIL / 25.4
+)
 
 # SWE spaghetti
-Hist.SWE<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"PACK",col=col[1],CF="Historical")
-CF1.SWE<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"SWEaccum.in",col=col[2], CF=CFs[1])
-CF2.SWE<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"SWEaccum.in",col=col[3], CF=CFs[2])
+Hist.SWE<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"PACK.in",col=col[1],CF="Historical")
+CF1.SWE<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"PACK.in",col=col[2], CF=CFs[1])
+CF2.SWE<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"PACK.in",col=col[3], CF=CFs[2])
 
 SWEgrid <- ggarrange(Hist.SWE, CF1.SWE, CF2.SWE, ncol = 1, nrow = 3,common.legend = T)
 
@@ -304,8 +309,6 @@ ggsave("SWEaccum.in-spaghetti.png", width = PlotWidth, height = PlotHeight, path
 
 
 # runoff spaghetti
-
-
 Hist.runoff<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"Runoff.in",col=col[1],CF="Historical")
 CF1.runoff<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"Runoff.in",col=col[2], CF=CFs[1])
 CF2.runoff<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"Runoff.in",col=col[3], CF=CFs[2])
@@ -318,11 +321,7 @@ annotate_figure(runoffgrid, left = textGrob("Runoff (in)", rot = 90, vjust = 1, 
                                gp=gpar(fontface="bold", col="black",  fontsize=26)))
 ggsave("Runoff.in-spaghetti.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
-rm(Hist.SWE,CF1.SWE,CF2.SWE,SWEgrid,Hist.runoff,CF1.runoff,CF2.runoff, runoffgrid)
-
 # aet spaghetti
-
-
 Hist.AET<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"AET.in",col=col[1],CF="Historical")
 CF1.AET<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"AET.in",col=col[2], CF=CFs[1])
 CF2.AET<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"AET.in",col=col[3], CF=CFs[2])
@@ -337,11 +336,9 @@ ggsave("AET.in-spaghetti.png", width = PlotWidth, height = PlotHeight, path = Fi
 
 
 # SoilMoisture spaghetti
-
-
-Hist.SM<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"SM.in",col=col[1],CF="Historical")
-CF1.SM<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"SM.in",col=col[2], CF=CFs[1])
-CF2.SM<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"SM.in",col=col[3], CF=CFs[2])
+Hist.SM<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"SOIL.in",col=col[1],CF="Historical")
+CF1.SM<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"SOIL.in",col=col[2], CF=CFs[1])
+CF2.SM<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"SOIL.in",col=col[3], CF=CFs[2])
 
 SMgrid <- ggarrange(Hist.SM, CF1.SM, CF2.SM, ncol = 1, nrow = 3,common.legend = T)
 
@@ -350,6 +347,7 @@ annotate_figure(aetgrid, left = textGrob("Soil Moisture (in)", rot = 90, vjust =
                 top = textGrob("Daily Soil Moisture for each climate future by water year",
                                gp=gpar(fontface="bold", col="black",  fontsize=26)))
 ggsave("SM.in-spaghetti.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
 
 
 rm(Hist.SWE,CF1.SWE,CF2.SWE,SWEgrid,Hist.runoff,CF1.runoff,CF2.runoff, runoffgrid,Hist.AET,CF1.AET,CF2.AET,aetgrid,Hist.SM,
