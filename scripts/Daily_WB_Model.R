@@ -170,25 +170,39 @@ AnnualWB <- AnnualWB %>% drop_na()
 # Conversions to Imperial Units
 
 #Annual Conversions
-AnnualWB$sum_snow.in <- (AnnualWB$sum_snow.mm/ 25.4)
-AnnualWB$max_pack.in <- (AnnualWB$max_pack.mm/ 25.4)
-AnnualWB$sum_pet.in <- (AnnualWB$sum_pet.mm/ 25.4)
-AnnualWB$avg_soil.in <- (AnnualWB$avg_soil.mm/ 25.4)
-AnnualWB$sum_aet.in <- (AnnualWB$sum_aet.mm/ 25.4)
-AnnualWB$runoff.in <- (AnnualWB$runoff.mm/ 25.4)
-AnnualWB$sum_d.in <- (AnnualWB$sum_d.mm/ 25.4)
+Annual_WB %>% mutate(sum_snow.in = sum_snow.mm/ 25.4,
+                     max_pack.in = max_pck.mm/ 25.4,
+                     sum_pet.in = sum_pet.mm/ 25.4,
+                     avg_soil.in=avg_soil.mm/ 25.4,
+                     sum_aet.in = sum_aet.mm/ 25.4,
+                     runoff.in = runoff.mm/ 25.4,
+                     sum_d.in = sum_d.mm/ 25.4) -> AnnualWB_in
 
 #Monthly Conversions
-MonthlyWB$sum_snow.in <- (MonthlyWB$sum_snow.mm/ 25.4)
-MonthlyWB$max_pack.in <- (MonthlyWB$max_pack.mm/ 25.4)
-MonthlyWB$sum_pet.in <- (MonthlyWB$sum_pet.mm/ 25.4)
-MonthlyWB$avg_soil.in <- (MonthlyWB$avg_soil.mm/ 25.4)
-MonthlyWB$sum_aet.in <- (MonthlyWB$sum_aet.mm/ 25.4)
-MonthlyWB$runoff.in <- (MonthlyWB$runoff.mm/ 25.4)
-MonthlyWB$sum_d.in <- (MonthlyWB$sum_d.mm/ 25.4)
+MonthlyWB %>% mutate(sum_snow.in = sum_snow.mm/ 25.4,
+                     max_pack.in = max_pck.mm/ 25.4,
+                     sum_pet.in = sum_pet.mm/ 25.4,
+                     avg_soil.in=avg_soil.mm/ 25.4,
+                     sum_aet.in = sum_aet.mm/ 25.4,
+                     runoff.in = runoff.mm/ 25.4,
+                     sum_d.in = sum_d.mm/ 25.4)%>% 
+  mutate(Month = substr(MonthlyWB$yrmon, 5, 7)) %>% group_by(CF, Month) %>% 
+  summarise_at(vars(sum_snow.in,max_pack.in,sum_pet.in,avg_soil.in,sum_aet.in, runoff.in,sum_d.in),mean) -> MonthlyWB_in
+
+MonthlyWB_H <- subset(MonthlyWB_in, CF == "Historical")
+MonthlyWB_delta = list()
+split<-split(MonthlyWB,MonthlyWB_in$CF)
+for(i in 1:length(split)){
+  MD <- split[[i]]
+  MD[,3:length(MD)] <- MD[,3:length(MD)] - MonthlyWB_H[,3:length(MonthlyWB_H)]
+  MonthlyWB_delta[[i]] <- MD ; rm(MD)
+}
+MonthlyWB_delta<- ldply(MonthlyWB_delta, data.frame)
+MonthlyWB_delta <- subset(MonthlyWB_delta, CF %in% CFs)
+MonthlyWB_delta$CF<-droplevels(MonthlyWB_delta$CF)
 
 
-ggplot(AnnualWB, aes(x=sum_d.in, y=sum_aet.in, colour=CF)) +  
+ggplot(AnnualWB_in, aes(x=sum_d.in, y=sum_aet.in, colour=CF)) +  
   geom_point(size=3) +   
   geom_smooth(method="lm", se=FALSE, size=2) +
   scale_colour_manual("",values=col) +
@@ -201,32 +215,16 @@ ggplot(AnnualWB, aes(x=sum_d.in, y=sum_aet.in, colour=CF)) +
 
 ggsave("WaterBalance.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
-density_plot(AnnualWB, xvar=sum_d.in,cols=col,title=paste(SiteID,"Water Deficit for GCMs in", Yr,  "and Historical Period (", BasePeriod,")",sep=" "),
+density_plot(AnnualWB_in, xvar=sum_d.in,cols=col,title=paste(SiteID,"Water Deficit for GCMs in", Yr,  "and Historical Period (", BasePeriod,")",sep=" "),
              xlab="Annual deficit (in)")
 ggsave("sum_d.in-Density.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
-density_plot(AnnualWB, xvar=avg_soil.in,cols=col,title=paste(SiteID,"Soil Moisture for GCMs in", Yr,  "and Historical Period (", BasePeriod,")",sep=" "),
+density_plot(AnnualWB_in, xvar=avg_soil.in,cols=col,title=paste(SiteID,"Soil Moisture for GCMs in", Yr,  "and Historical Period (", BasePeriod,")",sep=" "),
              xlab="Annual soil moisture (in)")
 ggsave("avg_SM.in-Density.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
 
 ### Monthly Plots
-MonthlyWB %>% mutate(Month = substr(MonthlyWB$yrmon, 5, 7)) %>% group_by(CF, Month) %>% 
-  summarise_at(vars(sum_snow.in,max_pack.in,sum_pet.in,avg_soil.in,sum_aet.in, runoff.in,sum_d.in),mean) -> MonthlyWB
-
-MonthlyWB_H <- subset(MonthlyWB, CF == "Historical")
-MonthlyWB_delta = list()
-split<-split(MonthlyWB,MonthlyWB$CF)
-for(i in 1:length(split)){
-  MD <- split[[i]]
-  MD[,3:length(MD)] <- MD[,3:length(MD)] - MonthlyWB_H[,3:length(MonthlyWB_H)]
-  MonthlyWB_delta[[i]] <- MD ; rm(MD)
-}
-MonthlyWB_delta<- ldply(MonthlyWB_delta, data.frame)
-MonthlyWB_delta <- subset(MonthlyWB_delta, CF %in% CFs)
-MonthlyWB_delta$CF<-droplevels(MonthlyWB_delta$CF)
-
-
 ## avg_SM.in
 Month_line_plot(MonthlyWB_delta, Month, avg_soil.in, grp=CF, cols=colors2, 
                 title= paste("Change in average monthly soil moisture in", Yr, "vs Historical (",BasePeriod,")"),
@@ -259,17 +257,17 @@ ggsave("sum_aet.in-Monthly-line.png", path = FigDir, width = PlotWidth, height =
 
 ### Additional plots
 # Max SWE
-AnnualWB <- rename(AnnualWB, Year=year)
+AnnualWB <- rename(AnnualWB_in, Year=year)
 # AnnualWB$max_SWEaccum.in <- aggregate(SWEaccum.in ~ Year+GCM, data=aggregate(SWEaccum.in~Year+GCM,data=WBData,sum), mean)[,3]
-density_plot(AnnualWB, xvar=max_pack.in,cols=col,title=paste(SiteID,"maximum annual SWE in", Yr,  "and Historical Period (", BasePeriod,")",sep=" "),
+density_plot(AnnualWB_in, xvar=max_pack.in,cols=col,title=paste(SiteID,"maximum annual SWE in", Yr,  "and Historical Period (", BasePeriod,")",sep=" "),
              xlab="Max SWE (in)")
 ggsave("SWEaccum.in-Density-max.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
-var_bar_plot(AnnualWB, "max_pack.in", cols=colors3, ylab="Max SWE (in)",
+var_bar_plot(AnnualWB_in, "max_pack.in", cols=colors3, ylab="Max SWE (in)",
              title=paste0("Average annual max SWE in ", Yr, " vs ", BasePeriod))
 ggsave("max_pack.in-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
-var_line_plot(AnnualWB, var=max_pack.in, cols=col, title="Average annual max SWE in.",
+var_line_plot(AnnualWB_in, var=max_pack.in, cols=col, title="Average annual max SWE in.",
               ylab="Max SWE (in)")
 ggsave("max_SWEaccum.in-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
