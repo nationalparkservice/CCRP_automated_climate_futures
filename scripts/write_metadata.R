@@ -32,6 +32,7 @@ if(centroids_csv == "Y"){
 } else {
     cat("MACA and gridmet data downloaded from lat/lon. Water balance calculated from R package.")
     cat(paste0("PET equation = ", PET_Method))
+    cat("Jennings coefficients applied to snow melt.")
 }
 cat("\n")
 inputs <- list.files(path = DataDir) # RData files created from parsed data
