@@ -115,43 +115,43 @@ WBData <- subset(WBData, GCM %in% WB_GCMs$GCM | GCM == "gridmet.historical")
 WBData$yrmon = strftime(WBData$Date, "%Y%m")
 WBData$year = strftime(WBData$Date, "%Y")
 
-WBData <- subset(WBData, year >= Yr-Range/2 & year <= Yr+Range/2 | year <= 2012)
+WBData_subset <- subset(WBData, year >= Yr-Range/2 & year <= Yr+Range/2 | year <= 2012)
 
 #Monthly
-MonthlyWB = aggregate(ppt_mm~yrmon+GCM,data=aggregate(ppt_mm~yrmon+GCM+ID,data=WBData,sum),mean)
+MonthlyWB = aggregate(ppt_mm~yrmon+GCM,data=aggregate(ppt_mm~yrmon+GCM+ID,data=WBData_subset,sum),mean)
 colnames(MonthlyWB)[3]<-"sum_p.mm"
 
-MonthlyWB$avg_t.C = aggregate(tmean_C ~ yrmon+GCM, data=WBData, FUN=mean)[,3]
-MonthlyWB$sum_rain.mm = aggregate(RAIN~yrmon+GCM,data=aggregate(RAIN~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
-MonthlyWB$sum_snow.mm = aggregate(SNOW~yrmon+GCM,data=aggregate(SNOW~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
-MonthlyWB$max_pack.mm = aggregate(PACK ~ yrmon+GCM, data=WBData, FUN=max)[,3]
-MonthlyWB$sum_melt.mm = aggregate(MELT~yrmon+GCM,data=aggregate(MELT~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
-MonthlyWB$sum_w.mm = aggregate(W~yrmon+GCM,data=aggregate(W~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
-MonthlyWB$sum_pet.mm = aggregate(PET~yrmon+GCM,data=aggregate(PET~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
-MonthlyWB$sum_w_pet.mm = aggregate(W_PET~yrmon+GCM,data=aggregate(W_PET~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
-MonthlyWB$avg_soil.mm = aggregate(SOIL ~ yrmon+GCM, data=WBData, FUN=mean)[,3]
-MonthlyWB$sum_aet.mm = aggregate(AET~yrmon+GCM,data=aggregate(AET~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
-MonthlyWB$runoff.mm = aggregate(W_ET_DSOIL~yrmon+GCM,data=aggregate(W_ET_DSOIL~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
-MonthlyWB$sum_d.mm = aggregate(D~yrmon+GCM,data=aggregate(D~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
-MonthlyWB$sum_gdd.mm = aggregate(GDD~yrmon+GCM,data=aggregate(GDD~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
+MonthlyWB$avg_t.C = aggregate(tmean_C ~ yrmon+GCM, data=WBData_subset, FUN=mean)[,3]
+MonthlyWB$sum_rain.mm = aggregate(RAIN~yrmon+GCM,data=aggregate(RAIN~yrmon+GCM+ID,data=WBData_subset,sum),mean)[,3]
+MonthlyWB$sum_snow.mm = aggregate(SNOW~yrmon+GCM,data=aggregate(SNOW~yrmon+GCM+ID,data=WBData_subset,sum),mean)[,3]
+MonthlyWB$max_pack.mm = aggregate(PACK ~ yrmon+GCM, data=WBData_subset, FUN=max)[,3]
+MonthlyWB$sum_melt.mm = aggregate(MELT~yrmon+GCM,data=aggregate(MELT~yrmon+GCM+ID,data=WBData_subset,sum),mean)[,3]
+MonthlyWB$sum_w.mm = aggregate(W~yrmon+GCM,data=aggregate(W~yrmon+GCM+ID,data=WBData_subset,sum),mean)[,3]
+MonthlyWB$sum_pet.mm = aggregate(PET~yrmon+GCM,data=aggregate(PET~yrmon+GCM+ID,data=WBData_subset,sum),mean)[,3]
+MonthlyWB$sum_w_pet.mm = aggregate(W_PET~yrmon+GCM,data=aggregate(W_PET~yrmon+GCM+ID,data=WBData_subset,sum),mean)[,3]
+MonthlyWB$avg_soil.mm = aggregate(SOIL ~ yrmon+GCM, data=WBData_subset, FUN=mean)[,3]
+MonthlyWB$sum_aet.mm = aggregate(AET~yrmon+GCM,data=aggregate(AET~yrmon+GCM+ID,data=WBData_subset,sum),mean)[,3]
+MonthlyWB$runoff.mm = aggregate(W_ET_DSOIL~yrmon+GCM,data=aggregate(W_ET_DSOIL~yrmon+GCM+ID,data=WBData_subset,sum),mean)[,3]
+MonthlyWB$sum_d.mm = aggregate(D~yrmon+GCM,data=aggregate(D~yrmon+GCM+ID,data=WBData_subset,sum),mean)[,3]
+MonthlyWB$sum_gdd.mm = aggregate(GDD~yrmon+GCM,data=aggregate(GDD~yrmon+GCM+ID,data=WBData_subset,sum),mean)[,3]
 
 #Annual
-AnnualWB = aggregate(ppt_mm ~ year+GCM, data=aggregate(ppt_mm~year+GCM+ID,data=WBData,sum), mean)
+AnnualWB = aggregate(ppt_mm ~ year+GCM, data=aggregate(ppt_mm~year+GCM+ID,data=WBData_subset,sum), mean)
 colnames(AnnualWB)[3]<-"sum_p.mm"
 
-AnnualWB$avg_t.C = aggregate(tmean_C ~ year+GCM, data=WBData, FUN=mean)[,3]
-AnnualWB$sum_rain.mm = aggregate(RAIN ~ year+GCM, data=aggregate(RAIN~year+GCM+ID,data=WBData,sum), mean)[,3]
-AnnualWB$sum_snow.mm = aggregate(SNOW ~ year+GCM, data=aggregate(SNOW~year+GCM+ID,data=WBData,sum), mean)[,3]
-AnnualWB$max_pack.mm = aggregate(PACK ~ year+GCM, data=aggregate(PACK~year+GCM+ID,data=WBData,max), mean)[,3]
-AnnualWB$sum_melt.mm = aggregate(MELT ~ year+GCM, data=aggregate(MELT~year+GCM+ID,data=WBData,sum), mean)[,3]
-AnnualWB$sum_w.mm = aggregate(W ~ year+GCM, data=aggregate(W~year+GCM+ID,data=WBData,sum), mean)[,3]
-AnnualWB$sum_pet.mm = aggregate(PET ~ year+GCM, data=aggregate(PET~year+GCM+ID,data=WBData,sum), mean)[,3]
-AnnualWB$sum_w_pet.mm = aggregate(W_PET ~ year+GCM, data=aggregate(W_PET~year+GCM+ID,data=WBData,sum), mean)[,3]
-AnnualWB$avg_soil.mm = aggregate(SOIL ~ year+GCM, data=WBData, FUN=mean)[,3]
-AnnualWB$sum_aet.mm = aggregate(AET ~ year+GCM, data=aggregate(AET~year+GCM+ID,data=WBData,sum), mean)[,3]
-AnnualWB$runoff.mm = aggregate(W_ET_DSOIL ~ year+GCM, data=aggregate(W_ET_DSOIL~year+GCM+ID,data=WBData,sum), mean)[,3]
-AnnualWB$sum_d.mm = aggregate(D ~ year+GCM, data=aggregate(D~year+GCM+ID,data=WBData,sum), mean)[,3]
-AnnualWB$sum_gdd.C = aggregate(GDD ~ year+GCM, data=aggregate(GDD~year+GCM+ID,data=WBData,sum), mean)[,3]
+AnnualWB$avg_t.C = aggregate(tmean_C ~ year+GCM, data=WBData_subset, FUN=mean)[,3]
+AnnualWB$sum_rain.mm = aggregate(RAIN ~ year+GCM, data=aggregate(RAIN~year+GCM+ID,data=WBData_subset,sum), mean)[,3]
+AnnualWB$sum_snow.mm = aggregate(SNOW ~ year+GCM, data=aggregate(SNOW~year+GCM+ID,data=WBData_subset,sum), mean)[,3]
+AnnualWB$max_pack.mm = aggregate(PACK ~ year+GCM, data=aggregate(PACK~year+GCM+ID,data=WBData_subset,max), mean)[,3]
+AnnualWB$sum_melt.mm = aggregate(MELT ~ year+GCM, data=aggregate(MELT~year+GCM+ID,data=WBData_subset,sum), mean)[,3]
+AnnualWB$sum_w.mm = aggregate(W ~ year+GCM, data=aggregate(W~year+GCM+ID,data=WBData_subset,sum), mean)[,3]
+AnnualWB$sum_pet.mm = aggregate(PET ~ year+GCM, data=aggregate(PET~year+GCM+ID,data=WBData_subset,sum), mean)[,3]
+AnnualWB$sum_w_pet.mm = aggregate(W_PET ~ year+GCM, data=aggregate(W_PET~year+GCM+ID,data=WBData_subset,sum), mean)[,3]
+AnnualWB$avg_soil.mm = aggregate(SOIL ~ year+GCM, data=WBData_subset, FUN=mean)[,3]
+AnnualWB$sum_aet.mm = aggregate(AET ~ year+GCM, data=aggregate(AET~year+GCM+ID,data=WBData_subset,sum), mean)[,3]
+AnnualWB$runoff.mm = aggregate(W_ET_DSOIL ~ year+GCM, data=aggregate(W_ET_DSOIL~year+GCM+ID,data=WBData_subset,sum), mean)[,3]
+AnnualWB$sum_d.mm = aggregate(D ~ year+GCM, data=aggregate(D~year+GCM+ID,data=WBData_subset,sum), mean)[,3]
+AnnualWB$sum_gdd.C = aggregate(GDD ~ year+GCM, data=aggregate(GDD~year+GCM+ID,data=WBData_subset,sum), mean)[,3]
 
 MonthlyWB %>% mutate_at(3:length(MonthlyWB),funs(round(.,1))) %>% write.csv(.,paste0(TableDir,"WB-Monthly.csv"),row.names=FALSE)
 AnnualWB %>% mutate_at(3:length(AnnualWB),funs(round(.,1))) %>% write.csv(.,paste0(TableDir,"WB-Annual.csv"),row.names=FALSE)
@@ -170,28 +170,28 @@ AnnualWB <- AnnualWB %>% drop_na()
 # Conversions to Imperial Units
 
 #Annual Conversions
-Annual_WB %>% mutate(sum_snow.in = sum_snow.mm/ 25.4,
-                     max_pack.in = max_pck.mm/ 25.4,
+AnnualWB_in <- AnnualWB %>% mutate(sum_snow.in = sum_snow.mm/ 25.4,
+                     max_pack.in = max_pack.mm/ 25.4,
                      sum_pet.in = sum_pet.mm/ 25.4,
                      avg_soil.in=avg_soil.mm/ 25.4,
                      sum_aet.in = sum_aet.mm/ 25.4,
                      runoff.in = runoff.mm/ 25.4,
-                     sum_d.in = sum_d.mm/ 25.4) -> AnnualWB_in
+                     sum_d.in = sum_d.mm/ 25.4) 
 
 #Monthly Conversions
-MonthlyWB %>% mutate(sum_snow.in = sum_snow.mm/ 25.4,
-                     max_pack.in = max_pck.mm/ 25.4,
+MonthlyWB_in <- MonthlyWB %>% mutate(sum_snow.in = sum_snow.mm/ 25.4,
+                     max_pack.in = max_pack.mm/ 25.4,
                      sum_pet.in = sum_pet.mm/ 25.4,
                      avg_soil.in=avg_soil.mm/ 25.4,
                      sum_aet.in = sum_aet.mm/ 25.4,
                      runoff.in = runoff.mm/ 25.4,
                      sum_d.in = sum_d.mm/ 25.4) %>% 
   mutate(Month = substr(MonthlyWB$yrmon, 5, 7)) %>% group_by(CF, Month) %>% 
-  summarise_at(vars(sum_snow.in,max_pack.in,sum_pet.in,avg_soil.in,sum_aet.in, runoff.in,sum_d.in),mean) -> MonthlyWB_in
+  summarise_at(vars(sum_snow.in,max_pack.in,sum_pet.in,avg_soil.in,sum_aet.in, runoff.in,sum_d.in),mean) 
 
 MonthlyWB_H <- subset(MonthlyWB_in, CF == "Historical")
 MonthlyWB_delta = list()
-split<-split(MonthlyWB,MonthlyWB_in$CF)
+split<-split(MonthlyWB_in,MonthlyWB_in$CF)
 for(i in 1:length(split)){
   MD <- split[[i]]
   MD[,3:length(MD)] <- MD[,3:length(MD)] - MonthlyWB_H[,3:length(MonthlyWB_H)]
@@ -257,7 +257,7 @@ ggsave("sum_aet.in-Monthly-line.png", path = FigDir, width = PlotWidth, height =
 
 ### Additional plots
 # Max SWE
-AnnualWB <- rename(AnnualWB_in, Year=year)
+AnnualWB_in <- rename(AnnualWB_in, Year=year)
 # AnnualWB$max_SWEaccum.in <- aggregate(SWEaccum.in ~ Year+GCM, data=aggregate(SWEaccum.in~Year+GCM,data=WBData,sum), mean)[,3]
 density_plot(AnnualWB_in, xvar=max_pack.in,cols=col,title=paste(SiteID,"maximum annual SWE in", Yr,  "and Historical Period (", BasePeriod,")",sep=" "),
              xlab="Max SWE (in)")
@@ -283,8 +283,6 @@ WBData$WaterYr <- hydro.day.new(WBData$Date)
 
 ## Add CFs to WBData
 
-WBData<-merge(WBData,WB_GCMs,by="GCM", all.x=T)
-WBData$CF<-factor(WBData$CF, levels=c("Historical",CFs))
 WBData <- WBData %>% drop_na %>% rename(Year=year) %>% mutate(
   PACK.in=PACK/ 25.4,
   Runoff.in=W_ET_DSOIL /25.4,
