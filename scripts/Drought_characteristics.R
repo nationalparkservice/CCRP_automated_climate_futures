@@ -12,18 +12,17 @@ SPEI_annual_bar <- function(data, period.box=T, title){
 }
 
 ############################### FORMAT DATAFRAMES  ############################################
-MonthlyWB <- MonthlyWB %>% mutate(Month = substr(MonthlyWB$yrmon, 5, 7),
-                          Year = substr(MonthlyWB$yrmon, 1, 4),
-                          Date = as.POSIXct(paste(Year,Month,"01",sep="-"),format="%Y-%m-%d")) %>% 
-  arrange(Year,Month)
+Monthly_drought <- WBData %>% mutate(Month = format(Date,"%m")) %>% 
+  group_by(CF,Month,Year) %>% summarise_at(.vars = vars(ppt_mm,PET),.funs = c("mean")) %>% 
+  arrange(Year,Month) %>%  mutate(Date = as.POSIXct(paste(Year,Month,"01",sep="-"),format="%Y-%m-%d"))
 M1 <- list()
 for (i in 1:length(CFs)){
-  M = MonthlyWB %>% filter(CF %in% c("Historical",CFs[i])) %>% 
+  M = Monthly_drought %>% filter(CF %in% c("Historical",CFs[i])) %>% 
     complete(Date = seq(min(Date), max(Date), by = "1 month"), 
              fill = list(value = NA)) 
   
-  tp<-ts(M$sum_p.mm,frequency=12,start=c(SPEI_start,1)); tp[is.na(tp)]<-0
-  tpet<-ts(M$sum_pet.mm,frequency=12,start=c(SPEI_start,1)); tpet[is.na(tpet)]<-0
+  tp<-ts(M$ppt_mm,frequency=12,start=c(SPEI_start,1)); tp[is.na(tp)]<-0
+  tpet<-ts(M$PET,frequency=12,start=c(SPEI_start,1)); tpet[is.na(tpet)]<-0
   SPEI<-spei(tp-tpet,SPEI_per,ref.start=c(SPEI_start,1),ref.end=c(SPEI_end,12))
   M$SPEI = SPEI$fitted[1:length(SPEI$fitted)]
   M1[[i]]<-M %>% drop_na()
@@ -34,7 +33,7 @@ all2$SPEI[which(is.infinite(all2$SPEI))]<- -5 #getting some -Inf values that are
 # 
 # all3<-subset(all2,Month==9) #Because we aggregated drought years as only applying to growing season
 #                             # If you are doing for place where winter drought would be important, use following line
-all3<-aggregate(cbind(sum_p.mm,SPEI)~Year+CF,all2,mean)
+all3<-aggregate(cbind(ppt_mm,SPEI)~Year+CF,all2,mean)
 
 ###################################### PLOT ANNUAL TIME-SERIES #################################################
 
