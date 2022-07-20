@@ -7,9 +7,6 @@ all_summary <- rbind(Baseline_summary, Future_summary)
 all_summary <- subset(all_summary, GCM %in% WB_GCMs$GCM | GCM == "gridmet.historical")
 all_summary$CF <- factor(all_summary$CF, levels=c("Historical", CFs))
 
-WB_summary <- subset(WBdat, GCM %in% WB_GCMs$GCM | GCM == "gridmet.historical")
-WB_summary$CF <- factor(WB_summary$CF, levels=c("Historical", CFs))
-
 
 ########################################### Format MACA data #######################################################
 yrAvgs <- aggregate(cbind(TavgF, PrcpIn)~Year+CF,all_summary,mean)
@@ -17,10 +14,11 @@ yrAvgs$PrcpIn <- yrAvgs$PrcpIn * 365
 yrAvgs$TavgRoll10 <- rollmean(yrAvgs$TavgF, rollLen, fill = NA, align = "right")
 yrAvgs$PrcpRoll10 <- rollmean(yrAvgs$Prcp, rollLen, fill = NA, align = "right")
 
-WBAvgs <- aggregate(cbind(D.in, Runoff.in, SWEaccum.in)~Year+CF, WB_summary, sum)
-WBAvgs$D.inRoll10 <- rollmean(WBAvgs$D.in, rollLen, fill = NA, align = "right")
-WBAvgs$Runoff.inRoll10 <- rollmean(WBAvgs$Runoff.in, rollLen, fill = NA, align = "right")
-WBAvgs$SWEaccum.inRoll10 <- rollmean(WBAvgs$SWEaccum.in, rollLen, fill = NA, align = "right")
+WBAvgs <- aggregate(cbind(sum_d.in, runoff.in, max_pack.in)~Year+CF, AnnualWB, sum)
+WBAvgs$D.inRoll10 <- rollmean(WBAvgs$sum_d.in, rollLen, fill = NA, align = "right")
+WBAvgs$Runoff.inRoll10 <- rollmean(WBAvgs$runoff.in, rollLen, fill = NA, align = "right")
+WBAvgs$SWEaccum.inRoll10 <- rollmean(WBAvgs$max_pack.in, rollLen, fill = NA, align = "right")
+WBAvgs$Year <- as.numeric(WBAvgs$Year)
 
 
 # Tmean
@@ -32,15 +30,15 @@ p<-LT_plot(yrAvgs,PrcpIn,rollvar=PrcpRoll10,cols=col,yaxis="Mean annual precipit
 ggsave("PrcpIn-Timeseries.png", p, path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # Deficit
-d<-LT_plot(WBAvgs,D.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic water deficit (in/year)",title="")
+d<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic water deficit (in/year)",title="")
 ggsave("D.in-Timeseries.png", d, path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # Runoff
-r<-LT_plot(WBAvgs, Runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Mean annual runoff (in/year)",title="")
+r<-LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Mean annual runoff (in/year)",title="")
 ggsave("Runoff.in-Timeseries.png", r, path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # SWEaccum
-s<-LT_plot(WBAvgs, SWEaccum.in, rollvar=SWEaccum.inRoll10,cols=col,yaxis="Mean annual accumulated SWE (in/year)",title="")
+s<-LT_plot(WBAvgs, max_pack.in, rollvar=SWEaccum.inRoll10,cols=col,yaxis="Mean annual accumulated SWE (in/year)",title="")
 ggsave("SWEaccum.in-Timeseries.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 
