@@ -156,7 +156,7 @@ SPEI_end <- 2012
 ## Climate Futures (MACA)
 ```{r Climate-Futures, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
 
-if(centroids_csv == "") {
+if(centroids_csv == "Y") {
   source(here::here("scripts", "download_Park_csvs.R"), local = knitr::knit_global())
 } else {
   print("Other data needed")
@@ -230,7 +230,7 @@ FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futu
 # WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
 # colors2<- c("#9A9EE5","#E10720")  # Select pair of climate futures - WarmWet/HotDry
-colors2<- colors5[c(2,3)] # Select pair of climate futures - HotWet/WarmDry
+colors2<- colors5[c(3,2)] # Select pair of climate futures - HotWet/WarmDry
 
 colors3<-c("white",colors2)
 # col<- c("darkgray","#9A9EE5","#E10720")  # WarmWet/HotDry

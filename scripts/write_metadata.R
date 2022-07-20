@@ -53,8 +53,9 @@ cat("\n")
 cat(paste("Models used in Water Balance analysis:", WB_GCMs)) 
 cat("\n")
 cat(paste("PET Method:", PET_Method))
+cat("\n")
 cat("Jennings coefficients applied to snow melt.")
-("\n")
+cat("\n")
 
 # Drought analysis
 
@@ -74,6 +75,7 @@ cat("\n")
 cat("RETURN EVENTS ANALYSIS")
 cat("\n")
 cat("Return events modeled using GEV")
+cat("\n")
 
 # # Bias correction text
 # # NOTE: This will probably be moved to a Methods document at some point

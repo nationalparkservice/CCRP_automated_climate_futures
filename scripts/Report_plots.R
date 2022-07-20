@@ -82,5 +82,15 @@ legend <- grid_arrange_shared_legend(a,b,nrow=2,ncol=1,position="bottom")
 ggsave("Panel-D.in-WaterBalance.png",legend, path = FigDir, height=PanelHeight, width=PanelWidth)
 
 
+# Fire: WaterBalance, VPD
+a<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic water deficit (in/year)",
+           title=paste("Water Balance for ",SiteID,sep=""))
+b <- Month_bar_plot(Monthly_delta,xvar=Month,yvar=VPD,grp=CF,cols=colors2,
+                 title=paste0("Change in avg monthly VPD in ",Yr," vs ", BasePeriod),
+                 xlab = "Month", ylab="Change in VPD (kPa)",label=MonthLabels)
+legend <- grid_arrange_shared_legend(a,b,nrow=2,ncol=1,position="bottom")
+ggsave("Panel-D.in-VPD.png",legend, path = FigDir, height=PanelHeight, width=PanelWidth)
+
+
 #Drought: Multi-panel ts and characteristic bar plots
 ## LOCATED IN RSS_MACA_drought_char.R

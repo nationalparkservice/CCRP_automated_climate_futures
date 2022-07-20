@@ -158,6 +158,8 @@ AnnualWB %>% mutate_at(3:length(AnnualWB),funs(round(.,1))) %>% write.csv(.,past
 #######################################################################################################################
 ######################################### PLOTTING ####################################################################
 # Inputs
+MonthlyWB <- MonthlyWB %>% mutate(Date = as.POSIXct(paste(substr(yrmon,1,4),substr(yrmon,5,6),"1",sep="-"),format="%Y-%m-%d"),
+                                  year = format(Date, "%Y"))
 MonthlyWB <- subset(MonthlyWB, year >= Yr-Range/2 & year <= Yr+Range/2 | year <= 2012)
 AnnualWB <- subset(AnnualWB, year >= Yr-Range/2 & year <= Yr+Range/2 | year <= 2012)
 MonthlyWB<-merge(MonthlyWB,WB_GCMs,by="GCM", all.x=T)
@@ -288,8 +290,7 @@ WBData <- WBData %>% drop_na %>% rename(Year=year) %>% mutate(
   PACK.in=PACK/ 25.4,
   Runoff.in=W_ET_DSOIL /25.4,
   AET.in = AET / 25.4, 
-  SOIL.in = SOIL / 25.4
-)
+  SOIL.in = SOIL / 25.4) %>% left_join(WB_GCMs,by="GCM")
 
 # SWE spaghetti
 Hist.SWE<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"PACK.in",col=col[1],CF="Historical")
