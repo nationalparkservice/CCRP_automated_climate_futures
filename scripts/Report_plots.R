@@ -32,7 +32,7 @@ ggsave("OverHotTemp-HI.Dan-Panel.png", path = FigDir, height=PanelHeight, width=
 
 
 # Extreme precip: return intervals + LT-runoff
-a <- ggplot(allregressions, aes(x=return, y=modeled, group=CF, colour = CF)) +
+a <- ggplot(allregressions, aes(x=return, y=GEV, group=CF, colour = CF)) +
   geom_line(size = 2, stat = "identity",colour="black") + 
   geom_line(size = 1.5, stat = "identity") +
   geom_point(colour= "black", size=4, aes(fill = factor(CF), shape = factor(CF))) +
@@ -43,13 +43,13 @@ a <- ggplot(allregressions, aes(x=return, y=modeled, group=CF, colour = CF)) +
   scale_fill_manual(name="",values = colors3) +
   scale_shape_manual(name="",values = c(21,22,23))
   
-b <- LT_plot(WBAvgs, Runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Runoff (in/year)",title="Mean annual runoff ")
+b <- LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Runoff (in/year)",title="Mean annual runoff ")
 legend <- grid_arrange_shared_legend(a,b,nrow=2,ncol=1,position="bottom")
 ggsave("Recurrenceinterval-Runoff.in-Panel.png",legend, path = FigDir, height=PanelHeight, width=PanelWidth)
 
 
 # Extreme precip: return intervals + OverPrecip95
-a <- ggplot(allregressions, aes(x=return, y=modeled, group=CF, colour = CF)) +
+a <- ggplot(allregressions, aes(x=return, y=GEV, group=CF, colour = CF)) +
   geom_line(size = 2, stat = "identity",colour="black") + 
   geom_line(size = 1.5, stat = "identity") +
   geom_point(colour= "black", size=4, aes(fill = factor(CF), shape = factor(CF))) +
@@ -68,7 +68,7 @@ ggsave("Recurrenceinterval-OverPrecip95-Panel.png", plot=g,path = FigDir, height
 
 
 # Fire: WaterBalance, AET
-a<-LT_plot(WBAvgs,D.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic water deficit (in/year)",
+a<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic water deficit (in/year)",
            title=paste("Water Balance for ",SiteID,sep=""))
 b <- ggplot(AnnualWB, aes(x=sum_d.in, y=sum_aet.in, colour=CF)) + geom_point(size=3)+ geom_smooth(method="lm", se=FALSE, size=2)+
   scale_colour_manual("",values=col) +
