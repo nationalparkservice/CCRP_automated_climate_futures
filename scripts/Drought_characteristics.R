@@ -254,12 +254,12 @@ ggsave("DroughtDuration-Bar.png", path = FigDir, height=PlotHeight, width=PlotWi
 
 #Drought severity barplot
 var_bar_plot(Drought_all,"Severity", colors3, "Average Drought Severity", 
-             "Severity (Intensity * Duration)")
+             "Severity (Intensity * Duration)") + coord_cartesian(ylim = c(0, min(Drought_all$Severity)))
 ggsave("DroughtSeverity-Bar.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 #Drought intensity barplot
 var_bar_plot(Drought_all,"Intensity", colors3, "Average Drought Intensity", 
-             "Intensity (Minimum SPEI values)")
+             "Intensity (Minimum SPEI values)") + coord_cartesian(ylim = c(0, min(Drought_all$Intensity)))
 ggsave("DroughtIntensity-Bar.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 #Drought-free interval barplot
