@@ -1,16 +1,11 @@
 ---
-title: "Combine-climate-lite-scripts"
+title: "NPS park climate futures"
+author: "Climate Change Response Program"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output: html_document
-abstract: This script combines all scripts previously run under CCRP's Climate Lite protocol for Resource Stewardship Strategies (RSS). 
 ---
 
-NOTE: If you have trouble with packages loading from renv, go into your .Rprofile file and comment out the line ```source("renv/activate.R)```
-Then restart R and re-run from your general package library (R will do this automatically upon restart if the above line is commented out). If you want to check what library R is accessing, type ```.libPaths()``` into your console. 
-
-##
-
-```{r setup, include=FALSE}
+```{r setup, warning=FALSE, include = FALSE}
 
 knitr::opts_chunk$set(
   echo = FALSE, 
@@ -19,23 +14,6 @@ knitr::opts_chunk$set(
   message = TRUE # set to FALSE when done
 )
 
-#renv::init() Only needs to be run 1x when project is initiated. No one should ever have to run this line again. 
-
-#renv::restore() # This line will restore packages to the versions recorded in the lockfile. Collaborators can use this command to keep their packages current. This line should be run once a week.  
-
-#renv::update(exclude = "WaterBalance") # This line should be run once a week by whoever is regularly using this script. The first time running this line, you might need to follow directions to create a Personal Access Token with GitHub. Simply follow directions printed in the console. If you run into trouble, contact Annie Kellner Dillon at anne_dillon@nps.gov 
-
-# renv::snapshot() # This command takes a snapshot of the packages in their current state and records it in the lockfile. Renv will perform this task periodically. If a manual snapshot is desired, use this command to manually update the lockfile.
-
-#Install WaterBalance package from Github repository
-# install_github("CCRP-Adaptation/WaterBalance", subdir="WaterBalance")
-#Install CFT
-# remotes::install_github("earthlab/cft@*release",force=TRUE)
-
-# packages = c("ggplot2","grid","cowplot","reshape2","ncdf4","WriteXLS","data.table","RColorBrewer","ggrepel","lubridate","dplyr","forcats","openxlsx","sf","raster","rgdal","R.utils","tmap","tmaptools","gridExtra","SPEI","tidyr","tibble","sp",
-#   "skimr")
-# install.packages(packages)
-
 library(here); library(plyr); # Use here::here when package lubridate is used
 library(plotrix); library(zoo); library(ggplot2); library(grid); library(cowplot); library(reshape2); library(raster); library(ncdf4); library(reshape2); library(WriteXLS); library(data.table); library(RColorBrewer); library(ggrepel); library(lubridate); library(dplyr); library(forcats); library(openxlsx); library("WaterBalance"); library(sf); library(raster); library(rgdal); library(R.utils); library(tmap); library(tmaptools); library(ggmap); library(ggspatial);
 library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes)
@@ -43,24 +21,16 @@ library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp);
 
 ```
 
-
-There are two code chunks in which the RCF user should enter information that is park-specific. The first chunk contains inputs that are often changed (i.e., with each new park). The second chunk contains user inputs that are *rarely* changed (i.e., project lead has requested a change).
-
-**First user input chunk (please enter park-specific information):**
-
-```{r user-inputs-1}
+```{r user-inputs-1, warning=FALSE, include = FALSE}
 
 rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
 SiteID = "VAFO" 
-# Lat = 40.44039704 # Can manually input lat/lon, otherwise run get_site_info.R
-# Lon = -111.7093944
+
 
 # --------------- Input local folder information ----------------------------- #
-
-# When this document has finished running, the files will be copied to a local directory and all newly created files (e.g., figures) will be deleted from the repo
 
 project_root_dir <- here::here()
 
@@ -88,9 +58,9 @@ if(dir.exists(DataDir) == FALSE){
 
 ```
 
-# Site Info
-The get_params.R script extracts site parameters for inputting into Dave Thoma's Water Balance model (see 'Daily_WB_batch_v2.R'). The create_site_maps.R script creates a suite of maps from which the project lead can select the most appropriate for use with the RSS Powerpoint presentation. Maps output into the './figures/maps' folder. 
-```{r site-info, message=FALSE, warning=FALSE, echo = FALSE, results=HIDE}
+## `r SiteID`
+
+```{r site-info, message=FALSE, warning=FALSE, include = FALSE}
 
 source(here::here("scripts", "get_site_info.R")) # Extract local inputs; seconds to run
 
@@ -99,9 +69,7 @@ source(here::here("scripts", "create_site_maps.R")) # Create site maps
 source(here::here("scripts", "get_params.R"))
 ```
 
-**Second user input chunk (information that should only be changed when directly specified)**
-
-```{r user-inputs-2}
+```{r user-inputs-2, warning=FALSE, include = FALSE}
 
 CFs_all <- c("Warm Wet", "Hot Wet", "Central", "Warm Dry", "Hot Dry")
 
@@ -152,9 +120,11 @@ SPEI_end <- 2012
 
 ```
 
+This folder contains climate futures from the centroid of `r SiteID` located at (`r Lat`, `r Lon`).
 
-## Climate Futures (MACA)
-```{r Climate-Futures, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
+
+
+```{r Climate-Futures, message=FALSE, warning=FALSE, include = FALSE}
 
 if(centroids_csv == "Y") {
   source(here::here("scripts", "download_Park_csvs.R"), local = knitr::knit_global())
@@ -170,9 +140,7 @@ source(here::here("scripts", "Plot_Table_Creation.R"), local = knitr::knit_globa
 source(here::here("scripts", "Scatter_and_diagnostic.R"), local = knitr::knit_global()) # Creates scatter and diagnostic plots. Outputs to Figs MACA folder. 
 ```
 
-## WW/HD CFs
-
-```{r WarmWet/HotDry, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
+```{r WarmWet/HotDry, message=FALSE, warning=FALSE, include = FALSE}
 # Specify Climate Futures
 
 FutureSubset <- CFs_all[c(1,5)]; CFs = FutureSubset  # Pick pair of climate futures.
@@ -218,11 +186,7 @@ source(here::here("scripts", "Report_plots.R"))
 
 ```
 
-
-
-## WD/HW CFs
-
-```{r WarmDry/HotWet, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
+```{r WarmDry/HotWet, message=FALSE, warning=FALSE, include = FALSE}
 # Specify Climate Futures
 
 FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futures.
@@ -269,14 +233,7 @@ source(here::here("scripts", "Report_plots.R"))
 
 ```
 
-
-
-# Create metadata and copy/delete files
-
-```{r Copy-and-delete-files, message=FALSE, warning=FALSE}
-
-# This script is for copying and pasting files and folders unique to an RSS to a local folder, for the purposes of using, sharing, or archiving products. Files are then deleted from the Climate_Futures repo so that files are not inadvertently overwritten or confused with products from a different site.
-
+```{r Copy-and-delete-files, message=FALSE, warning=FALSE, include = FALSE}
 
 source(here::here("scripts", "write_metadata.R"))
 
@@ -284,6 +241,3 @@ source(here::here("scripts", "copy_paste_delete_files.R")) # copies files and fo
 
 
 ```
-
-
-
