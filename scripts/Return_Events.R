@@ -16,8 +16,6 @@ Base_exceedance <-exceedance(Base_max, "PrcpIn")
 
 # GEV regression
 regression_GEV = fevd(x = Base_exceedance$PrcpIn, type = "GEV")
-plot(regression_GEV)
-
 
 GEV_return <- function(location, scale, shape, T){
   location+(scale/shape)*(((-log(1-1/T))^-shape)-1)
@@ -66,7 +64,6 @@ return50future <- data.frame()
 for (i in 1:length(Future_GCM)){
   gcm = unique(Future_GCM[[i]]$GCM)
   regression_GEV = fevd(x = Future_GCM[[i]]$PrcpIn, type = "GEV")
-  Future_GCM[[i]]$modeled = predict(regression)
   mf <- data.frame(return=seq(1,100,1))
   mf$GEV <- GEV_return(location = regression_GEV$results$par[[1]], 
                        scale = regression_GEV$results$par[[2]], 
