@@ -1,4 +1,3 @@
-
 ###################################################################################################################
 
 Future_summary <- merge(ALL_FUTURE,CF_GCM,by="GCM")
@@ -6,6 +5,8 @@ Baseline_summary <- Gridmet; Baseline_summary$CF = "Historical"
 all_summary <- rbind(Baseline_summary, Future_summary)
 all_summary <- subset(all_summary, GCM %in% WB_GCMs$GCM | GCM == "gridmet.historical")
 all_summary$CF <- factor(all_summary$CF, levels=c("Historical", CFs))
+
+AnnualWB <- read.csv(.,paste0(TableDir,"WB-Annual.csv"))
 
 
 ########################################### Format MACA data #######################################################

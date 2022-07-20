@@ -255,15 +255,13 @@ if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At
 
 source(here::here("scripts", "Threshold_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
 
-source(here::here("scripts", "get_params.R"))
-
 source(here::here("scripts","Daily_WB_Model.R"))
 
 source(here::here("scripts", "Drought_characteristics.R"))
 
-source(here::here("scripts", "Return_Events.R"))
-
 # source(here::here("scripts", "WBgrid_plotting.R")) # Run the Water Balance Model
+
+source(here::here("scripts", "Return_Events.R"))
 
 source(here::here("scripts", "Summary plots.R"))
 

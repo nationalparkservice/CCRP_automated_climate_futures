@@ -12,12 +12,11 @@ SPEI_annual_bar <- function(data, period.box=T, title){
 }
 
 ############################### FORMAT DATAFRAMES  ############################################
-Monthly_drought <- WBData %>% mutate(Month = format(Date,"%m")) %>% 
-  group_by(CF,Month,Year) %>% summarise_at(.vars = vars(ppt_mm,PET),.funs = c("mean")) %>% 
-  arrange(Year,Month) %>%  mutate(Date = as.POSIXct(paste(Year,Month,"01",sep="-"),format="%Y-%m-%d"))
+MonthlyWB <- read.csv(.,paste0(TableDir,"WB-Monthly.csv"))
+
 M1 <- list()
 for (i in 1:length(CFs)){
-  M = Monthly_drought %>% filter(CF %in% c("Historical",CFs[i])) %>% 
+  M = MonthlyWB %>% filter(CF %in% c("Historical",CFs[i])) %>% 
     complete(Date = seq(min(Date), max(Date), by = "1 month"), 
              fill = list(value = NA)) 
   
