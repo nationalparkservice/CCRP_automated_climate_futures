@@ -1,12 +1,6 @@
 #####################################################################
 ###   Pulling Site Parameters for D. Thoma Water Balance Model ######
 #####################################################################
-# Create output directory for maps
-
-maps = file.path(FigDir,"maps/")# './figures/maps'
-if(dir.exists(maps) == FALSE){
-  dir.create(maps)
-}
 
 # Set projection to be used for all spatial data:
 
@@ -132,7 +126,7 @@ colnames(wb_sites) <- c("WB_site", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC
 wb_sites$SWC.Max = wb_sites$SWC.Max*10 # convert units for Soil Water-holding capacity
 wb_sites # check to be sure values are populated correctly. There should not be NA values. 
 
-write.csv(wb_sites, file = paste(TableDir, SiteID, " WB site parameters ", Sys.Date(), ".csv", sep = ""), row.names = FALSE)
+write.csv(wb_sites, file = paste0(OutDir,"WB_site_parameters.csv"), row.names = FALSE)
 
 rm(proj4, epsg, dem, soil,US_States,US_Counties,state_and_park,State,slope,points,park_and_centroid,
    nps_centroids,nps_boundary,latlong,centroid,aspect)
