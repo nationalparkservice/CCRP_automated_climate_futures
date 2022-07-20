@@ -12,7 +12,14 @@ SPEI_annual_bar <- function(data, period.box=T, title){
 }
 
 ############################### FORMAT DATAFRAMES  ############################################
-MonthlyWB <- read.csv(.,paste0(TableDir,"WB-Monthly.csv"))
+MonthlyWB <- read.csv(paste0(TableDir,"WB-Monthly.csv")) %>% 
+  left_join(WB_GCMs,by="GCM") %>% 
+  mutate(CF = factor(CF, levels=c("Historical",CFs)),
+         Date = as.POSIXct(paste(substr(yrmon,1,4),substr(yrmon,5,6),"1",sep="-"),format="%Y-%m-%d"),
+         Year = format(Date, "%Y")) %>% 
+  arrange(Date)
+  
+
 
 M1 <- list()
 for (i in 1:length(CFs)){
@@ -20,8 +27,8 @@ for (i in 1:length(CFs)){
     complete(Date = seq(min(Date), max(Date), by = "1 month"), 
              fill = list(value = NA)) 
   
-  tp<-ts(M$ppt_mm,frequency=12,start=c(SPEI_start,1)); tp[is.na(tp)]<-0
-  tpet<-ts(M$PET,frequency=12,start=c(SPEI_start,1)); tpet[is.na(tpet)]<-0
+  tp<-ts(M$sum_p.mm,frequency=12,start=c(SPEI_start,1)); tp[is.na(tp)]<-0
+  tpet<-ts(M$sum_pet.mm,frequency=12,start=c(SPEI_start,1)); tpet[is.na(tpet)]<-0
   SPEI<-spei(tp-tpet,SPEI_per,ref.start=c(SPEI_start,1),ref.end=c(SPEI_end,12))
   M$SPEI = SPEI$fitted[1:length(SPEI$fitted)]
   M1[[i]]<-M %>% drop_na()
@@ -32,7 +39,7 @@ all2$SPEI[which(is.infinite(all2$SPEI))]<- -5 #getting some -Inf values that are
 # 
 # all3<-subset(all2,Month==9) #Because we aggregated drought years as only applying to growing season
 #                             # If you are doing for place where winter drought would be important, use following line
-all3<-aggregate(cbind(ppt_mm,SPEI)~Year+CF,all2,mean)
+all3<-aggregate(cbind(sum_pet.mm,SPEI)~Year+CF,all2,mean)
 
 ###################################### PLOT ANNUAL TIME-SERIES #################################################
 
