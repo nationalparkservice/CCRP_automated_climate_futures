@@ -38,7 +38,7 @@ knitr::opts_chunk$set(
 
 library(here); library(plyr); # Use here::here when package lubridate is used
 library(plotrix); library(zoo); library(ggplot2); library(grid); library(cowplot); library(reshape2); library(raster); library(ncdf4); library(reshape2); library(WriteXLS); library(data.table); library(RColorBrewer); library(ggrepel); library(lubridate); library(dplyr); library(forcats); library(openxlsx); library("WaterBalance"); library(sf); library(raster); library(rgdal); library(R.utils); library(tmap); library(tmaptools); library(ggmap); library(ggspatial);
-library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify)
+library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes)
 
 
 ```
@@ -95,6 +95,8 @@ The get_params.R script extracts site parameters for inputting into Dave Thoma's
 source(here::here("scripts", "get_site_info.R")) # Extract local inputs; seconds to run
 
 source(here::here("scripts", "create_site_maps.R")) # Create site maps
+
+source(here::here("scripts", "get_params.R"))
 ```
 
 **Second user input chunk (information that should only be changed when directly specified)**
@@ -154,8 +156,8 @@ SPEI_end <- 2012
 ## Climate Futures (MACA)
 ```{r Climate-Futures, message=FALSE, warning=FALSE, include=FALSE, results=HIDE}
 
-if(centroids_csv == "Y") {
-  source(here::here("scripts", "download_Tercek_csvs.R"), local = knitr::knit_global())
+if(centroids_csv == "") {
+  source(here::here("scripts", "download_Park_csvs.R"), local = knitr::knit_global())
 } else {
   print("Other data needed")
   #source(here::here("scripts", "Climate-Futures", "CFT_CF_parsing_v1.R")) # Parse MACA data. Output = "_init_parsed.RData". # 9-8-21: CFT parsing script is not working due to an issue with the package or MACA servers. ACR to talk to CU Boulder about the issue. For now, add _init_parsed.RData file manually to parsed-data folder. 
@@ -201,8 +203,6 @@ if(dir.exists(FigDir) == FALSE){
 if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At the top of the script, please enter a combination of futures, e.g. Warm Wet/Hot Dry
 
 source(here::here("scripts", "Threshold_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
-
-source(here::here("scripts", "get_params.R"))
 
 source(here::here("scripts","Daily_WB_Model.R"))
 
