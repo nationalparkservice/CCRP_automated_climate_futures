@@ -120,8 +120,6 @@ SPEI_end <- 2012
 
 ```
 
-This folder contains climate futures from the centroid of `r SiteID` located at (`r Lat`, `r Lon`).
-
 
 
 ```{r Climate-Futures, message=FALSE, warning=FALSE, include = FALSE}
