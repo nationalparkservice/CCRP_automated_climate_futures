@@ -287,7 +287,7 @@ spei.time <- grid_arrange_shared_legend(a + rremove("ylab") + rremove("x.text"),
 spei.time <- annotate_figure(spei.time, left = textGrob("SPEI", rot = 90, vjust = 1, gp = gpar(cex = 2)))
 
 drt.char <- grid.arrange(c+rremove("x.text"),d+rremove("x.text"),e,nrow=3,
-                         top = textGrob("Average drought characteristics",gp=gpar(fontface="bold", col="black", fontsize=26,hjust=0.5)))
+                         top = textGrob("Average drought \ncharacteristics",gp=gpar(fontface="bold", col="black", fontsize=26,hjust=0.5)))
 
 g <- grid.arrange(spei.time, drt.char,ncol = 2, clip = FALSE)
 ggsave("DroughtCharacteristics-1-Panel.png",g, path = FigDir, height=PanelHeight, width=PanelWidth)

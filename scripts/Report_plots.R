@@ -37,7 +37,7 @@ a <- ggplot(allregressions, aes(x=return, y=GEV, group=CF, colour = CF)) +
   geom_line(size = 1.5, stat = "identity") +
   geom_point(colour= "black", size=4, aes(fill = factor(CF), shape = factor(CF))) +
   PlotTheme + theme(axis.title.x=element_text(size=24, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20))) +
-  labs(title = paste(SiteID, " - Recurrence intervals for 24-hour precipitation totals",sep=""),
+  labs(title = paste(SiteID, " - Recurrence intervals for \n24-hour precipitation totals",sep=""),
        x = "Recurrence interval (year)", y = "Precipitation (inches/day)") +
   scale_color_manual(name="",values = colors3) +
   scale_fill_manual(name="",values = colors3) +
@@ -54,7 +54,7 @@ a <- ggplot(allregressions, aes(x=return, y=GEV, group=CF, colour = CF)) +
   geom_line(size = 1.5, stat = "identity") +
   geom_point(colour= "black", size=4, aes(fill = factor(CF), shape = factor(CF))) +
   PlotTheme + theme(axis.title.x=element_text(size=24, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20))) +
-  labs(title = paste(SiteID, " - Recurrence intervals for 24-hour precipitation totals",sep=""),
+  labs(title = paste(SiteID, " - Recurrence intervals for \n24-hour precipitation totals",sep=""),
        x = "Recurrence interval (year)", y = "Precipitation (inches/day)") +
   scale_color_manual(name="",values = colors3) +
   scale_fill_manual(name="",values = colors3) +
