@@ -344,7 +344,7 @@ annotate_figure(aetgrid, left = textGrob("Soil Moisture (in)", rot = 90, vjust =
                 bottom = textGrob("Water year day", gp = gpar(cex = 1.3)),
                 top = textGrob("Daily Soil Moisture for each climate future by water year",
                                gp=gpar(fontface="bold", col="black",  fontsize=26)))
-ggsave("SM.in-spaghetti.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+ggsave("SM.in-spaghetti.jpg", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 
