@@ -21,13 +21,16 @@ library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp);
 
 ```
 
+
+# For loop that reads names from csv file for park
+
 ```{r user-inputs-1, warning=FALSE, include = FALSE}
 
 rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "VAFO" 
+SiteID = "SEQU"  
 
 
 # --------------- Input local folder information ----------------------------- #
