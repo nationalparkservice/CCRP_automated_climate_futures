@@ -53,10 +53,11 @@ WB_GCMs <- WB_GCMs %>%
 
 ######################################################### CALCULATE WB VARIABLES ################################################################
 AllDailyWB<-list()
+alldaily <- list()
 
 for (j in 1:length(levels(ClimData$GCM))){
   gcm = levels(ClimData$GCM)[j]
-  DailyWB = subset(ClimData,GCM=gcm)
+  DailyWB = subset(ClimData,GCM==gcm)
   for(i in 1:nrow(wb_sites)){
     ID = wb_sites$WB_site[i]
     Lat = wb_sites$Lat[i]
@@ -103,9 +104,12 @@ for (j in 1:length(levels(ClimData$GCM))){
     DailyWB$W_ET_DSOIL = DailyWB$W - DailyWB$AET - DailyWB$DSOIL
     DailyWB$D = DailyWB$PET - DailyWB$AET
     DailyWB$GDD = get_GDD(DailyWB$tmean_C, T.Base)
-    AllDailyWB[[i]] = DailyWB
+    alldaily[[i]] = DailyWB
   }
+  
+  AllDailyWB[[j]] = do.call(rbind,alldaily)
 }
+
 WBData<-do.call(rbind,AllDailyWB)
 rm(ClimData)
 ######################################################### END WB VARIABLE CALCULATIONS ################################################################
@@ -123,7 +127,7 @@ colnames(MonthlyWB)[3]<-"sum_p.mm"
 MonthlyWB$avg_t.C = aggregate(tmean_C ~ yrmon+GCM, data=WBData, FUN=mean)[,3]
 MonthlyWB$sum_rain.mm = aggregate(RAIN~yrmon+GCM,data=aggregate(RAIN~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
 MonthlyWB$sum_snow.mm = aggregate(SNOW~yrmon+GCM,data=aggregate(SNOW~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
-MonthlyWB$max_pack.mm = aggregate(PACK ~ yrmon+GCM, data=WBData, FUN=max)[,3]
+MonthlyWB$max_pack.mm = aggregate(PACK~yrmon+GCM,data=aggregate(PACK~yrmon+GCM+ID,data=WBData,max),mean)[,3]
 MonthlyWB$sum_melt.mm = aggregate(MELT~yrmon+GCM,data=aggregate(MELT~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
 MonthlyWB$sum_w.mm = aggregate(W~yrmon+GCM,data=aggregate(W~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
 MonthlyWB$sum_pet.mm = aggregate(PET~yrmon+GCM,data=aggregate(PET~yrmon+GCM+ID,data=WBData,sum),mean)[,3]
