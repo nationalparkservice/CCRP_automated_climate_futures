@@ -319,7 +319,7 @@ runoffgrid <- ggarrange(Hist.runoff, CF1.runoff, CF2.runoff, ncol = 1, nrow = 3,
 
 annotate_figure(runoffgrid, left = textGrob("Runoff (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
                 bottom = textGrob("Water year day", gp = gpar(cex = 1.3)),
-                top = textGrob("Daily Runoff for each climate futureby water year",
+                top = textGrob("Daily Runoff for each climate future by water year",
                                gp=gpar(fontface="bold", col="black",  fontsize=22)))
 ggsave("Runoff.in-spaghetti.jpg", width = 15, height = 9, path = FigDir)
 
@@ -333,7 +333,7 @@ aetgrid <- ggarrange(Hist.AET, CF1.AET, CF2.AET, ncol = 1, nrow = 3,common.legen
 annotate_figure(aetgrid, left = textGrob("AET (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
                 bottom = textGrob("Water year day", gp = gpar(cex = 1.3)),
                 top = textGrob("Daily AET for each climate future by water year",
-                               gp=gpar(fontface="bold", col="black",  fontsize=2)))
+                               gp=gpar(fontface="bold", col="black",  fontsize=22)))
 ggsave("AET.in-spaghetti.jpg", width = 15, height = 9, path = FigDir)
 
 
@@ -347,7 +347,7 @@ SMgrid <- ggarrange(Hist.SM, CF1.SM, CF2.SM, ncol = 1, nrow = 3,common.legend = 
 annotate_figure(aetgrid, left = textGrob("Soil Moisture (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
                 bottom = textGrob("Water year day", gp = gpar(cex = 1.3)),
                 top = textGrob("Daily Soil Moisture for each climate future by water year",
-                               gp=gpar(fontface="bold", col="black",  fontsize=26)))
+                               gp=gpar(fontface="bold", col="black",  fontsize=22)))
 ggsave("SM.in-spaghetti.jpg", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
