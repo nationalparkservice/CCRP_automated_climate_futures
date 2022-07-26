@@ -127,6 +127,17 @@ Baseline_all<-subset(Baseline_all,Year<2013)
 
 ALL_FUTURE<-Future_all  
 Future_all = subset(Future_all, Year >= Yr - (Range/2) & Year <= (Yr + (Range/2)))
+
+#### Determine low-skill models
+low_skill_models = read.csv('./data/general/GCM_skill_by_region.csv') %>% 
+  filter(
+    if (region %in% Region) {
+      Region == region
+    } else {
+      Region == "mean"
+    }
+  ) %>% top_n(n=2, wt=Rank)
+
 ################################# SUMMARIZE CHANGE IN FUTURE TEMP/PRECIP MEANS BY GCM ####################
 ####Set Average values for all four weather variables, using all baseline years and all climate models
 BaseMeanPr = mean(Baseline_all$PrcpIn)
@@ -198,7 +209,7 @@ wd = c(lx,ly)
 hw = c(ux,uy)
 hd = c(ux,ly)
 
-pts <- Future_Means
+pts <- Future_Means %>% filter(str_detect(GCM, paste(low_skill_models$GCM,collapse = '|'), negate = TRUE))
 
   #calc Euclidian dist of each point from corners
 pts$WW.distance <- sqrt((pts$DeltaTavg - ww[1])^2 + (pts$DeltaPr - ww[2])^2)
@@ -217,6 +228,7 @@ Future_Means %>% mutate(corners = ifelse(GCM == ww,"Warm Wet",
                                                        ifelse( GCM == hd, "Hot Dry",NA))))) -> Future_Means
 
 FM <- Future_Means %>% select("GCM","DeltaPr","DeltaTavg") %>%  
+  filter(str_detect(GCM, paste(low_skill_models$GCM,collapse = '|'), negate = TRUE)) %>% 
   remove_rownames %>% column_to_rownames(var="GCM") 
 
 pca <- prcomp(FM, center = TRUE,scale. = TRUE) 
