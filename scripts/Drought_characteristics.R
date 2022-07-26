@@ -279,7 +279,7 @@ c <- var_bar_plot(Drought_all,"Duration", colors3, "Duration", "Years")
 d <- var_bar_plot(Drought_all,"Frequency", colors3, "Return interval", 
              "Years")
 e<- var_bar_plot(Drought_all,"Severity", colors3, "Severity", 
-                  "Severity (Intensity * Duration)")
+                  "Severity (Intensity * Duration)")+ coord_cartesian(ylim = c(0, min(Drought_all$Severity)))
 
 spei.time <- grid_arrange_shared_legend(a + rremove("ylab") + rremove("x.text"),b +  rremove("ylab"),
                                         nrow=2,ncol=1,position="bottom")
