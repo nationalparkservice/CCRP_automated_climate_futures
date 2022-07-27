@@ -129,7 +129,7 @@ ALL_FUTURE<-Future_all
 Future_all = subset(Future_all, Year >= Yr - (Range/2) & Year <= (Yr + (Range/2)))
 
 #### Determine low-skill models
-low_skill_models = read.csv('./data/general/GCM_skill_by_region.csv') %>%  #list from Rupp et al. 2016
+low_skill_models = read.delim('./data/general/GCM_skill_by_region.txt',header=TRUE) %>%  #list from Rupp et al. 2016
   filter(
     if (region %in% Region) {
       Region == region
