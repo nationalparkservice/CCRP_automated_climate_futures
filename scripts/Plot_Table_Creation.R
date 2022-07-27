@@ -129,14 +129,14 @@ ALL_FUTURE<-Future_all
 Future_all = subset(Future_all, Year >= Yr - (Range/2) & Year <= (Yr + (Range/2)))
 
 #### Determine low-skill models
-low_skill_models = read.csv('./data/general/GCM_skill_by_region.csv') %>% 
+low_skill_models = read.csv('./data/general/GCM_skill_by_region.csv') %>%  #list from Rupp et al. 2016
   filter(
     if (region %in% Region) {
       Region == region
     } else {
       Region == "mean"
     }
-  ) %>% top_n(n=2, wt=Rank)
+  ) %>% top_n(n=length(unique(Future_all$GCM))/2*Percent_skill_cutoff, wt=Rank) #Cuts off percentage of models identified in Rmd
 
 ################################# SUMMARIZE CHANGE IN FUTURE TEMP/PRECIP MEANS BY GCM ####################
 ####Set Average values for all four weather variables, using all baseline years and all climate models
@@ -240,8 +240,13 @@ pca.df<-as.data.frame(pca$x)
 PC1 <- factor(c(rownames(pca.df)[which.min(pca.df$PC1)],rownames(pca.df)[which.max(pca.df$PC1)])) 
 PC2<- c(rownames(pca.df)[which.min(pca.df$PC2)],rownames(pca.df)[which.max(pca.df$PC2)]) 
 
-Future_Means %>% mutate(pca = ifelse(GCM %in% PC1, as.character(CF), 
-                                     ifelse(GCM %in% PC2, as.character(CF),NA))) -> Future_Means 
+Future_Means %>% mutate(pca = ifelse(GCM %in% PC1, as.character(CF), #assign PCs to quadrants and select those gcms
+                                     ifelse(GCM %in% PC2, as.character(CF),NA))) -> Future_Means
+if(length(setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca)) > 0){ #if a quadrant is missing 
+  Future_Means$pca[which(Future_Means$corners == setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca))] = setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca) #assign corners selection to that CF
+}
+
+
 Future_Means %>% mutate(select = eval(parse(text=paste0(Indiv_method)))) -> Future_Means
 Future_Means %>% drop_na(select) %>% select(c(GCM,CF)) -> WB_GCMs 
 
