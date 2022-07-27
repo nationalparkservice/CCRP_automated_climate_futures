@@ -30,7 +30,7 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "SEQU"  
+SiteID = "CARE"  
 
 
 # --------------- Input local folder information ----------------------------- #
@@ -85,6 +85,8 @@ colors5.2 <- c("#6EB2D4", "#05689F", "grey", "#F6B294", "#CA0020")
 centroids_csv <- "Y" #Switch for using Tercek csvs or downloading own data
 
 Indiv_method <- "pca" # Switch for method Indiv_method = c("corner", "pca")
+
+Percent_skill_cutoff = .1 #percentage of models to drop from ranking
 
 # --------- Information for Climate Futures Analyses (MACA) ------------------ #
 
