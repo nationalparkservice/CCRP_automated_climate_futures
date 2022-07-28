@@ -261,7 +261,7 @@ CF2.WBplot <- WBplot(scenario=CFs[2],cols=colors2[2])
 WBgrid <- ggarrange(Hist.WBplot, CF1.WBplot, CF2.WBplot, ncol = 1, nrow = 3,common.legend = T)
 annotate_figure(WBgrid, left = textGrob("Water (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
                 bottom = textGrob("Month", gp = gpar(cex = 1.3)),
-                top = textGrob(paste0("Monthly water balance for ",SiteID),
+                top = textGrob(paste0(SiteID, " monthly water balance in ", Yr),
                                gp=gpar(fontface="bold", col="black",  fontsize=22)))
 ggsave("WaterBalance_Monthly.jpg", width = 15, height = 9, path = FigDir)
 rm(Hist.WBplot, CF1.WBplot,CF2.WBplot,WBgrid)
