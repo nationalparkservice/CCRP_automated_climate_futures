@@ -233,9 +233,6 @@ ggsave("avg_SM.in-Density.png", path = FigDir, width = PlotWidth, height = PlotH
 
 
 ### Monthly Plots
-MonthlyWB_in
-
-
 WBMonthlyLong <- MonthlyWB_in %>% select(.,-c("sum_snow.in","max_pack.in","avg_soil.in","sum_d.in","runoff.in")) %>% 
   rename(PET=sum_pet.in, AET=sum_aet.in, Ppt=sum_p.in) %>% 
   gather(Variable, water, -c(CF, Month)) 
@@ -252,7 +249,8 @@ ggplot(MonthlyWB_in %>% filter(CF==scenario)) +
   labs(title = scenario) + PlotTheme + 
   theme(axis.title.x=element_blank(),axis.title.y=element_blank(),
         plot.background = element_rect(colour = cols, fill=NA, size=5)) +
-  scale_x_discrete(labels = MonthLabels)}
+  scale_x_discrete(labels = MonthLabels)+
+    coord_cartesian(ylim = c(0, max(MonthlyWB_in$sum_pet.in)))}
 
 Hist.WBplot <- WBplot(scenario="Historical",cols="grey")
 CF1.WBplot <- WBplot(scenario=CFs[1],cols=colors2[1])
