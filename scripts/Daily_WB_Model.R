@@ -192,9 +192,10 @@ MonthlyWB_in <- MonthlyWB %>% mutate(sum_snow.in = sum_snow.mm/ 25.4,
                      avg_soil.in=avg_soil.mm/ 25.4,
                      sum_aet.in = sum_aet.mm/ 25.4,
                      runoff.in = runoff.mm/ 25.4,
-                     sum_d.in = sum_d.mm/ 25.4) %>% 
+                     sum_d.in = sum_d.mm/ 25.4,
+                     sum_p.in = sum_p.mm/ 25.4) %>% 
   mutate(Month = substr(MonthlyWB$yrmon, 5, 7)) %>% group_by(CF, Month) %>% 
-  summarise_at(vars(sum_snow.in,max_pack.in,sum_pet.in,avg_soil.in,sum_aet.in, runoff.in,sum_d.in),mean) 
+  summarise_at(vars(sum_snow.in,max_pack.in,sum_pet.in,avg_soil.in,sum_aet.in, runoff.in,sum_d.in,sum_p.in),mean) 
 
 MonthlyWB_H <- subset(MonthlyWB_in, CF == "Historical")
 MonthlyWB_delta = list()
@@ -232,6 +233,43 @@ ggsave("avg_SM.in-Density.png", path = FigDir, width = PlotWidth, height = PlotH
 
 
 ### Monthly Plots
+MonthlyWB_in
+
+
+WBMonthlyLong <- MonthlyWB_in %>% select(.,-c("sum_snow.in","max_pack.in","avg_soil.in","sum_d.in","runoff.in")) %>% 
+  rename(PET=sum_pet.in, AET=sum_aet.in, Ppt=sum_p.in) %>% 
+  gather(Variable, water, -c(CF, Month)) 
+WBMonthlyLong$Variable <- factor(WBMonthlyLong$Variable,levels = c("Ppt","PET","AET"))
+
+WBplot <- 
+ggplot(MonthlyWB_in %>% filter(CF=="Historical")) +
+  geom_ribbon(aes(Month, ymin = sum_pet.in, ymax=sum_p.in,fill="Surplus/Runoff",group="CF"),linetype = 0, alpha=1) +
+  geom_ribbon(aes(Month, ymin = sum_aet.in, ymax=sum_pet.in,fill="Deficit",group="CF"),linetype = 0,alpha=1) +
+  geom_ribbon(aes(Month, ymin = 0, ymax=sum_aet.in,fill="Utilization",group="CF"),linetype = 0,alpha=1) +
+  geom_line(data = WBMonthlyLong %>% filter(CF == "Historical"), aes(x=Month, y = water, group=Variable, linetype = Variable), size = 1.5, stat = "identity",colour="black") +
+  scale_fill_manual("",
+                    values=c('Surplus/Runoff'="cornflowerblue",'Utilization'="palegreen3",'Deficit'="brown1")) +
+  labs(
+    y = "Water (in)",
+    x = "Months",
+    title = paste("Monthly Water Balance for ",SiteID,sep="")  
+  ) + PlotTheme + theme(axis.title.x=element_text(size=18, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20))) +
+  scale_x_discrete(labels = MonthLabels)
+
+# SWE spaghetti
+Hist.SWE<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"PACK.in",col=col[1],CF="Historical")
+CF1.SWE<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"PACK.in",col=col[2], CF=CFs[1])
+CF2.SWE<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"PACK.in",col=col[3], CF=CFs[2])
+
+SWEgrid <- ggarrange(Hist.SWE, CF1.SWE, CF2.SWE, ncol = 1, nrow = 3,common.legend = T)
+
+annotate_figure(SWEgrid, left = textGrob("SWE (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
+                bottom = textGrob("Water year day", gp = gpar(cex = 1.3)),
+                top = textGrob("Daily SWE for each climate future by water year",
+                               gp=gpar(fontface="bold", col="black",  fontsize=22)))
+ggsave("SWEaccum.in-spaghetti.jpg", width = 15, height = 9, path = FigDir)
+
+
 ## avg_SM.in
 Month_line_plot(MonthlyWB_delta, Month, avg_soil.in, grp=CF, cols=colors2, 
                 title= paste("Change in average monthly soil moisture \nin", Yr, "vs Historical (",BasePeriod,")"),
@@ -261,6 +299,7 @@ Month_line_plot(MonthlyWB_delta, Month, sum_aet.in, grp=CF, cols=colors2,
                 title= paste("Change in average monthly AET \nin", Yr, "vs Historical (",BasePeriod,")"),
                 xlab="Month", ylab="Change in AET (inches)")
 ggsave("sum_aet.in-Monthly-line.png", path = FigDir, width = PlotWidth, height = PlotHeight)
+
 
 ### Additional plots
 # Max SWE
