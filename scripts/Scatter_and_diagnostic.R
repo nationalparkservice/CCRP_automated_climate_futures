@@ -29,11 +29,11 @@ dualscatter = ggplot(Future_Means, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax
 
 dualscatter  + geom_text_repel(aes(label=GCM)) +
   geom_point(colour="black",size=4) +
-  theme(axis.text=element_text(size=18),
-        axis.title.x=element_text(size=18,vjust=-0.2),
-        axis.title.y=element_text(size=18,vjust=0.2),
-        plot.title=element_text(size=18,face="bold",vjust=2,hjust=0.5),
-        legend.text=element_text(size=18), legend.title=element_text(size=16)) + 
+  theme(axis.text=element_text(size=16),
+        axis.title.x=element_text(size=16,vjust=-0.2),
+        axis.title.y=element_text(size=16,vjust=0.2),
+        plot.title=element_text(size=20,face="bold",vjust=2,hjust=0.5),
+        legend.text=element_text(size=16), legend.title=element_text(size=16)) + 
   ###
   labs(title =paste(SiteID," Changes in climate means in ", Yr, " by GCM run",sep=""), 
        x = paste("Changes in ",Longx,sep=""), # Change
@@ -45,7 +45,7 @@ dualscatter  + geom_text_repel(aes(label=GCM)) +
   geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2) #change
 
-ggsave("TempVsPrcp_AllGCMs_BWscatter.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_BWscatter.png", width = 15, height = 9, path = OutDir)
 
 ####### Scatterplot with CF color
 FM<-Future_Means
@@ -60,11 +60,11 @@ ggplot(FM, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, 
   geom_text_repel(aes(label=GCM,color=CFnew),position=position_jitter(0,.2)) + 
   geom_point(size=5,colour="black")+
   geom_point(aes(color=CFnew),size=4) +
-  theme(axis.text=element_text(size=18),
-        axis.title.x=element_text(size=18,vjust=-0.2),
-        axis.title.y=element_text(size=18,vjust=0.2),
+  theme(axis.text=element_text(size=16),
+        axis.title.x=element_text(size=16,vjust=-0.2),
+        axis.title.y=element_text(size=16,vjust=0.2),
         plot.title=element_text(size=20,face="bold",vjust=2,hjust=0.5),
-        legend.text=element_text(size=20), legend.title=element_text(size=20)) + 
+        legend.text=element_text(size=16), legend.title=element_text(size=20)) + 
   ###
   labs(title =paste0(" Changes in climate means in ", Yr, " by GCM run"), 
        x = paste("Change in ",Longx,sep=""), # Change
@@ -76,7 +76,7 @@ ggplot(FM, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, 
   geom_hline(aes(yintercept=mean(FM$DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(FM$DeltaTavg)),linetype=2)  #change
 
-ggsave("TempVsPrcp_AllGCMs_ColorScatter.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_ColorScatter.png", width = 15, height = 9, path = OutDir)
 rm(FM)
 #~~~~~~~~~~~~~~
 # Presetation only scatterplots
@@ -84,27 +84,27 @@ rm(FM)
 # Points only w/out
 dualscatter = ggplot(Future_Means, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, ymax=Pr75*365))
 dualscatter  + geom_point(colour="black",size=4) +
-  theme(axis.text=element_text(size=20),
-        axis.title.x=element_text(size=24,vjust=-0.5),
-        axis.title.y=element_text(size=24,vjust=0.5),
-        plot.title=element_text(size=26,face="bold",vjust=2,hjust=0.5),
-        legend.text=element_text(size=22), legend.title=element_text(size=24)) + 
+  theme(axis.text=element_text(size=16),
+        axis.title.x=element_text(size=16,vjust=-0.5),
+        axis.title.y=element_text(size=16,vjust=0.5),
+        plot.title=element_text(size=20,face="bold",vjust=2,hjust=0.5),
+        legend.text=element_text(size=16), legend.title=element_text(size=24)) + 
    ###
   labs(title =paste(SiteID, " Changes in climate means in ", Yr, " by GCM run\n", Longx," vs. ",Longy,sep=""), 
             x = paste("Changes in ",Longx,sep=""), # Change
             y = paste("Changes in ",Longy,sep="")) + #change
   theme(legend.position="none") +
   xlim(0, max(Future_Means$DeltaTavg))
-ggsave("TempVsPrcp_AllGCMs_ScatterOnlyPoints.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_ScatterOnlyPoints.png", width = 15, height = 9, path = OutDir)
 
 # Points only w/ box
 dualscatter = ggplot(Future_Means, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, ymax=Pr75*365))
 dualscatter  + geom_point(colour="black",size=4) +
-  theme(axis.text=element_text(size=20),
-        axis.title.x=element_text(size=24,vjust=-0.5),
-        axis.title.y=element_text(size=24,vjust=0.5),
-        plot.title=element_text(size=26,face="bold",vjust=2,hjust=0.5),
-        legend.text=element_text(size=22), legend.title=element_text(size=24)) + 
+  theme(axis.text=element_text(size=16),
+        axis.title.x=element_text(size=16,vjust=-0.5),
+        axis.title.y=element_text(size=16,vjust=0.5),
+        plot.title=element_text(size=20,face="bold",vjust=2,hjust=0.5),
+        legend.text=element_text(size=16), legend.title=element_text(size=24)) + 
     ###
   labs(title =paste(SiteID, " Changes in climate means in ", Yr, " by GCM run\n", Longx," vs. ",Longy,sep=""), 
             x = paste("Changes in ",Longx,sep=""), # Change
@@ -115,7 +115,7 @@ dualscatter  + geom_point(colour="black",size=4) +
   geom_rect(color = "black", alpha=0) + 
   geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2)  #change
-ggsave("TempVsPrcp_AllGCMs_Points&Box.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TempVsPrcp_AllGCMs_Points&Box.png", width = 15, height = 9, path = OutDir)
 
 
 
@@ -126,7 +126,7 @@ ggsave("TempVsPrcp_AllGCMs_Points&Box.png", width = PlotWidth, height = PlotHeig
 scatter = ggplot(Future_Means, aes(DeltaTavg, 365*DeltaPr, xmin=Tavg25, xmax=Tavg75, ymin=365*Pr25, ymax=365*Pr75))
 scatter + geom_point(aes(color=emissions),size=4) + 
   PlotTheme + 
-  labs(title = paste(SiteID, "- Changes in climate means in", Yr,"by GCM run"), 
+  labs(title = paste(SiteID, "- Changes in climate means in",Yr,"by GCM run"), 
             x = "Change in annual average temperature (F)", 
             y = "Change in average annual precipitation (in)") +
   scale_colour_manual(values=c("blue", "red"))+
@@ -136,7 +136,7 @@ scatter + geom_point(aes(color=emissions),size=4) +
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2)  
 #scale_y_continuous(limits=c(-3.75,3.75))
 
-ggsave("DeltaTempVPrcp_emissions_scatter&box.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("DeltaTempVPrcp_emissions_scatter&box.png", width = 15, height = 9, path = OutDir)
 
 ###Scatter plot showing delta precip and tavg, color by emissions scenario, x-axis scaled 0-max
 scatter = ggplot(Future_Means, aes(DeltaTavg, 365*DeltaPr, xmin=Tavg25, xmax=Tavg75, ymin=365*Pr25, ymax=365*Pr75))
@@ -162,18 +162,18 @@ ggplot(Monthly_delta, aes(x=Month,y=PrcpIn,fill=CF)) +
   scale_fill_manual(name="Climate Future",values = colors5.2) + 
   scale_x_discrete(labels = MonthLabels)
 
-ggsave("PrcpInDelta-Monthly-bar.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("PrcpInDelta-Monthly-bar.png", width = 15, height = 9, path = OutDir)
 
 
 #Bar graph of seasonal precip by CF
 ggplot(Season_delta, aes(x=season,y=PrcpIn,fill=CF)) +
   geom_bar(stat="identity",position="dodge",colour="black") +
   PlotTheme +
-  labs(ltitle = paste(SiteID, "- Change in average seasonal precipitation in", Yr,"vs 1979-2012"), 
+  labs(title = paste(SiteID, "- Change in average seasonal precipitation in", Yr,"vs 1979-2012"), 
             x = "Season", y = "Change in Precipitation (in)") +
   scale_fill_manual(name="Climate Future",values = colors5.2)
 
-ggsave("PrcpInDelta-Seasonal-bar.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("PrcpInDelta-Seasonal-bar.png", width = 15, height = 9, path = OutDir)
 
 
 #Line plot of change in MaxTemp by CF/month
@@ -189,7 +189,7 @@ ggplot(Monthly_delta, aes(x=Month, y=TmaxF, group=CF, colour = CF)) +
   scale_y_continuous(limits=c(0, ceiling(max(Monthly_delta$TmaxF)))) + 
   scale_x_discrete(labels = MonthLabels)
 
-ggsave("TmaxFDelta-Monthly-line.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TmaxFDelta-Monthly-line.png", width = 15, height = 9, path = OutDir)
 
 
 ####Line Plot of change in MinTemp by CF/Month
@@ -205,7 +205,7 @@ ggplot(Monthly_delta, aes(x=Month, y=TminF, group=CF, colour = CF)) +
   scale_y_continuous(limits=c(0, ceiling(max(Monthly_delta$TminF))))+ 
   scale_x_discrete(labels = MonthLabels)
 
-ggsave("TminFDelta-Monthly-line.png", width = PlotWidth, height = PlotHeight, path = OutDir)
+ggsave("TminFDelta-Monthly-line.png", width = 15, height = 9, path = OutDir)
 
 
 ###PROGRAM COMPLETE###
