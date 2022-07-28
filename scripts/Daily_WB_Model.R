@@ -241,33 +241,30 @@ WBMonthlyLong <- MonthlyWB_in %>% select(.,-c("sum_snow.in","max_pack.in","avg_s
   gather(Variable, water, -c(CF, Month)) 
 WBMonthlyLong$Variable <- factor(WBMonthlyLong$Variable,levels = c("Ppt","PET","AET"))
 
-WBplot <- 
-ggplot(MonthlyWB_in %>% filter(CF=="Historical")) +
+WBplot <- function(scenario, cols){
+ggplot(MonthlyWB_in %>% filter(CF==scenario)) +
   geom_ribbon(aes(Month, ymin = sum_pet.in, ymax=sum_p.in,fill="Surplus/Runoff",group="CF"),linetype = 0, alpha=1) +
   geom_ribbon(aes(Month, ymin = sum_aet.in, ymax=sum_pet.in,fill="Deficit",group="CF"),linetype = 0,alpha=1) +
   geom_ribbon(aes(Month, ymin = 0, ymax=sum_aet.in,fill="Utilization",group="CF"),linetype = 0,alpha=1) +
-  geom_line(data = WBMonthlyLong %>% filter(CF == "Historical"), aes(x=Month, y = water, group=Variable, linetype = Variable), size = 1.5, stat = "identity",colour="black") +
+  geom_line(data = WBMonthlyLong %>% filter(CF == scenario), aes(x=Month, y = water, group=Variable, linetype = Variable), size = 1.5, stat = "identity",colour="black") +
   scale_fill_manual("",
                     values=c('Surplus/Runoff'="cornflowerblue",'Utilization'="palegreen3",'Deficit'="brown1")) +
-  labs(
-    y = "Water (in)",
-    x = "Months",
-    title = paste("Monthly Water Balance for ",SiteID,sep="")  
-  ) + PlotTheme + theme(axis.title.x=element_text(size=18, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20))) +
-  scale_x_discrete(labels = MonthLabels)
+  labs(title = scenario) + PlotTheme + 
+  theme(axis.title.x=element_blank(),axis.title.y=element_blank(),
+        plot.background = element_rect(colour = cols, fill=NA, size=5)) +
+  scale_x_discrete(labels = MonthLabels)}
 
-# SWE spaghetti
-Hist.SWE<-spaghetti_plot_wateryr(subset(WBData,CF=="Historical"),"PACK.in",col=col[1],CF="Historical")
-CF1.SWE<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[1]),"PACK.in",col=col[2], CF=CFs[1])
-CF2.SWE<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"PACK.in",col=col[3], CF=CFs[2])
+Hist.WBplot <- WBplot(scenario="Historical",cols="grey")
+CF1.WBplot <- WBplot(scenario=CFs[1],cols=colors2[1])
+CF2.WBplot <- WBplot(scenario=CFs[2],cols=colors2[2])
 
-SWEgrid <- ggarrange(Hist.SWE, CF1.SWE, CF2.SWE, ncol = 1, nrow = 3,common.legend = T)
-
-annotate_figure(SWEgrid, left = textGrob("SWE (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
-                bottom = textGrob("Water year day", gp = gpar(cex = 1.3)),
-                top = textGrob("Daily SWE for each climate future by water year",
+WBgrid <- ggarrange(Hist.WBplot, CF1.WBplot, CF2.WBplot, ncol = 1, nrow = 3,common.legend = T)
+annotate_figure(WBgrid, left = textGrob("Water (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
+                bottom = textGrob("Month", gp = gpar(cex = 1.3)),
+                top = textGrob(paste0("Monthly water balance for ",SiteID),
                                gp=gpar(fontface="bold", col="black",  fontsize=22)))
-ggsave("SWEaccum.in-spaghetti.jpg", width = 15, height = 9, path = FigDir)
+ggsave("WaterBalance_Monthly.jpg", width = 15, height = 9, path = FigDir)
+rm(Hist.WBplot, CF1.WBplot,CF2.WBplot,WBgrid)
 
 
 ## avg_SM.in
