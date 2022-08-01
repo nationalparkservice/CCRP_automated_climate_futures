@@ -246,10 +246,11 @@ ggplot(MonthlyWB_in %>% filter(CF==scenario)) +
   geom_line(data = WBMonthlyLong %>% filter(CF == scenario), aes(x=Month, y = water, group=Variable, linetype = Variable), size = 1.5, stat = "identity",colour="black") +
   scale_fill_manual("",
                     values=c('Surplus/Runoff'="cornflowerblue",'Utilization'="palegreen3",'Deficit'="brown1")) +
+  scale_linetype_manual(values=c("solid","twodash", "dotted")) +
   labs(title = scenario) + PlotTheme + 
   theme(axis.title.x=element_blank(),axis.title.y=element_blank(),
         plot.background = element_rect(colour = cols, fill=NA, size=5)) +
-  scale_x_discrete(labels = MonthLabels)+
+  scale_x_discrete(labels = MonthLabels) +
     coord_cartesian(ylim = c(0, max(MonthlyWB_in$sum_pet.in)))}
 
 Hist.WBplot <- WBplot(scenario="Historical",cols="grey")
@@ -261,7 +262,15 @@ annotate_figure(WBgrid, left = textGrob("Water (in)", rot = 90, vjust = 1, gp = 
                 bottom = textGrob("Month", gp = gpar(cex = 1.3)),
                 top = textGrob(paste0(SiteID, " monthly water balance in ", Yr),
                                gp=gpar(fontface="bold", col="black",  fontsize=22)))
-ggsave("WaterBalance_Monthly.jpg", width = 15, height = 9, path = FigDir)
+ggsave("WaterBalance_Monthly_Vertical.jpg", width = 15, height = 9, path = FigDir)
+
+
+WBgrid <- ggarrange(Hist.WBplot, CF1.WBplot, CF2.WBplot, ncol = 3, nrow = 1,common.legend = T)
+annotate_figure(WBgrid, left = textGrob("Water (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
+                bottom = textGrob("Month", gp = gpar(cex = 1.3)),
+                top = textGrob(paste0(SiteID, " monthly water balance in ", Yr),
+                               gp=gpar(fontface="bold", col="black",  fontsize=22)))
+ggsave("WaterBalance_Monthly_Horizontal.jpg", width = 15, height = 9, path = FigDir)
 rm(Hist.WBplot, CF1.WBplot,CF2.WBplot,WBgrid)
 
 
