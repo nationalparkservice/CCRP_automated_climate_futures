@@ -28,7 +28,7 @@ figure <- ggarrange(a + rremove("ylab") + rremove("x.text"), b + rremove("ylab")
                     nrow = 2)
 
 annotate_figure(figure, left = textGrob("Days/Yr", rot = 90, vjust = 1, gp = gpar(cex = 2)))
-ggsave("OverHotTemp-HI.Dan-Panel.png", path = FigDir, height=PanelHeight, width=PanelWidth)
+ggsave("OverHotTemp-HI.Dan-Panel.jpg", path = FigDir, height=PanelHeight, width=PanelWidth)
 
 
 # Extreme precip: return intervals + LT-runoff

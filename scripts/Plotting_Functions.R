@@ -23,7 +23,7 @@ PlotTheme = theme(axis.text=element_text(size=14),    #Text size for axis tick m
                   legend.text=element_text(size=16),                                                                   #Text size of legend title
                   legend.position = "bottom")  
 
-BarPlotTheme = theme(axis.text.x=element_text(size=18),    #Text size for axis tick mark labels
+BarPlotTheme = theme(axis.text.x=element_text(size=16),    #Text size for axis tick mark labels
                      axis.text.y=element_text(size=14),
                      axis.title.x=element_blank(),               #Text size and alignment for x-axis label
                      axis.title.y=element_text(size=18, vjust=0.5,  margin=margin(t=20, r=20, b=20, l=20)),              #Text size and alignment for y-axis label
