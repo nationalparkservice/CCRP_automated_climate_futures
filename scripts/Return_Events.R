@@ -105,6 +105,7 @@ max100base$CF <- "Historical"
 max100future <- merge(max100future, WB_GCMs, by="GCM")
 allregressions<-rbind(max100base, max100future)
 allregressions$CF<-factor(allregressions$CF, levels=c("Historical",CFs))
+allregressions<- allregressions %>% mutate(GEV = ifelse(GEV<0 | GEV == -Inf, 0, GEV))
 
 #line plots of regressions
 RE <- ggplot(allregressions, aes(x=return, y=GEV, group=CF, colour = CF)) +
