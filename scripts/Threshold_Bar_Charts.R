@@ -65,6 +65,7 @@ dualscatter  + geom_text_repel(aes(label=GCM)) +
   geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2) #change
 
+
 ggsave(paste0(CF_abbreviation,"-CFmeansStar-scatter.png"), width = PlotWidth, height = PlotHeight, path = OutDir)
 
 #### quadrant means + WB selected models
@@ -95,7 +96,6 @@ dualscatter  + geom_text_repel(aes(label=GCM)) +
   geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2) #change
 
 ggsave(paste0(CF_abbreviation,"CFmeansStar-IndivCircled-scatter.png"), width = PlotWidth, height = PlotHeight, path = OutDir)
-
 
 ################################## Monthly/Seasonal delta plots #####################################
 
