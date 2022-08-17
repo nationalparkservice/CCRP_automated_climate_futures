@@ -389,5 +389,5 @@ YOY <- aggregate(.~CF,WB_GCM_YOY[,c(2,5:length(WB_GCM_YOY))], FUN=mean, na.rm=TR
 
 write.xlsx(list("Means"=A,"Annual"=Annual,"D_Annual"=Annual_delta,"Season"=Season,"D_Season"=Season_delta,"Monthly"=Monthly,"Monthly_delta"=Monthly_delta,
                 "SD"=S, "WB_GCM_Means"=WB_GCM_Means, "WB_GCM_SD"=WB_GCM_SD,"WB_GCM_YOY"=YOY), 
-           file=(paste0(TableDir,"Plot_data.xlsx")),col.names=TRUE)
+           file=(paste0(TableDir,SiteID,"_",CF_abbreviation,"_Plot_data.xlsx")),col.names=TRUE)
 rm(S,A,WB_GCM_Means,WB_GCM_SD,WB_GCM_YOY,YOY,Annual_all_gcms)
