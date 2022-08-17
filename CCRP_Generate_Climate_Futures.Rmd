@@ -31,7 +31,7 @@ rm(list = ls())
 # -------------- Input site information -------------------------------------- #
 
 SiteID = "CARE"  
-
+set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
 
