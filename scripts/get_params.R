@@ -71,6 +71,8 @@ centroid<- as_Spatial(centroid) # objects must be Spatial (sp) to work with rast
 cell <- cellFromXY(maca, centroid) # find grid cell park centroid lies within
 maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
 maca.poly <- rasterToPolygons(maca_cell) # Create MACA polygon - original file in lat/long (note: datum differs from park shapefiles)
+maca.poly2<- crop(maca.poly,as_Spatial(park))
+
 
 # Plot to see that MACA cell is visible and appropriately located within park
 
@@ -90,7 +92,7 @@ slope <- terrain(dem, opt = "slope", unit = "degrees", neighbors = 4) # 4 is bet
 aspect <- terrain(dem, opt = "aspect", unit = "degrees")
 
 # get 10 random points from soil raster and create SpatialPoints object
-points <- spsample(maca.poly, n = 10, type = "random")
+points <- spsample(maca.poly2, n = 10, type = "random")
 
 # plot to check points appear within borders of MACA cell. 
 
@@ -100,6 +102,7 @@ tm_shape(park) +
   tm_borders() + 
   tm_shape(points) + 
   tm_dots()
+
 
 ####    EXTRACT DATA FROM POINTS  ######################################################################################################
 
