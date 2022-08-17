@@ -147,6 +147,7 @@ source(here::here("scripts", "Scatter_and_diagnostic.R"), local = knitr::knit_gl
 # Specify Climate Futures
 
 FutureSubset <- CFs_all[c(1,5)]; CFs = FutureSubset  # Pick pair of climate futures.
+CF_abbreviation <- "WW-HD"
 # WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
 colors2<- colors5[c(1,4)] # Select pair of climate futures - WarmWet/HotDry
@@ -193,6 +194,7 @@ source(here::here("scripts", "Report_plots.R"))
 # Specify Climate Futures
 
 FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futures.
+CF_abbreviation <- "WD-HW"
 
 # WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
