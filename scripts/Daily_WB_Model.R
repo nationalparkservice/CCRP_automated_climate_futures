@@ -262,7 +262,7 @@ annotate_figure(WBgrid, left = textGrob("Water (in)", rot = 90, vjust = 1, gp = 
                 bottom = textGrob("Month", gp = gpar(cex = 1.3)),
                 top = textGrob(paste0(SiteID, " monthly water balance in ", Yr),
                                gp=gpar(fontface="bold", col="black",  fontsize=22)))
-ggsave("WaterBalance_Monthly_Vertical.jpg", width = 15, height = 9, path = FigDir)
+ggsave("WaterBalance_Monthly_Vertical.jpg", width = 15, height = 9, path = FigDir,bg="white")
 
 
 WBgrid <- ggarrange(Hist.WBplot, CF1.WBplot, CF2.WBplot, ncol = 3, nrow = 1,common.legend = T)
@@ -270,7 +270,7 @@ annotate_figure(WBgrid, left = textGrob("Water (in)", rot = 90, vjust = 1, gp = 
                 bottom = textGrob("Month", gp = gpar(cex = 1.3)),
                 top = textGrob(paste0(SiteID, " monthly water balance in ", Yr),
                                gp=gpar(fontface="bold", col="black",  fontsize=22)))
-ggsave("WaterBalance_Monthly_Horizontal.jpg", width = 15, height = 9, path = FigDir)
+ggsave("WaterBalance_Monthly_Horizontal.jpg", width = 15, height = 9, path = FigDir, bg="white")
 rm(Hist.WBplot, CF1.WBplot,CF2.WBplot,WBgrid)
 
 
