@@ -1,0 +1,248 @@
+---
+title: "NPS park climate futures"
+author: "Climate Change Response Program"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: html_document
+---
+
+```{r setup, warning=FALSE, include = FALSE}
+
+knitr::opts_chunk$set(
+  echo = FALSE, 
+  collapse = TRUE,
+  warning = TRUE, # set to FALSE when done
+  message = TRUE # set to FALSE when done
+)
+
+library(here); library(plyr); # Use here::here when package lubridate is used
+library(plotrix); library(zoo); library(ggplot2); library(grid); library(cowplot); library(reshape2); library(raster); library(ncdf4); library(reshape2); library(WriteXLS); library(data.table); library(RColorBrewer); library(ggrepel); library(lubridate); library(dplyr); library(forcats); library(openxlsx); library("WaterBalance"); library(sf); library(raster); library(rgdal); library(R.utils); library(tmap); library(tmaptools); library(ggmap); library(ggspatial);
+library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes)
+
+
+```
+
+
+# For loop that reads names from csv file for park
+
+```{r user-inputs-1, warning=FALSE, include = FALSE}
+
+rm(list = ls())
+
+# -------------- Input site information -------------------------------------- #
+
+SiteID = "CARE"  
+set.seed(50)
+
+# --------------- Input local folder information ----------------------------- #
+
+project_root_dir <- here::here()
+
+local_rss_dir <- 'C:/Users/achildress/Documents/RCF_Testing/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
+local_rss_dir <- paste0(local_rss_dir,SiteID)
+
+if(dir.exists(local_rss_dir) == FALSE){
+  dir.create(local_rss_dir)
+}
+
+
+if(dir.exists(here::here( "PARK")) == FALSE){
+  dir.create(here::here( "PARK"))
+}
+
+OutDir = paste0('./PARK/',SiteID,"/") # for .csv's
+if(dir.exists(OutDir) == FALSE){
+  dir.create(OutDir)
+}
+
+DataDir = paste0(OutDir,'input-data/') # for .csv's
+if(dir.exists(DataDir) == FALSE){
+  dir.create(DataDir)
+}
+
+```
+
+## `r SiteID`
+
+```{r site-info, message=FALSE, warning=FALSE, include = FALSE}
+
+source(here::here("scripts", "get_site_info.R")) # Extract local inputs; seconds to run
+
+source(here::here("scripts", "create_site_maps.R")) # Create site maps
+
+source(here::here("scripts", "get_params.R"))
+```
+
+```{r user-inputs-2, warning=FALSE, include = FALSE}
+
+CFs_all <- c("Warm Wet", "Hot Wet", "Central", "Warm Dry", "Hot Dry")
+
+##Color schemes
+
+#Colors for CF values plotted side by side (match order of CFs vector)
+colors5 <-  c("#6EB2D4", "#05689F", "#F6B294", "#CA0020","grey")
+colors5.2 <- c("#6EB2D4", "#05689F", "grey", "#F6B294", "#CA0020")
+
+centroids_csv <- "Y" #Switch for using Tercek csvs or downloading own data
+
+Indiv_method <- "pca" # Switch for method Indiv_method = c("corner", "pca")
+
+Percent_skill_cutoff = .1 #percentage of models to drop from ranking
+
+# --------- Information for Climate Futures Analyses (MACA) ------------------ #
+
+# Specify parameters:
+
+Yr = 2050 #Central year
+Range = 30  #Number of years to summarize (should be at least 30)
+BasePeriod = "1979-2012"
+rollLen = 10 #rolling mean length for timeseries plots
+
+# Threshold percentages for defining Climate futures. Default low/high:  0.25, 0.75
+CFLow = 0.25     
+CFHigh = 0.75
+
+QuantileLow = 0.05   #Quantiles for temperature threshold calculations
+QuantileHigh = 0.95
+
+HotTemp = 95
+ColdTemp = 32
+PrecipThreshold = 0.05
+
+# ------------ Information for WB analyses ------------------------ #
+
+#Method for PET calculation 
+PET_Method = "Oudin"  #Hamon is default method for daily PRISM and MACA data (containing only Tmax, Tmin, and Date). 
+
+
+# ------------ Information for drought analyses ------------------------ #
+
+## SPEI variables
+
+SPEI_per<-6 # This is the value for the period SPEI is aggregated. 6-months is standard but could change if want. 
+truncation<- -.5 # SPEI value, under which drought events are considered
+SPEI_start <- 1980
+SPEI_end <- 2012
+
+```
+
+
+
+```{r Climate-Futures, message=FALSE, warning=FALSE, include = FALSE}
+
+if(centroids_csv == "Y") {
+  source(here::here("scripts", "download_Park_csvs.R"), local = knitr::knit_global())
+} else {
+  print("Other data needed")
+  #source(here::here("scripts", "Climate-Futures", "CFT_CF_parsing_v1.R")) # Parse MACA data. Output = "_init_parsed.RData". # 9-8-21: CFT parsing script is not working due to an issue with the package or MACA servers. ACR to talk to CU Boulder about the issue. For now, add _init_parsed.RData file manually to parsed-data folder. 
+}
+
+source(here::here("scripts", "Plotting_Functions.R"), local = knitr::knit_global())
+
+source(here::here("scripts", "Plot_Table_Creation.R"), local = knitr::knit_global()) # Requires "PARK_init_parsed.RData"; Output = "PARK_lat_long_Final_Environment.RData". 
+
+source(here::here("scripts", "Scatter_and_diagnostic.R"), local = knitr::knit_global()) # Creates scatter and diagnostic plots. Outputs to Figs MACA folder. 
+```
+
+```{r WarmWet/HotDry, message=FALSE, warning=FALSE, include = FALSE}
+# Specify Climate Futures
+
+FutureSubset <- CFs_all[c(1,5)]; CFs = FutureSubset  # Pick pair of climate futures.
+CF_abbreviation <- "WW-HD"
+# WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
+
+colors2<- colors5[c(1,4)] # Select pair of climate futures - WarmWet/HotDry
+#colors2<- c("#F3D3CB","#12045C")  # Select pair of climate futures - HotWet/WarmDry
+
+colors3<-c("white",colors2)
+col<- c("darkgray",colors2)  # WarmWet/HotDry
+#col<- c("darkgray","#F3D3CB","#12045C")  # HotWet/WarmDry
+
+CFDir = paste0(OutDir,"WarmWet_HotDry/") # for .csv's
+if(dir.exists(CFDir) == FALSE){
+  dir.create(CFDir)
+}
+
+TableDir = paste0(CFDir,"tables/") # for .csv's
+if(dir.exists(TableDir) == FALSE){
+  dir.create(TableDir)
+}
+
+FigDir = paste0(CFDir,"figures/") # for .csv's
+if(dir.exists(FigDir) == FALSE){
+  dir.create(FigDir)
+}
+
+if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At the top of the script, please enter a combination of futures, e.g. Warm Wet/Hot Dry
+
+source(here::here("scripts", "Threshold_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
+
+source(here::here("scripts","Daily_WB_Model.R"))
+
+source(here::here("scripts", "Drought_characteristics.R"))
+
+# source(here::here("scripts", "WBgrid_plotting.R")) # Run the Water Balance Model
+
+source(here::here("scripts", "Return_Events.R"))
+
+source(here::here("scripts", "Summary plots.R"))
+
+source(here::here("scripts", "Report_plots.R"))
+
+```
+
+```{r WarmDry/HotWet, message=FALSE, warning=FALSE, include = FALSE}
+# Specify Climate Futures
+
+FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futures.
+CF_abbreviation <- "WD-HW"
+
+# WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
+
+# colors2<- c("#9A9EE5","#E10720")  # Select pair of climate futures - WarmWet/HotDry
+colors2<- colors5[c(3,2)] # Select pair of climate futures - HotWet/WarmDry
+
+colors3<-c("white",colors2)
+# col<- c("darkgray","#9A9EE5","#E10720")  # WarmWet/HotDry
+col<- c("darkgray", colors2)  # HotWet/WarmDry
+
+CFDir = paste0(OutDir,"WarmDry_HotWet/") # for .csv's
+if(dir.exists(CFDir) == FALSE){
+  dir.create(CFDir)
+}
+
+TableDir = paste0(CFDir,"tables/") # for .csv's
+if(dir.exists(TableDir) == FALSE){
+  dir.create(TableDir)
+}
+
+FigDir = paste0(CFDir,"figures/") # for .csv's
+if(dir.exists(FigDir) == FALSE){
+  dir.create(FigDir)
+}
+
+if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At the top of the script, please enter a combination of futures, e.g. Warm Wet/Hot Dry
+
+source(here::here("scripts", "Threshold_Bar_Charts.R")) # Requires "PARK_lat_long_Final_Environment.RData". Outputs plots and Excel Workbook 
+
+source(here::here("scripts","Daily_WB_Model.R"))
+
+source(here::here("scripts", "Drought_characteristics.R"))
+
+# source(here::here("scripts", "WBgrid_plotting.R")) # Run the Water Balance Model
+
+source(here::here("scripts", "Return_Events.R"))
+
+source(here::here("scripts", "Summary plots.R"))
+
+source(here::here("scripts", "Report_plots.R"))
+
+```
+
+```{r Copy-and-delete-files, message=FALSE, warning=FALSE, include = FALSE}
+
+source(here::here("scripts", "write_metadata.R"))
+
+source(here::here("scripts", "copy_paste_delete_files.R")) # copies files and folders to specified local folder
+
+
+```
