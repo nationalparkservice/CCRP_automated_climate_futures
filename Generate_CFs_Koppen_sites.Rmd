@@ -30,7 +30,8 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "CARE"  
+SiteID = "JOTR"  
+Koppen = "JOTR_07" #PARK_##
 set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
@@ -65,11 +66,11 @@ if(dir.exists(DataDir) == FALSE){
 
 ```{r site-info, message=FALSE, warning=FALSE, include = FALSE}
 
-source(here::here("scripts", "get_site_info.R")) # Extract local inputs; seconds to run
+source(here::here("scripts", "get_site_info_Koppen.R")) # Extract local inputs; seconds to run
 
-source(here::here("scripts", "create_site_maps.R")) # Create site maps
+source(here::here("scripts", "create_site_maps_Koppen.R")) # Create site maps
 
-source(here::here("scripts", "get_params.R"))
+source(here::here("scripts", "get_params_Koppen.R"))
 ```
 
 ```{r user-inputs-2, warning=FALSE, include = FALSE}
@@ -130,7 +131,7 @@ SPEI_end <- 2012
 ```{r Climate-Futures, message=FALSE, warning=FALSE, include = FALSE}
 
 if(centroids_csv == "Y") {
-  source(here::here("scripts", "download_Park_csvs.R"), local = knitr::knit_global())
+  source(here::here("scripts", "download_Park_csvs_Koppen.R"), local = knitr::knit_global())
 } else {
   print("Other data needed")
   #source(here::here("scripts", "Climate-Futures", "CFT_CF_parsing_v1.R")) # Parse MACA data. Output = "_init_parsed.RData". # 9-8-21: CFT parsing script is not working due to an issue with the package or MACA servers. ACR to talk to CU Boulder about the issue. For now, add _init_parsed.RData file manually to parsed-data folder. 
