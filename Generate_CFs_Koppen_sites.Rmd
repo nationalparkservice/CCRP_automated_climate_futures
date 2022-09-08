@@ -30,8 +30,8 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "MOJA"  
-Koppen = "MOJA_05" #PARK_##
+SiteID = "DEVA"  
+Koppen = "DEVA_07" #PARK_##
 set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
