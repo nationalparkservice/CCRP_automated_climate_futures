@@ -10,7 +10,7 @@ library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp);
 rm(list=ls())
 ##################
 ##################
-OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/GUMO/'#location where all of your output is saved
+OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/GUMO'#location where all of your output is saved
 ##################
 ##################
 
@@ -41,4 +41,5 @@ CFDir = paste0(OutDir,"WarmWet_HotDry/") # for .csv's
 }
 TableDir = paste0(CFDir,"tables/") # for .csv's
 FigDir = paste0(CFDir,"figures/") # for .csv's
+
 
