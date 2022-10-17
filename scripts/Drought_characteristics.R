@@ -14,7 +14,8 @@ SPEI_annual_bar <- function(data, period.box=T, title){
 ############################### FORMAT DATAFRAMES  ############################################
 MonthlyWB <- read.csv(paste0(TableDir,"WB-Monthly.csv")) %>% 
   left_join(WB_GCMs,by="GCM") %>% 
-  mutate(CF = factor(CF, levels=c("Historical",CFs)),
+  mutate(CF = replace_na(CF,"Historical"),
+         CF = factor(CF, levels=c("Historical",CFs)),
          Date = as.POSIXct(paste(substr(yrmon,1,4),substr(yrmon,5,6),"1",sep="-"),format="%Y-%m-%d"),
          Year = format(Date, "%Y")) %>% 
   arrange(Date)
@@ -100,7 +101,7 @@ mean(drt3$length[drt3$length>0])
 # Give each drought period an ID
 D<-which(drt3$length==1)
 HistoricalDrought<-data.frame()
-HistoricalDrought<-setNames(data.frame(matrix(ncol=10,nrow=length(D))),c("DID","Start","End","Year","per","CF","duration","severity","peak","freq"))
+HistoricalDrought<-setNames(data.frame(matrix(ncol=9,nrow=length(D))),c("DID","Start","End","Year","per","CF","duration","severity","peak"))
 HistoricalDrought$Start = Sys.time(); HistoricalDrought$End = Sys.time()
 HistoricalDrought$per<-as.factor("H")
 
@@ -108,7 +109,7 @@ HistoricalDrought$per<-as.factor("H")
 # Calculate variables for each drought period
 for (i in 1:length(D)){
   HistoricalDrought$DID[i]<-i
-  HistoricalDrought$Start[i]<-strptime(drt3$Date[D[i]],format="%Y-%m-%d",tz="MST")
+  HistoricalDrought$Start[i]<-as.Date(paste0(drt3$Year[D[i]],"-01-01"),format="%Y-%m-%d")
   HistoricalDrought$Year[i]<-drt3$Year[D[i]]
 }
 
@@ -123,20 +124,20 @@ if(drt3$Drought[length(drt3$Drought)]==1) ND[length(ND)+1]<-length(drt3$length)
 #Duration # months SPEI < truncation; Severity # Sum(SPEI) when SPEI < truncation; Peak # min(SPEI) when SPEI < truncation
 
 for (i in 1:length(ND)){
-  HistoricalDrought$End[i]<-strptime(drt3$Date[ND[i]],format="%Y-%m-%d",tz="MST")
+  HistoricalDrought$End[i]<-as.Date(paste0(drt3$Year[ND[i]],"-01-01"),format="%Y-%m-%d")
   HistoricalDrought$duration[i]<-drt3$length[ND[i]-1]
   HistoricalDrought$severity[i]<-sum(drt3$SPEI[D[i]:(ND[i]-1)])
   HistoricalDrought$peak[i]<-min(drt3$SPEI[D[i]:(ND[i]-1)])
 }
 
 ## Freq
-  d<-which(drt3$length==1)
-  nd<-which((drt3$length == 0) * unlist(lapply(rle(drt3$length)$lengths, seq_len)) == 1)
-  if(length(nd)>length(d)) {nd=nd[2:length(nd)]}
-  for (j in 1:length(d)){
-    HistoricalDrought$freq[which(HistoricalDrought$Year==drt3$Year[d[j]])] <-
-      drt3$count[d[j+1]]-drt3$count[nd[j]]
-  }
+d<-which(drt3$length==1)
+nd<-which((drt3$length == 0) * unlist(lapply(rle(drt3$length)$lengths, seq_len)) == 1)
+if(length(nd)>length(d)) {nd=nd[2:length(nd)]}
+for (j in 1:length(d)){
+  HistoricalDrought$freq[which(HistoricalDrought$Year==drt3$Year[d[j]])] <-
+    drt3$count[d[j+1]]-drt3$count[nd[j]]
+}
 
 ####### Future
 # Calculate drought characteristics
@@ -161,7 +162,7 @@ mean(Future.drt$length[Future.drt$length>0])
 # Give each drought period an ID
 D<-which(Future.drt$length==1)
 FutureDrought<-data.frame()
-FutureDrought<-setNames(data.frame(matrix(ncol=10,nrow=length(D))),c("DID","Start","End","Year","per","CF","duration","severity","peak","freq"))
+FutureDrought<-setNames(data.frame(matrix(ncol=9,nrow=length(D))),c("DID","Start","End","Year","per","CF","duration","severity","peak"))
 FutureDrought$Start = Sys.time(); FutureDrought$End = Sys.time()
 FutureDrought$per<-as.factor("F")
 
@@ -169,7 +170,7 @@ FutureDrought$per<-as.factor("F")
 # Calculate variables for each drought period
 for (i in 1:length(D)){
   FutureDrought$DID[i]<-i
-  FutureDrought$Start[i]<-strptime(Future.drt$Date[D[i]],format="%Y-%m-%d",tz="MST")
+  FutureDrought$Start[i]<-as.Date(paste0(Future.drt$Year[D[i]],"-01-01"),format="%Y-%m-%d")
   FutureDrought$Year[i]<-Future.drt$Year[D[i]]
 }
 
@@ -181,7 +182,7 @@ if(Future.drt$Drought[length(Future.drt$Drought)]==1) ND[length(ND)+1]<-length(F
 
 for (i in 1:length(ND)){
   FutureDrought$CF[i]<-as.character(Future.drt$CF[D[i]])
-  FutureDrought$End[i]<-strptime(Future.drt$Date[ND[i]],format="%Y-%m-%d",tz="MST")
+  FutureDrought$End[i]<-as.Date(paste0(Future.drt$Year[ND[i]],"-01-01"),format="%Y-%m-%d")
   FutureDrought$duration[i]<-Future.drt$length[ND[i]-1]
   FutureDrought$severity[i]<-sum(Future.drt$SPEI[D[i]:(ND[i]-1)])
   FutureDrought$peak[i]<-min(Future.drt$SPEI[D[i]:(ND[i]-1)])
@@ -197,20 +198,23 @@ FutureDrought$CF<-as.factor(FutureDrought$CF)
 
 
 ## Freq
-
+levels(Future.drt$CF)
+Future.drt$CF <- droplevels(Future.drt$CF)
 CF.split<-split(Future.drt,Future.drt$CF)
 for (i in 1:length(CF.split)){
   name=as.character(unique(CF.split[[i]]$CF))
+  nd <-  rle(CF.split[[i]]$length)$lengths
+  freq <- mean(nd[nd != 1])
   d<-which(CF.split[[i]]$length==1)
   nd<-which((CF.split[[i]]$length == 0) * unlist(lapply(rle(CF.split[[i]]$length)$lengths, seq_len)) == 1)
   if(length(nd)>length(d)) {nd=nd[2:length(nd)]}
   for (j in 1:length(d)){
     FutureDrought$freq[which(FutureDrought$CF==name & FutureDrought$Year==CF.split[[i]]$Year[d[j]])] <-
-      CF.split[[i]]$count[d[j+1]]-CF.split[[i]]$count[nd[j]]
+      CF.split[[i]]$count[d[j]]-CF.split[[i]]$count[nd[j]]
   }
 }
-HistoricalDrought$freq[is.na(HistoricalDrought$freq)] <- 0
-FutureDrought$freq[is.na(FutureDrought$freq)] <- 0
+# HistoricalDrought$freq[is.na(HistoricalDrought$freq)] <- 0
+# FutureDrought$freq[is.na(FutureDrought$freq)] <- 0
 
 head(HistoricalDrought)
 head(FutureDrought)
@@ -224,6 +228,7 @@ Hist_char$Frequency<-mean(HistoricalDrought$freq,na.rm=TRUE)
 Hist_char$Duration<-mean(HistoricalDrought$duration)
 Hist_char$Severity<-mean(HistoricalDrought$severity)
 Hist_char$Intensity<-mean(HistoricalDrought$peak)
+Hist_char$Drt.Free <- mean(rle(drt3$length)$lengths[which(rle(drt3$length)$values==0)])
 
 
 Drought_char<-setNames(data.frame(matrix(ncol=6,nrow=length(levels(FutureDrought$CF)))),c("CF","per","Duration","Severity","Intensity","Frequency"))
@@ -235,6 +240,7 @@ for (i in 1:length(Drought_char$CF)){
   Drought_char$Duration[i]<-mean(FutureDrought$duration[which(FutureDrought$CF == name)])
   Drought_char$Severity[i]<-mean(FutureDrought$severity[which(FutureDrought$CF == name)])
   Drought_char$Intensity[i]<-mean(FutureDrought$peak[which(FutureDrought$CF == name)])
+  Drought_char$Drt.Free[i]<-mean(rle(subset(Future.drt,CF==name)$length)$lengths[which(rle(subset(Future.drt,CF==name)$length)$values==0)])
   }
 
 Drought_char<-rbind(Hist_char,Drought_char) 
@@ -263,7 +269,7 @@ var_bar_plot(Drought_all,"Intensity", colors3, "Average Drought Intensity",
 ggsave("DroughtIntensity-Bar.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 #Drought-free interval barplot
-var_bar_plot(Drought_all,"Frequency", colors3, "Average Drought-Free Interval", 
+var_bar_plot(Drought_all,"Drt.Free", colors3, "Average Drought-Free Interval", 
              "Years")
 ggsave("DroughtFrequency-Bar.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
@@ -276,7 +282,7 @@ b <- SPEI_annual_bar(CF2, period.box=T,
                      title=CFs[2]) +  coord_cartesian(ylim = c(min(all3$SPEI), max(all3$SPEI)))
 
 c <- var_bar_plot(Drought_all,"Duration", colors3, "Duration", "Years")
-d <- var_bar_plot(Drought_all,"Frequency", colors3, "Return interval", 
+d <- var_bar_plot(Drought_all,"Drt.Free", colors3, "Drought-free interval", 
              "Years")
 e<- var_bar_plot(Drought_all,"Severity", colors3, "Severity", 
                   "Severity \n(Intensity * Duration)")+ coord_cartesian(ylim = c(0, min(Drought_all$Severity)))
