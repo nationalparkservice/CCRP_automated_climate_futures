@@ -95,14 +95,14 @@ aspect <- terrain(dem, opt = "aspect", unit = "degrees")
 points <- spsample(maca.poly2, n = 10, type = "random")
 
 # plot to check points appear within borders of MACA cell. 
-
+png(paste0(OutDir,"WBpoints.png"), width=4, height=4, units="in", res=300,)
 tm_shape(park) + 
   tm_borders() + 
   tm_shape(maca.poly) + 
   tm_borders() + 
   tm_shape(points) + 
   tm_dots()
-
+dev.off()
 
 ####    EXTRACT DATA FROM POINTS  ######################################################################################################
 
