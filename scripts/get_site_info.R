@@ -14,8 +14,7 @@ US_States <- st_transform(US_States, st_crs(epsg))
 # select park
 
 park <- filter(nps_centroids, UNIT_CODE == SiteID)
-s<-US_States[st_intersects(park, US_States)[[1]],]
-
+s<-US_States %>% filter(STATE_ABBR == park$STATE)
 
 # TWO DIFFERENT OPTIONS FOR CENTROID - use 1st option if running a general RSS and using park centroid. Second option if using specific lat long.
 state = s$STATE_NAME
