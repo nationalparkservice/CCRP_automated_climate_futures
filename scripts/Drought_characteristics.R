@@ -282,7 +282,7 @@ b <- SPEI_annual_bar(CF2, period.box=T,
                      title=CFs[2]) +  coord_cartesian(ylim = c(min(all3$SPEI), max(all3$SPEI)))
 
 c <- var_bar_plot(Drought_all,"Duration", colors3, "Duration", "Years")
-d <- var_bar_plot(Drought_all,"Drt.Free", colors3, "Drought-free interval", 
+d <- var_bar_plot(Drought_all,"Drt.Free", colors3, "Drought-free\ninterval", 
              "Years")
 e<- var_bar_plot(Drought_all,"Severity", colors3, "Severity", 
                   "Severity \n(Intensity * Duration)")+ coord_cartesian(ylim = c(0, min(Drought_all$Severity)))
