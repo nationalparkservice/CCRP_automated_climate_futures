@@ -10,21 +10,24 @@ AnnualWB <- read.csv(paste0(TableDir,"WB-Annual.csv")) %>%
   mutate(max_pack.in = max_pack.mm/ 25.4,
          runoff.in = runoff.mm/ 25.4,
          sum_d.in = sum_d.mm/ 25.4,
-         sum_aet.in = sum_aet.mm/ 25.4) %>% rename(Year=year) %>% left_join(WB_GCMs,by="GCM")
+         sum_aet.in = sum_aet.mm/ 25.4) %>% rename(Year=year) %>% left_join(WB_GCMs,by="GCM") %>% 
+  mutate(CF = ifelse(is.na(CF), "Historical", CF),
+         CF = factor(CF, levels=c("Historical",CFs))) 
 
 
 ########################################### Format MACA data #######################################################
 yrAvgs <- aggregate(cbind(TavgF, PrcpIn)~Year+CF,all_summary,mean)
 yrAvgs$PrcpIn <- yrAvgs$PrcpIn * 365
-yrAvgs$TavgRoll10 <- rollmean(yrAvgs$TavgF, rollLen, fill = NA, align = "right")
-yrAvgs$PrcpRoll10 <- rollmean(yrAvgs$Prcp, rollLen, fill = NA, align = "right")
+yrAvgs <- yrAvgs %>% group_by(CF) %>% 
+  mutate(TavgRoll10 = rollmean(TavgF, rollLen, fill=NA, align="right"),
+         PrcpRoll10 = rollmean(PrcpIn, rollLen, fill=NA, align="right"))
 
-WBAvgs <- aggregate(cbind(sum_d.in, runoff.in, max_pack.in)~Year+CF, AnnualWB, sum)
-WBAvgs$D.inRoll10 <- rollmean(WBAvgs$sum_d.in, rollLen, fill = NA, align = "right")
-WBAvgs$Runoff.inRoll10 <- rollmean(WBAvgs$runoff.in, rollLen, fill = NA, align = "right")
-WBAvgs$SWEaccum.inRoll10 <- rollmean(WBAvgs$max_pack.in, rollLen, fill = NA, align = "right")
-WBAvgs$Year <- as.numeric(WBAvgs$Year)
-
+WBAvgs <- aggregate(cbind(sum_d.in, runoff.in, max_pack.in)~Year+CF, AnnualWB, sum) %>% 
+  group_by(CF) %>% 
+  mutate(D.inRoll10 = rollmean(sum_d.in, rollLen, fill=NA, align="right"),
+         Runoff.inRoll10 = rollmean(runoff.in, rollLen, fill=NA, align="right"),
+         SWEaccum.inRoll10 = rollmean(max_pack.in, rollLen, fill=NA, align="right"),
+         Year = as.numeric(Year))
 
 # Tmean
 t<-LT_plot(yrAvgs,TavgF,rollvar=TavgRoll10,cols=col,yaxis="Mean annual temperature (\u00B0F)",title="") 
@@ -32,21 +35,21 @@ ggsave("TavgF-Timeseries.png",t, path = FigDir, height=PlotHeight, width=PlotWid
 
 # Precip
 p<-LT_plot(yrAvgs,PrcpIn,rollvar=PrcpRoll10,cols=col,yaxis="Mean annual precipitation (inches/Yr)",title="")
-ggsave("PrcpIn-Timeseries.png", p, path = FigDir, height=PlotHeight, width=PlotWidth)
+pggsave("PrcpIn-Timeseries.png", p, path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # Deficit
 
 col2 <- c("darkgray",rev(colors2)) 
 
-d<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col2,yaxis="Mean annual climatic \nwater deficit (in/year)",title="")
+d<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic \nwater deficit (in/year)",title="")
 ggsave("D.in-Timeseries.png", d, path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # Runoff
-r<-LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col2,yaxis="Mean annual runoff (in/year)",title="")
+r<-LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Mean annual runoff (in/year)",title="")
 ggsave("Runoff.in-Timeseries.png", r, path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # SWEaccum
-s<-LT_plot(WBAvgs, max_pack.in, rollvar=SWEaccum.inRoll10,cols=col2,yaxis="Mean annual accumulated SWE (in/year)",title="")
+s<-LT_plot(WBAvgs, max_pack.in, rollvar=SWEaccum.inRoll10,cols=col,yaxis="Mean annual accumulated SWE (in/year)",title="")
 ggsave("SWEaccum.in-Timeseries.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 
