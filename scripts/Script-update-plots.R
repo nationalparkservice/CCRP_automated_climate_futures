@@ -10,11 +10,11 @@ library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp);
 rm(list=ls())
 ##################
 ##################
-OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/GUMO'#location where all of your output is saved
+OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/BAND/'#location where all of your output is saved
 ##################
 ##################
 
-load(paste0(OutDir,"/input-data/Final_Environment.RData")) #This will get data loaded through chunk Climate-Futures
+load(paste0(OutDir,"input-data/Final_Environment.RData")) #This will get data loaded through chunk Climate-Futures
 
 ##################
 ##################
@@ -43,3 +43,8 @@ TableDir = paste0(CFDir,"tables/") # for .csv's
 FigDir = paste0(CFDir,"figures/") # for .csv's
 
 
+### From here can run:
+# Threshold plots
+# Water Balance
+# Drought
+# Return
