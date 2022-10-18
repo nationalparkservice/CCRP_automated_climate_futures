@@ -251,7 +251,7 @@ ggplot(MonthlyWB_in %>% filter(CF==scenario)) +
   theme(axis.title.x=element_blank(),axis.title.y=element_blank(),
         plot.background = element_rect(colour = cols, fill=NA, size=5)) +
   scale_x_discrete(labels = MonthLabels) +
-    coord_cartesian(ylim = c(0, max(MonthlyWB_in$sum_pet.in)))}
+    coord_cartesian(ylim = c(0, max(MonthlyWB_in[,c(5,7:10)]))) }
 
 Hist.WBplot <- WBplot(scenario="Historical",cols="grey")
 CF1.WBplot <- WBplot(scenario=CFs[1],cols=colors2[1])
