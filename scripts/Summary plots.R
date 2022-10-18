@@ -35,7 +35,7 @@ ggsave("TavgF-Timeseries.png",t, path = FigDir, height=PlotHeight, width=PlotWid
 
 # Precip
 p<-LT_plot(yrAvgs,PrcpIn,rollvar=PrcpRoll10,cols=col,yaxis="Mean annual precipitation (inches/Yr)",title="")
-pggsave("PrcpIn-Timeseries.png", p, path = FigDir, height=PlotHeight, width=PlotWidth)
+ggsave("PrcpIn-Timeseries.png", p, path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # Deficit
 
