@@ -10,12 +10,12 @@ library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp);
 rm(list=ls())
 ##################
 ##################
-OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/BAND/'#location where all of your output is saved
+OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/APIS/'#location where all of your output is saved
 ##################
 ##################
 
 load(paste0(OutDir,"input-data/Final_Environment.RData")) #This will get data loaded through chunk Climate-Futures
-
+OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/APIS/'#location where all of your output is saved
 ##################
 ##################
 CF_selected_updates <- "WarmWet_HotDry" #Select your CF by commenting out set you do not wish to use
@@ -46,5 +46,7 @@ FigDir = paste0(CFDir,"figures/") # for .csv's
 ### From here can run:
 # Threshold plots
 # Water Balance
+MonthlyWB <- read.csv(paste0(TableDir,"WB-Monthly.csv"))
+AnnualWB <- read.csv(paste0(TableDir,"WB-Annual.csv"))
 # Drought
 # Return
