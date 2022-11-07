@@ -30,7 +30,7 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "GUMO"  
+SiteID = "APIS"  
 set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
