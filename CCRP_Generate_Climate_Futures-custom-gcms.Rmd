@@ -192,7 +192,7 @@ if(dir.exists(FigDir) == FALSE){
 
 if (exists("FutureSubset") == FALSE) stop("Please specify Climate Futures") # At the top of the script, please enter a combination of futures, e.g. 
 
-source(here::here("scripts/custom-gcms", "Plot_Table-custom-CFs.R")) 
+source(here::here("scripts/custom-gcms", "Plot_Table_Creation-custom-CFs.R")) 
 
 source(here::here("scripts/custom-gcms", "Threshold_Bar_Charts-custom-CFs.R")) #Scatter needsto be troubleshooted
 
