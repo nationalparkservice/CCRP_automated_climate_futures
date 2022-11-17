@@ -204,7 +204,7 @@ source(here::here("scripts/custom-gcms", "Drought_characteristics-custom-CFs.R")
 
 source(here::here("scripts/custom-gcms", "Return_Events-custom-CFs.R"))
 
-source(here::here("scripts", "Summary plots.R"))
+source(here::here("scripts/custom-gcms", "Summary plots-custom-CFs.R"))
 
 source(here::here("scripts/custom-gcms", "Report_plots-custom-CFs.R"))
 

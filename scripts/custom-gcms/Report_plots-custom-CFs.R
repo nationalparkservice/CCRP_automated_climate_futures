@@ -70,7 +70,8 @@ ggsave("Recurrenceinterval-OverPrecip95-Panel.png", plot=g,path = FigDir, height
 # Fire: WaterBalance, AET
 a<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic water deficit (in/year)",
            title=paste("Water Balance for ",SiteID,sep=""))
-b <- ggplot(AnnualWB, aes(x=sum_d.in, y=sum_aet.in, colour=CF)) + geom_point(size=3)+ geom_smooth(method="lm", se=FALSE, size=2)+
+b <- ggplot(AnnualWB %>% filter(Year <2013 | (Year >=Yr - (Range/2) & Year <= (Yr + (Range/2)))),
+            aes(x=sum_d.in, y=sum_aet.in, colour=CF)) + geom_point(size=3)+ geom_smooth(method="lm", se=FALSE, size=2)+
   scale_colour_manual("",values=col) +
   labs(
     y = "Annual Actual Evapotranspiration (in)",
