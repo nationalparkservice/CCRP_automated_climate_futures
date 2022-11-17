@@ -50,11 +50,11 @@ maca_grid_crop <- st_crop(maca_grid_shp, box)
 maca.sf <- st_as_sf(maca.poly)
 maca.sf <- st_transform(maca.sf, 4326)
 
-ggmap(myMap, aes(x=x, y=y)) +
-  geom_sf(data = park, inherit.aes = FALSE, aes(color = "Park"), fill = NA,lwd=1) + 
+ggmap(myMap) +
+  geom_sf(data = park, inherit.aes = FALSE, aes(color = "Park"), fill = NA,lwd=1) +
   geom_sf(data = maca_grid_crop, inherit.aes = FALSE, aes(color="MACA grid"), fill = NA, lwd=0.25) +
   geom_sf(data = maca.sf, inherit.aes = FALSE,fill = NA,lwd= 1.5, aes(colour="Selected CMIP5 cell")) +
-  scale_color_manual(values = c("Park" = "chartreuse4", 
+  scale_color_manual(values = c("Park" = "chartreuse4",
                                 "MACA grid" = alpha("black", 0.25), 
                                 "Selected CMIP5 cell" = "orange")) + 
   annotation_scale() + 
@@ -97,7 +97,7 @@ myMap2 <- suppressWarnings(get_stamenmap(bbox = c(left = adjacent_poly@bbox[1],
                          maptype = "terrain",
                          crop = FALSE, zoom = calc_zoom(lat = c(box[2],box[4]),lon=c(box[1],box[3]))))
 
-ggmap(myMap2, aes(x=x, y=y)) + 
+ggmap(myMap2) + 
   geom_sf(data = adjacent_poly_sf, inherit.aes = FALSE, aes(color = "MACA grid"), fill = NA, lwd = 1) + 
   geom_sf(data = maca.sf, inherit.aes = FALSE,fill = NA,lwd= 1.5, aes(colour="Selected CMIP5 cell")) +
   geom_sf(data = park, inherit.aes = FALSE, aes(color = "Park"), fill = NA,lwd=1) +
