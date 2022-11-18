@@ -174,7 +174,12 @@ for (c in 1:length(CF.split)){
   
   D<-which(CF.split[[c]]$length==1)
   fd <- FutureDrought.i
-  fd[length(D),] <- NA
+  if(length(D)>0) {
+    fd[length(D),] <- NA
+  } else {
+    fd[1,] <- 0
+  }
+  
   fd$per<-as.factor("F")
   fd$CF = name
   
@@ -185,14 +190,20 @@ for (c in 1:length(CF.split)){
   }
   
   ND<- which((CF.split[[c]]$length == 0) * unlist(lapply(rle(CF.split[[c]]$length)$lengths, seq_len)) == 1)
-  if(ND[1]==1) ND<-ND[2:length(ND)]
+  if(ND[1]==1 & length(D)>0) ND<-ND[2:length(ND)]
   if(CF.split[[c]]$Drought[length(CF.split[[c]]$Drought)]==1) ND[length(ND)+1]<-length(CF.split[[c]]$length)
   
   for (i in 1:length(ND)){
     fd$End[i]<-as.character(as.Date(paste0(CF.split[[c]]$Year[ND[i]],"-01-01"),format="%Y-%m-%d"))
-    fd$duration[i]<-CF.split[[c]]$length[ND[i]-1]
-    fd$severity[i]<-sum(CF.split[[c]]$SPEI[D[i]:(ND[i]-1)])
-    fd$peak[i]<-min(CF.split[[c]]$SPEI[D[i]:(ND[i]-1)])
+    if(length(D) > 0){
+      fd$severity[i]<-sum(CF.split[[c]]$SPEI[D[i]:(ND[i]-1)])
+      fd$peak[i]<-min(CF.split[[c]]$SPEI[D[i]:(ND[i]-1)])
+      fd$duration[i]<-CF.split[[c]]$length[ND[i]-1]
+    } else {
+      fd$severity[i]<-0
+      fd$peak[i]<-0
+      fd$duration[i]<-0
+    }
   }
   
   ## Freq
