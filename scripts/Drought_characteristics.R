@@ -150,72 +150,66 @@ head(Future.drt)
 
 # Create count of months within CF
 length(Future.drt$CF)/length(unique(Future.drt$CF))
-Future.drt$count<-rep(seq(1, length(Future.drt$CF)/length(unique(Future.drt$CF)), 
-                       1),length(unique(Future.drt$CF))) # repeat # of CFs 
 
-Future.drt$length<-0
-Future.drt$length <- Future.drt$Drought * unlist(lapply(rle(Future.drt$Drought)$lengths, seq_len))
-mean(Future.drt$length[Future.drt$length>0])
-
-# To get duration, now just remove those that are not droughts and do calculations on length
 
 # Give each drought period an ID
-D<-which(Future.drt$length==1)
 FutureDrought<-data.frame()
-FutureDrought<-setNames(data.frame(matrix(ncol=9,nrow=length(D))),c("DID","Start","End","Year","per","CF","duration","severity","peak"))
-FutureDrought$Start = Sys.time(); FutureDrought$End = Sys.time()
-FutureDrought$per<-as.factor("F")
+FutureDrought<-setNames(data.frame(matrix(ncol=10,nrow=0)),c("DID","Start","End","Year","per","CF","duration","severity","peak","freq"))
+FutureDrought.i <- FutureDrought
 
-
-# Calculate variables for each drought period
-for (i in 1:length(D)){
-  FutureDrought$DID[i]<-i
-  FutureDrought$Start[i]<-as.Date(paste0(Future.drt$Year[D[i]],"-01-01"),format="%Y-%m-%d")
-  FutureDrought$Year[i]<-Future.drt$Year[D[i]]
-}
-
-ND<- which((Future.drt$length == 0) * unlist(lapply(rle(Future.drt$length)$lengths, seq_len)) == 1)
-if(ND[1]==1) ND<-ND[2:length(ND)]
-if(Future.drt$Drought[length(Future.drt$Drought)]==1) ND[length(ND)+1]<-length(Future.drt$length)
-
-#Duration # months SPEI < truncation; Severity # Sum(SPEI) when SPEI < truncation; Peak # min(SPEI) when SPEI < truncation
-
-for (i in 1:length(ND)){
-  FutureDrought$CF[i]<-as.character(Future.drt$CF[D[i]])
-  FutureDrought$End[i]<-as.Date(paste0(Future.drt$Year[ND[i]],"-01-01"),format="%Y-%m-%d")
-  FutureDrought$duration[i]<-Future.drt$length[ND[i]-1]
-  FutureDrought$severity[i]<-sum(Future.drt$SPEI[D[i]:(ND[i]-1)])
-  FutureDrought$peak[i]<-min(Future.drt$SPEI[D[i]:(ND[i]-1)])
-}
-if(length(unique(FutureDrought$CF)) == 1) {FD <- FutureDrought %>% filter(row_number()==1) %>%
-  mutate(Year = 9999, CF = CFs[!(CFs %in% unique(FutureDrought$CF))],
-         duration = 0, severity = 0, peak = 0, freq = 0)
-CFs[!(CFs %in% unique(FutureDrought$CF))]
-FutureDrought = rbind(FutureDrought, FD)
-rm(FD)}  
-
-FutureDrought$CF<-as.factor(FutureDrought$CF)
-
-
-## Freq
-levels(Future.drt$CF)
 Future.drt$CF <- droplevels(Future.drt$CF)
 CF.split<-split(Future.drt,Future.drt$CF)
-for (i in 1:length(CF.split)){
-  name=as.character(unique(CF.split[[i]]$CF))
-  nd <-  rle(CF.split[[i]]$length)$lengths
-  freq <- mean(nd[nd != 1])
-  d<-which(CF.split[[i]]$length==1)
-  nd<-which((CF.split[[i]]$length == 0) * unlist(lapply(rle(CF.split[[i]]$length)$lengths, seq_len)) == 1)
+
+# Calculate drought characteristics for each CF -- have to split by CF to avoid mixing up counts
+for (c in 1:length(CF.split)){
+  name=as.character(unique(CF.split[[c]]$CF))
+  
+  
+  CF.split[[c]]$count<-rep(seq(1, length(CF.split[[c]]$CF)/length(unique(CF.split[[c]]$CF)), 
+                               1),length(unique(CF.split[[c]]$CF))) # repeat # of CFs 
+  
+  CF.split[[c]]$length<-0
+  CF.split[[c]]$length <- CF.split[[c]]$Drought * unlist(lapply(rle(CF.split[[c]]$Drought)$lengths, seq_len))
+  mean(CF.split[[c]]$length[CF.split[[c]]$length>0])
+  
+  D<-which(CF.split[[c]]$length==1)
+  fd <- FutureDrought.i
+  fd[length(D),] <- NA
+  fd$per<-as.factor("F")
+  fd$CF = name
+  
+  for (i in 1:length(D)){
+    fd$DID[i]<-i
+    fd$Start[i]<-as.character(as.Date(paste0(CF.split[[c]]$Year[D[i]],"-01-01"),format="%Y-%m-%d"))
+    fd$Year[i]<-CF.split[[c]]$Year[D[i]]
+  }
+  
+  ND<- which((CF.split[[c]]$length == 0) * unlist(lapply(rle(CF.split[[c]]$length)$lengths, seq_len)) == 1)
+  if(ND[1]==1) ND<-ND[2:length(ND)]
+  if(CF.split[[c]]$Drought[length(CF.split[[c]]$Drought)]==1) ND[length(ND)+1]<-length(CF.split[[c]]$length)
+  
+  for (i in 1:length(ND)){
+    fd$End[i]<-as.character(as.Date(paste0(CF.split[[c]]$Year[ND[i]],"-01-01"),format="%Y-%m-%d"))
+    fd$duration[i]<-CF.split[[c]]$length[ND[i]-1]
+    fd$severity[i]<-sum(CF.split[[c]]$SPEI[D[i]:(ND[i]-1)])
+    fd$peak[i]<-min(CF.split[[c]]$SPEI[D[i]:(ND[i]-1)])
+  }
+  
+  ## Freq
+  d<-which(CF.split[[c]]$length==1)
+  nd<-which((CF.split[[c]]$length == 0) * unlist(lapply(rle(CF.split[[c]]$length)$lengths, seq_len)) == 1)
   if(length(nd)>length(d)) {nd=nd[2:length(nd)]}
   for (j in 1:length(d)){
-    FutureDrought$freq[which(FutureDrought$CF==name & FutureDrought$Year==CF.split[[i]]$Year[d[j]])] <-
-      CF.split[[i]]$count[d[j]]-CF.split[[i]]$count[nd[j]]
+    fd$freq[which(fd$Year==CF.split[[c]]$Year[d[j]])] <-
+      CF.split[[c]]$count[d[j+1]]-CF.split[[c]]$count[nd[j]]
   }
+  FutureDrought <- rbind(FutureDrought,fd)
+  rm(fd)
 }
-# HistoricalDrought$freq[is.na(HistoricalDrought$freq)] <- 0
-# FutureDrought$freq[is.na(FutureDrought$freq)] <- 0
+rm(FutureDrought.i)
+FutureDrought$CF = factor(FutureDrought$CF, levels = FutureSubset)
 
+########### Merge
 head(HistoricalDrought)
 head(FutureDrought)
 Drought<-rbind(HistoricalDrought,FutureDrought)
