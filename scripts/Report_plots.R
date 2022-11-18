@@ -43,7 +43,7 @@ a <- ggplot(allregressions, aes(x=return, y=GEV, group=CF, colour = CF)) +
   scale_fill_manual(name="",values = colors3) +
   scale_shape_manual(name="",values = c(21,22,23))
   
-b <- LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col2,yaxis="Runoff (in/year)",title="Mean annual runoff ")
+b <- LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Runoff (in/year)",title="Mean annual runoff ")
 legend <- grid_arrange_shared_legend(a,b,nrow=2,ncol=1,position="bottom")
 ggsave("Recurrenceinterval-Runoff.in-Panel.png",legend, path = FigDir, height=PanelHeight, width=PanelWidth)
 
@@ -68,10 +68,11 @@ ggsave("Recurrenceinterval-OverPrecip95-Panel.png", plot=g,path = FigDir, height
 
 
 # Fire: WaterBalance, AET
-a<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col2,yaxis="Mean annual climatic water deficit (in/year)",
+a<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic water deficit (in/year)",
            title=paste("Water Balance for ",SiteID,sep=""))
-b <- ggplot(AnnualWB, aes(x=sum_d.in, y=sum_aet.in, colour=CF)) + geom_point(size=3)+ geom_smooth(method="lm", se=FALSE, size=2)+
-  scale_colour_manual("",values=col2) +
+b <- ggplot(AnnualWB %>% filter(Year <2013 | (Year >=Yr - (Range/2) & Year <= (Yr + (Range/2)))),
+                   aes(x=sum_d.in, y=sum_aet.in, colour=CF)) + geom_point(size=3)+ geom_smooth(method="lm", se=FALSE, size=2)+
+  scale_colour_manual("",values=col) +
   labs(
     y = "Annual Actual Evapotranspiration (in)",
     x = "Annual water deficit (in)",
@@ -83,7 +84,7 @@ ggsave("Panel-D.in-WaterBalance.png",legend, path = FigDir, height=PanelHeight, 
 
 
 # Fire: WaterBalance, VPD
-a<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col2,yaxis="Mean annual climatic water deficit (in/year)",
+a<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic water deficit (in/year)",
            title=paste("Water Balance for ",SiteID,sep=""))
 b <- Month_bar_plot(Monthly_delta,xvar=Month,yvar=VPD,grp=CF,cols=colors2,
                  title=paste0("Change in avg monthly VPD in ",Yr," vs ", BasePeriod),
