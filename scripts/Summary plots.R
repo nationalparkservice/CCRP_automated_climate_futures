@@ -41,15 +41,15 @@ ggsave("PrcpIn-Timeseries.png", p, path = FigDir, height=PlotHeight, width=PlotW
 
 col2 <- c("darkgray",rev(colors2)) 
 
-d<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col2,yaxis="Mean annual climatic \nwater deficit (in/year)",title="")
+d<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic \nwater deficit (in/year)",title="")
 ggsave("D.in-Timeseries.png", d, path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # Runoff
-r<-LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col2,yaxis="Mean annual runoff (in/year)",title="")
+r<-LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Mean annual runoff (in/year)",title="")
 ggsave("Runoff.in-Timeseries.png", r, path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # SWEaccum
-s<-LT_plot(WBAvgs, max_pack.in, rollvar=SWEaccum.inRoll10,cols=col2,yaxis="Mean annual accumulated SWE (in/year)",title="")
+s<-LT_plot(WBAvgs, max_pack.in, rollvar=SWEaccum.inRoll10,cols=col,yaxis="Mean annual accumulated SWE (in/year)",title="")
 ggsave("SWEaccum.in-Timeseries.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 
