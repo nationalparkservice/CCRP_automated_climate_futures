@@ -208,6 +208,7 @@ for (c in 1:length(CF.split)){
 }
 rm(FutureDrought.i)
 FutureDrought$CF = factor(FutureDrought$CF, levels = FutureSubset)
+Future.drt <- ldply(CF.split, data.frame) #convert back to df
 
 ########### Merge
 head(HistoricalDrought)
@@ -235,7 +236,7 @@ for (i in 1:length(Drought_char$CF)){
   Drought_char$Severity[i]<-mean(FutureDrought$severity[which(FutureDrought$CF == name)])
   Drought_char$Intensity[i]<-mean(FutureDrought$peak[which(FutureDrought$CF == name)])
   Drought_char$Drt.Free[i]<-mean(rle(subset(Future.drt,CF==name)$length)$lengths[which(rle(subset(Future.drt,CF==name)$length)$values==0)])
-  }
+}
 
 Drought_char<-rbind(Hist_char,Drought_char) 
 

@@ -219,7 +219,7 @@ for (c in 1:length(CF.split)){
 }
 rm(FutureDrought.i)
 FutureDrought$CF = factor(FutureDrought$CF, levels = FutureSubset)
-  
+Future.drt <- ldply(CF.split, data.frame) #convert back to df
 
 ## Freq
 
