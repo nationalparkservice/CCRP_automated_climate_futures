@@ -17,9 +17,9 @@ legend <- grid_arrange_shared_legend(a,b+ rremove("y.text"),
 ggsave("TminF-TmaxF-Panel.png",legend, path = FigDir, height=PanelHeight, width=PanelWidth)
 
 
-# Extreme heat: heat index + Tmax95
-a <- var_bar_plot(Annual, "OverHotTemp", cols=colors3, ylab="Days/Yr",
-             title=paste0("Average Days/Yr > ", HotTemp, " (\u00B0F)"))
+# Extreme heat: heat index + Tmax99
+a <- var_bar_plot(Annual, "Tmax99", cols=colors3, ylab="Days/Yr",
+             title=paste0("Average Days/Yr > Historical 99th percentile (", round(HistTmax99,1), " \u00B0F )"))
 b<- var_bar_plot(Annual, "HI.Dan", cols=colors3, ylab="Days/Yr",
              title=paste0("Average annual dangerous heat index days"))
 g <- grid.arrange(a,b,nrow=2)
@@ -28,7 +28,7 @@ figure <- ggarrange(a + rremove("ylab") + rremove("x.text"), b + rremove("ylab")
                     nrow = 2)
 
 annotate_figure(figure, left = textGrob("Days/Yr", rot = 90, vjust = 1, gp = gpar(cex = 2)))
-ggsave("OverHotTemp-HI.Dan-Panel.jpg", path = FigDir, height=PanelHeight, width=PanelWidth)
+ggsave("OverTmax99-HI.Dan-Panel.jpg", path = FigDir, height=PanelHeight, width=PanelWidth)
 
 
 # Extreme precip: return intervals + LT-runoff
