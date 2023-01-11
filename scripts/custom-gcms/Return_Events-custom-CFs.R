@@ -123,20 +123,20 @@ ggsave(plot=RE,"Precip-Return-Event-curve.png", path=FigDir, width = PlotWidth, 
 RE + geom_vline(aes(xintercept=50),linetype=2,colour="black",size=1) +
   geom_segment(aes(x=1,xend=50,y=allreturns$GEV[which(allreturns$CF=="Historical")],yend=allreturns$GEV[which(allreturns$CF=="Historical")]),linetype=2,colour="grey",size=1) +
   geom_segment(aes(x=1,xend=50,y=allreturns$GEV[which(allreturns$CF==CFs[1])],yend=allreturns$GEV[which(allreturns$CF==CFs[1])]),linetype=2,colour=colors2[1],size=1) +
-  geom_segment(aes(x=1,xend=50,y=allreturns$GEV[which(allreturns$CF==CFs[2])],yend=allreturns$GEV[which(allreturns$CF==CFs[2])]),linetype=2,colour=colors2[2],size=1) +
-  geom_segment(aes(x=1,xend=50,y=allreturns$GEV[which(allreturns$CF==CFs[3])],yend=allreturns$GEV[which(allreturns$CF==CFs[3])]),linetype=2,colour=colors2[3],size=1)
+  geom_segment(aes(x=1,xend=50,y=allreturns$GEV[which(allreturns$CF==CFs[2])],yend=allreturns$GEV[which(allreturns$CF==CFs[2])]),linetype=2,colour=colors2[2],size=1) 
+  # geom_segment(aes(x=1,xend=50,y=allreturns$GEV[which(allreturns$CF==CFs[3])],yend=allreturns$GEV[which(allreturns$CF==CFs[3])]),linetype=2,colour=colors2[3],size=1)
 ggsave("Precip-Return-Event-curve-50yr-lines.png", path=FigDir, width = PlotWidth, height = PlotHeight)
 
 Hist_return50 <- round(allreturns$GEV[which(allreturns$CF=="Historical")],0)
 CF1_return50 <- allregressions %>% filter(CF == CFs[1]) %>% slice(which.min(abs(GEV - Hist_return50))) %>% select(return)
 CF2_return50 <- allregressions %>% filter(CF == CFs[2]) %>% slice(which.min(abs(GEV - Hist_return50))) %>% select(return)
-CF3_return50 <- allregressions %>% filter(CF == CFs[3]) %>% slice(which.min(abs(GEV - Hist_return50))) %>% select(return)
+# CF3_return50 <- allregressions %>% filter(CF == CFs[3]) %>% slice(which.min(abs(GEV - Hist_return50))) %>% select(return)
 
 RE + geom_hline(aes(yintercept=Hist_return50),linetype=2,colour="black",size=1) + 
   geom_segment(aes(x=50,xend=50,y=0,yend=Hist_return50),linetype=1,colour="grey",size=1) +
   geom_segment(aes(x=CF1_return50[1,],xend=CF1_return50[1,],y=0,yend=Hist_return50),linetype=1,colour=colors2[1],size=1) +
-  geom_segment(aes(x=CF2_return50[1,],xend=CF2_return50[1,],y=0,yend=Hist_return50),linetype=1,colour=colors2[2],size=1) +
-  geom_segment(aes(x=CF3_return50[1,],xend=CF3_return50[1,],y=0,yend=Hist_return50),linetype=1,colour=colors2[3],size=1) 
+  geom_segment(aes(x=CF2_return50[1,],xend=CF2_return50[1,],y=0,yend=Hist_return50),linetype=1,colour=colors2[2],size=1) 
+  # geom_segment(aes(x=CF3_return50[1,],xend=CF3_return50[1,],y=0,yend=Hist_return50),linetype=1,colour=colors2[3],size=1) 
 ggsave("Precip-Return-Event-curve-prcp-lines.png", path=FigDir, width = PlotWidth, height = PlotHeight)
 
 write.csv(allregressions, paste0(TableDir,"precip_recurrence_interval.csv"),row.names = FALSE)

@@ -77,11 +77,11 @@ CF3<-subset(all3, CF %in% c("Historical",CFs[3]) )
 
 SPEI_annual_bar(subset(CF3,Year>=Yr-Range/2 & Year<=Yr+Range/2), period.box=T,
                 title=paste("SPEI values for", CFs[3], "climate future", sep = " " )) 
-ggsave("SPEI-CF2-Annual-bar.png", path = FigDir, width = PlotWidth, height = PlotHeight)
+ggsave("SPEI-CF3-Annual-bar.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
 SPEI_annual_bar(CF3, period.box=T,
                 title=paste("SPEI values for", CFs[3], "climate future", sep = " " )) 
-ggsave("SPEI-CF2-gridmet-Annual-bar.png", path = FigDir, width = PlotWidth, height = PlotHeight)
+ggsave("SPEI-CF3-gridmet-Annual-bar.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
 
 # Split into periods
@@ -292,8 +292,8 @@ a <- SPEI_annual_bar(CF1, period.box=T,
                 title=CFs[1]) + coord_cartesian(ylim = c(min(all3$SPEI), max(all3$SPEI)))
 b <- SPEI_annual_bar(CF2, period.box=T,
                      title=CFs[2]) +  coord_cartesian(ylim = c(min(all3$SPEI), max(all3$SPEI)))
-b.2 <- SPEI_annual_bar(CF3, period.box=T,
-                       title=CFs[3]) +  coord_cartesian(ylim = c(min(all3$SPEI), max(all3$SPEI)))
+# b.2 <- SPEI_annual_bar(CF3, period.box=T,
+                       # title=CFs[3]) +  coord_cartesian(ylim = c(min(all3$SPEI), max(all3$SPEI)))
 
 c <- var_bar_plot(Drought_all,"Duration", colors3, "Duration", "Years")
 d <- var_bar_plot(Drought_all,"Drt.Free", colors3, "Drought-free\ninterval", 
@@ -301,8 +301,8 @@ d <- var_bar_plot(Drought_all,"Drt.Free", colors3, "Drought-free\ninterval",
 e<- var_bar_plot(Drought_all,"Severity", colors3, "Severity", 
                   "Severity \n(Intensity * Duration)")+ coord_cartesian(ylim = c(0, min(Drought_all$Severity)))
 
-spei.time <- grid_arrange_shared_legend(a + rremove("ylab") + rremove("x.text"),b + rremove("ylab") + rremove("x.text"),b.2 +  rremove("ylab"),
-                                        nrow=3,ncol=1,position="bottom")
+spei.time <- grid_arrange_shared_legend(a + rremove("ylab") + rremove("x.text"),b + rremove("ylab") + rremove("x.text"),
+                                        nrow=2,ncol=1,position="bottom")
 
 spei.time <- annotate_figure(spei.time, left = textGrob("SPEI", rot = 90, vjust = 1, gp = gpar(cex = 2)))
 

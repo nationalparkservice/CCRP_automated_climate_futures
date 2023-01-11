@@ -153,19 +153,23 @@ If rerunning - start here -- reads in CFs, make any adjustments in next chunk
 
 ```{r Custom-CFs, message=FALSE, warning=FALSE, include = FALSE}
 # Specify Climate Futures
-OutDir <- "C:/Users/achildress/Documents/Git-repos/CCRP_automated_climate_futures/PARK/WHSA/"
+OutDir <- "C:/Users/achildress/Documents/RCF_Testing/JOTR_07/"
 # OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/WHSA/'
 load(paste0(OutDir,"input-data/Final_Environment.RData"))
+OutDir <- "C:/Users/achildress/Documents/RCF_Testing/JOTR_07/"
+DataDir = paste0(OutDir,'input-data/') # for .csv's
+if(dir.exists(DataDir) == FALSE){
+  dir.create(DataDir)
+}
 
-FutureSubset <- c("Least change", "Hot Wet", "Hot Dry")
+FutureSubset <- c("Warm Wet", "Hot Dry")
 CFs = FutureSubset 
-custom_GCMs = c("inmcm4.rcp45", "MIROC-ESM.rcp85","HadGEM2-ES365.rcp85") # In order as FutureSubset
+custom_GCMs = c("inmcm4.rcp45", "MIROC-ESM.rcp85") # In order as FutureSubset
 
 CF_abbreviation <- "Custom-CFs"
 # WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
-colors2<- c("light green", "blue", "red")
-#colors2<- c("#F3D3CB","#12045C")  # Select pair of climate futures - HotWet/WarmDry
+colors2<- colors5[c(1,4)] # Select pair of climate futures - HotWet/WarmDry
 
 colors3<-c("white",colors2)
 col<- c("darkgray",colors2)  # WarmWet/HotDry

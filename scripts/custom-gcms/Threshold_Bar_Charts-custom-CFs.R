@@ -72,10 +72,10 @@ dualscatter  + geom_text_repel(aes(label=GCM)) +
   # geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[2])]), y=mean(365*DeltaPr[which(CF==CFs[2])])), shape=8, size=7, stroke=3, colour=colors2[2]) +
   geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[1])]), y=mean(365*DeltaPr[which(CF==CFs[1])])), shape=21, size=10, stroke=3, colour=colors2[1]) +
   geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[2])]), y=mean(365*DeltaPr[which(CF==CFs[2])])), shape=21, size=10, stroke=3, colour=colors2[2]) +
-  geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[3])]), y=mean(365*DeltaPr[which(CF==CFs[3])])), shape=21, size=10, stroke=3, colour=colors2[3]) +
+  # geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[3])]), y=mean(365*DeltaPr[which(CF==CFs[3])])), shape=21, size=10, stroke=3, colour=colors2[3]) +
   geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[1])]), y=mean(365*DeltaPr[which(CF==CFs[1])])), shape=20, size=2,  colour=colors2[1]) +
   geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[2])]), y=mean(365*DeltaPr[which(CF==CFs[2])])), shape=20, size=2,  colour=colors2[2]) +
-  geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[3])]), y=mean(365*DeltaPr[which(CF==CFs[3])])), shape=20, size=2,  colour=colors2[3]) +
+  # geom_point(aes(x=mean(DeltaTavg[which(CF==CFs[3])]), y=mean(365*DeltaPr[which(CF==CFs[3])])), shape=20, size=2,  colour=colors2[3]) +
   theme(axis.text=element_text(size=18),
         axis.title.x=element_text(size=18,vjust=-0.2),
         axis.title.y=element_text(size=18,vjust=0.2),
