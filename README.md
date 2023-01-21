@@ -1,6 +1,6 @@
 
 # CCRP Climate Futures Creation
-_Contact Amber Runyon prior to reuse of code for appropriate citation_
+**Contact Amber Runyon prior to reuse of code for appropriate citation**
 
 
 ### Instructions for running CCRP_Climate_Futures.Rmd
