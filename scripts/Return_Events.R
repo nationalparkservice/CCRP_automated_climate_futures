@@ -93,7 +93,7 @@ allreturns<-rbind(return50base, return50future)
 allreturns$CF<-factor(allreturns$CF, levels=c("Historical",CFs))
 
 #Bar graph 50-year return int for a 24-hour event
-var_bar_plot(allreturns,"GEV", cols=colors3, title="50-year extreme precipitation (1:50) events", 
+var_bar_plot(allreturns,"GEV", cols=colors3, title=paste0(SiteID, " 50-year extreme precipitation (1:50) events"), 
              ylab="Precipitation (inches/day)")
 ggsave("50yr-PrecipEvent-bar.png", path=FigDir, width = PlotWidth, height = PlotHeight)
 
