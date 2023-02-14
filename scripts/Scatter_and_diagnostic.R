@@ -66,7 +66,7 @@ ggplot(FM, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, 
         plot.title=element_text(size=20,face="bold",vjust=2,hjust=0.5),
         legend.text=element_text(size=16), legend.title=element_text(size=20)) + 
   ###
-  labs(title =paste0(" Changes in climate means in ", Yr, " by GCM run"), 
+  labs(title =paste0(SiteID, " Changes in climate means in ", Yr, " by GCM run"), 
        x = paste("Change in ",Longx,sep=""), # Change
        y = paste("Change in ",Longy,sep="")) + #change
   scale_color_manual(name="Climate Futures", values=colors5) +
