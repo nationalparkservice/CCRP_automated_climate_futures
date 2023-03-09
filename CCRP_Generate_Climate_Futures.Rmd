@@ -30,7 +30,7 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "ROMO"  
+SiteID = "ORPI"  
 set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
@@ -66,10 +66,12 @@ if(dir.exists(DataDir) == FALSE){
 ```{r site-info, message=FALSE, warning=FALSE, include = FALSE}
 
 source(here::here("scripts", "get_site_info.R")) # Extract local inputs; seconds to run
-
+oldw <- getOption("warn")
+options(warn = -1)
 source(here::here("scripts", "create_site_maps.R")) # Create site maps
 
 source(here::here("scripts", "get_params.R"))
+options(warn = oldw)
 ```
 
 ```{r user-inputs-2, warning=FALSE, include = FALSE}
