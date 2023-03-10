@@ -104,6 +104,7 @@ tm_shape(park) +
   tm_dots()
 dev.off()
 
+
 ####    EXTRACT DATA FROM POINTS  ######################################################################################################
 
 # reproject points to lat/long so can eventually add to .csv
