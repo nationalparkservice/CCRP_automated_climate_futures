@@ -230,6 +230,9 @@ Future_Means %>% mutate(corners = ifelse(GCM == ww,"Warm Wet",
 FM <- Future_Means %>% select("GCM","DeltaPr","DeltaTavg") %>%  
   filter(str_detect(GCM, paste(low_skill_models$GCM,collapse = '|'), negate = TRUE)) %>% 
   remove_rownames %>% column_to_rownames(var="GCM") 
+CF_GCM = data.frame(GCM = Future_Means$GCM, CF = Future_Means$CF)
+
+#Select PCA GCMs
 
 pca <- prcomp(FM, center = TRUE,scale. = TRUE) 
 
@@ -237,20 +240,30 @@ ggsave("PCA-loadings.png", plot=autoplot(pca, data = FM, loadings = TRUE,label=T
 
 pca.df<-as.data.frame(pca$x) 
 
-PC1 <- factor(c(rownames(pca.df)[which.min(pca.df$PC1)],rownames(pca.df)[which.max(pca.df$PC1)])) 
-PC2<- c(rownames(pca.df)[which.min(pca.df$PC2)],rownames(pca.df)[which.max(pca.df$PC2)]) 
+PCs <-rbind(data.frame(GCM = c(rownames(pca.df)[which.min(pca.df$PC1)],rownames(pca.df)[which.max(pca.df$PC1)]),PC="PC1"),
+            data.frame(GCM = c(rownames(pca.df)[which.min(pca.df$PC2)],rownames(pca.df)[which.max(pca.df$PC2)]),PC="PC2"))
 
-Future_Means %>% mutate(pca = ifelse(GCM %in% PC1, as.character(CF), #assign PCs to quadrants and select those gcms
-                                     ifelse(GCM %in% PC2, as.character(CF),NA))) -> Future_Means
-if(length(setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca)) > 0){ #if a quadrant is missing 
-  Future_Means$pca[which(Future_Means$corners == setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca))] = setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca) #assign corners selection to that CF
+diagonals <- rbind(data.frame(CF = CFs_all[c(1,5)],diagonals=factor("diagonal1")),data.frame(CF = CFs_all[c(4,2)],diagonals=factor("diagonal2")))
+PCA <- CF_GCM %>% filter(GCM %in% PCs$GCM) %>% left_join(diagonals,by="CF") %>% right_join(PCs,by="GCM")
+
+ID.redundant.gcm <- function(PCA){
+  redundant.diag=count(PCA,diagonals)$diagonals[which(count(PCA,diagonals)$n==1)]
+  PC.foul = PCA$PC[which(PCA$diagonals == redundant.diag)]
+  PCA$GCM[which(PCA$PC == PC.foul & PCA$GCM != PCA$GCM[which(PCA$diagonals == redundant.diag)])]
 }
 
+Future_Means %>% mutate(pca = ifelse(GCM %in% PCs$GCM[which(PCs$PC=="PC1")], as.character(CF), #assign PCs to quadrants and select those gcms
+                                     ifelse(GCM %in% PCs$GCM[which(PCs$PC=="PC2")], as.character(CF),NA))) -> Future_Means #Future_Means
 
-Future_Means %>% mutate(select = eval(parse(text=paste0(Indiv_method)))) -> Future_Means
+if(length(setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca)) > 0){ #if a quadrant is missing 
+  Future_Means$pca[which(Future_Means$corners == setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca))] = setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca) #assign corners selection to that CF
+  Future_Means$pca[which(Future_Means$GCM == ID.redundant.gcm(PCA))] = NA
+}
+
+Future_Means %>% mutate(select = eval(parse(text=paste0("Future_Means$",Indiv_method)))) -> Future_Means
 Future_Means %>% drop_na(select) %>% select(c(GCM,CF)) -> WB_GCMs 
 
-rm(lx,ux,ly,uy,ww,wd,hw,hd, pts, FM, pca,pca.df,PC1,PC2) 
+rm(lx,ux,ly,uy,ww,wd,hw,hd, pts, FM, pca,pca.df,PCs,diagonals,PCA) 
 
 
 #######################
