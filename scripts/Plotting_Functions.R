@@ -31,10 +31,10 @@ BarPlotTheme = theme(axis.text.x=element_text(size=16),    #Text size for axis t
                      legend.position = "none") 
 
 ############ PLOT FUNCTIONS #############
-Month_line_plot <- function(data, xvar, yvar, grp, cols, title,xlab, ylab){
+Month_line_plot <- function(data, xvar, yvar, grp, cols, title,xlab, ylab,CFmethod=""){
 ggplot(data, aes(x={{xvar}}, y={{yvar}}, group={{grp}}, colour = {{grp}})) +
-  geom_line(size = 2, stat = "identity",colour="black") + 
-  geom_line(size = 1.5, stat = "identity") +
+  geom_line(linewidth = 2, stat = "identity",colour="black") + 
+  geom_line(linewidth = 1.5, stat = "identity") +
   geom_point(colour= "black", size=4, aes(fill = factor({{grp}}), shape = factor({{grp}}))) +
   PlotTheme +
   labs(title = title,
@@ -43,11 +43,11 @@ ggplot(data, aes(x={{xvar}}, y={{yvar}}, group={{grp}}, colour = {{grp}})) +
   scale_fill_manual(name="",values = cols) +
   scale_shape_manual(name="",values = c(seq(21,21+length(cols)-1,1))) +
   # scale_y_continuous(limits=c(0, ceiling(max(eval(parse(text=paste0(data,"$",yvar))))))) +
-  scale_x_discrete(labels = MonthLabels)
+  scale_x_discrete(labels = MonthLabels) +
+    annotate(geom="text", x=Inf, y=-Inf, label=CFmethod,color="black",vjust=-1,hjust=1)
 }
 
-
-dot_plot <- function(data, xvar, yvar, grp, cols, title,xlab,ylab,labels){
+dot_plot <- function(data, xvar, yvar, grp, cols, title,xlab,ylab,labels,CFmethod){
   ggplot(data, aes(x={{xvar}},y={{yvar}},fill={{grp}})) +
     geom_vline(xintercept=0, linetype="dashed", color = "black") + 
     geom_point(stat="identity",size=6,colour="black",aes(fill = factor({{grp}}), shape = factor({{grp}}))) +
@@ -58,21 +58,23 @@ dot_plot <- function(data, xvar, yvar, grp, cols, title,xlab,ylab,labels){
     scale_fill_manual(name="",values =cols) +
     scale_shape_manual(name="",values = c(seq(21,21+length(cols)-1,1))) +
     scale_y_discrete(labels=rev(labels), limits=rev) +
-    geom_hline(aes(yintercept=0),linetype=2)
+    geom_hline(aes(yintercept=0),linetype=2) +
+    annotate(geom="text", x=Inf, y=-Inf, label=CFmethod,color="black",vjust=-1,hjust=1)
 }
 
 
-Month_bar_plot <- function(data, xvar, yvar, grp, cols, title,xlab, ylab,labels){
+Month_bar_plot <- function(data, xvar, yvar, grp, cols, title,xlab, ylab,labels,CFmethod=""){
   ggplot(data, aes(x={{xvar}},y={{yvar}},fill={{grp}})) +
     geom_bar(stat="identity",position="dodge",colour="black") +
     PlotTheme +
     labs(title = title, 
          x = xlab, y = ylab) +
     scale_fill_manual(name="",values = cols) +
-    scale_x_discrete(labels = labels)
+    scale_x_discrete(labels = labels) +
+    annotate(geom="text", x=Inf, y=-Inf, label=CFmethod,color="black",vjust=-1,hjust=1)
 }
 
-var_bar_plot <- function(data,var, cols, title, ylab){ 
+var_bar_plot <- function(data,var, cols, title, ylab,CFmethod=""){ 
   At<-aggregate(eval(parse(text=var))~CF,data=data,mean); 
   names(At)<-c("CF",var) 
   p<-ggplot(At, aes(x=CF,y=(eval(parse(text=var))),fill=CF)) + 
@@ -81,14 +83,15 @@ var_bar_plot <- function(data,var, cols, title, ylab){
      # coord_cartesian(ylim=c(0, 40)) + 
      labs(title = title,  
       y = ylab, colour = "Climate Future")  + 
-     scale_fill_manual(name="",values = cols)  
+     scale_fill_manual(name="",values = cols)  +
+    annotate(geom="text", x=Inf, y=-Inf, label=CFmethod,color="black",vjust=-1,hjust=1)
       if(min(eval(parse(text=paste("At$",var,sep=""))))<20) {p = p + coord_cartesian(ylim = c(0, max(eval(parse(text=paste("At$",var,sep=""))))))}  
       else{p= p + coord_cartesian(ylim = c(min(eval(parse(text=paste("At$",var,sep=""))))*.9, max(eval(parse(text=paste("At$",var,sep=""))))))} 
   p 
  } 
 
 
-var_box_plot <- function(data,var, cols, title, ylab){
+var_box_plot <- function(data,var, cols, title, ylab,CFmethod=""){
   p<-ggplot(data, aes(x=CF, y=(eval(parse(text=var))), colour=CF)) + 
     geom_boxplot(colour="black",aes(fill = factor(CF)), outlier.shape=NA)+ 
     # geom_jitter(shape = 21, size = 5, aes(fill = factor(CF),colour=factor(me.col)), position=position_jitter(0.2)) +
@@ -96,25 +99,27 @@ var_box_plot <- function(data,var, cols, title, ylab){
     labs(title = title, 
          y = ylab) +
     scale_color_manual(name="",values = c("black","white"),guide=FALSE) +
-    scale_fill_manual(name="",values = cols)
+    scale_fill_manual(name="",values = cols) +
+    annotate(geom="text", x=Inf, y=-Inf, label=CFmethod,color="black",vjust=-1,hjust=1)
   dat<-ggplot_build(p)$data[[1]];dat1<-dat[3,]
   p + geom_segment(data=dat1, aes(x=xmin, xend=xmax, 
                                   y=middle, yend=middle), colour="grey", size=1)
 }
 
 
-var_line_plot <- function(data,var, cols, title, ylab) {
+var_line_plot <- function(data,var, cols, title, ylab,CFmethod="") {
 data %>% group_by(Year,CF) %>%
   mutate(min = min({{var}},na.rm=TRUE),
          max = max({{var}},na.rm=TRUE),
          mean = mean({{var}},na.rm=TRUE)) %>% 
   ggplot(aes(x=as.numeric(Year), y=mean, col=CF, fill=CF)) +
   geom_ribbon(aes(x=as.numeric(as.character(Year)), ymin=min, ymax=max, fill=CF), alpha=0.5) +
-  geom_line(size=2) + geom_point(col="black", size=2, shape=16) +
+  geom_line(linewidth=2) + geom_point(col="black", size=2, shape=16) +
   geom_point() +
   labs(title = title, x="Year", y=ylab) +
   scale_color_manual(name="Climate Future",values=cols) +
-  scale_fill_manual(name="Climate Future",values=cols) + PlotTheme 
+  scale_fill_manual(name="Climate Future",values=cols) + PlotTheme +
+    annotate(geom="text", x=Inf, y=-Inf, label=CFmethod,color="black",vjust=-1,hjust=1)
 }
 
 
@@ -132,7 +137,7 @@ density_plot <- function(data, xvar, cols,title, xlab) {
 spaghetti_plot_wateryr <- function(data, var, col,CF){
   df <- deparse(substitute(data))
     ggplot() +
-      geom_line(data=data,aes(x=WaterYr,y=eval(parse(text=var)),group=Year),colour=col,size=1) +
+      geom_line(data=data,aes(x=WaterYr,y=eval(parse(text=var)),group=Year),colour=col,linewidth=1) +
       geom_vline(xintercept=183, linetype="dashed", color = "black") +
       geom_text(aes(x=183, label="Apr 1\n", y=max(eval(parse(text=paste0("WBData", "$",var))))), 
                 colour="black", angle=90, text=element_text(size=11),hjust=1) +
@@ -152,10 +157,10 @@ LT_plot <-function(data,yvar, rollvar,cols,yaxis,title){
   ggplot(data, aes(x=Year, y={{yvar}}, col=CF, fill=CF)) + 
     geom_rect(xmin=Yr-Range/2, xmax=Yr+Range/2, ymin=0, ymax=80, alpha=0.1, fill="lightgray", col="lightgray") +
     # geom_ribbon(aes(x=as.numeric(as.character(year)), ymin=Tavg.min, ymax=Tavg.max, fill=CF), alpha=0.5) +
-    geom_line(size=2) + geom_point(col="black", size=2, shape=16) +
+    geom_line(linewidth=2) + geom_point(col="black", linewidth=2, shape=16) +
     geom_point() +
-    geom_line(aes(x=Year, y={{rollvar}}),size=1.25,colour="black", na.rm=TRUE) +
-    geom_line(aes(x=Year, y={{rollvar}},colour = CF), size=.75 ,na.rm=TRUE) +
+    geom_line(aes(x=Year, y={{rollvar}}),linewidth=1.25,colour="black", na.rm=TRUE) +
+    geom_line(aes(x=Year, y={{rollvar}},colour = CF), linewidth=.75 ,na.rm=TRUE) +
     scale_x_continuous(breaks=c(1980, 2000, 2020, 2040, 2060, 2080, 2100)) +
     labs(x="Year", y=yaxis,title=title) +
     scale_color_manual(name="Climate Future",values=cols) +
