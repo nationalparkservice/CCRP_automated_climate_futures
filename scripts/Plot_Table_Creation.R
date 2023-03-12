@@ -422,22 +422,22 @@ Baseline_all$OverPrecip99 = Baseline_all$PrcpIn > HistPr99
 Baseline_all$PrecipOver1 = Baseline_all$PrcpIn > 1
 Baseline_all$PrecipOver2 = Baseline_all$PrcpIn > 2
 Baseline_all$FThaw = Baseline_all$TminF<28 & Baseline_all$TmaxF>34
-Baseline_all$GDD = Baseline_all$TavgF>41 # 5 deg C
+Baseline_all$TavgFOver41 = Baseline_all$TavgF>41 # 5 deg C
 Baseline_all %>% 
-  group_by(GCM, idx = cumsum(GDD == 0L)) %>% 
-  mutate(GDD_count = row_number()) %>% 
+  group_by(GCM, idx = cumsum(TavgFOver41 == 0L)) %>% 
+  mutate(TavgFOver41_count = row_number()) %>% 
   ungroup %>% 
   select(-idx) -> Baseline_all
 
 Baseline_all %>% 
-  group_by(GCM, idx = cumsum(GDD == 1L)) %>% 
-  mutate(N_GDD_count = row_number()) %>% 
+  group_by(GCM, idx = cumsum(TavgFOver41 == 1L)) %>% 
+  mutate(N_TavgFOver41_count = row_number()) %>% 
   ungroup %>% 
   select(-idx) -> Baseline_all
 Baseline_all$HI = heat_index(Baseline_all$TmaxF,Baseline_all$RHminPct)
 Baseline_all$HI.EC = Baseline_all$HI >89 & Baseline_all$HI <103
 Baseline_all$HI.Dan = Baseline_all$HI >102 & Baseline_all$HI < 124
-Baseline_all$Frost = Baseline_all$GDD == TRUE & Baseline_all$TminF < 32
+Baseline_all$Frost = Baseline_all$TavgFOver41 == TRUE & Baseline_all$TminF < 32
 
 Future_all$Julian = Future_all$Date$yday
 Future_all$halfyr = ifelse(Future_all$Julian<=182,1,2)
@@ -458,30 +458,30 @@ Future_all$OverPrecip99 = Future_all$PrcpIn > HistPr99
 Future_all$PrecipOver1 = Future_all$PrcpIn > 1
 Future_all$PrecipOver2 = Future_all$PrcpIn > 2
 Future_all$FThaw = Future_all$TminF<28 & Future_all$TmaxF>34
-Future_all$GDD = Future_all$TavgF>41 # 5 deg C
+Future_all$TavgFOver41 = Future_all$TavgF>41 # 5 deg C
 
 Future_all %>% 
-  group_by(GCM, idx = cumsum(GDD == 0L)) %>% 
-  mutate(GDD_count = row_number()) %>% 
+  group_by(GCM, idx = cumsum(TavgFOver41 == 0L)) %>% 
+  mutate(TavgFOver41_count = row_number()) %>% 
   ungroup %>% 
   select(-idx) -> Future_all
 
 Future_all %>% 
-  group_by(GCM, idx = cumsum(GDD == 1L)) %>% 
-  mutate(N_GDD_count = row_number()) %>% 
+  group_by(GCM, idx = cumsum(TavgFOver41 == 1L)) %>% 
+  mutate(N_TavgFOver41_count = row_number()) %>% 
   ungroup %>% 
   select(-idx) -> Future_all
 
 Future_all$HI = heat_index(Future_all$TmaxF,Future_all$RHminPct)
 Future_all$HI.EC = Future_all$HI >89 & Future_all$HI <103
 Future_all$HI.Dan = Future_all$HI >102 & Future_all$HI < 124
-Future_all$Frost = Future_all$GDD == TRUE & Future_all$TminF < 32
+Future_all$Frost = Future_all$TavgFOver41 == TRUE & Future_all$TminF < 32
 
 #### Historical Dataframes aggregated by Year+GCM ###########
 H_annual <- Baseline_all %>% group_by(CF, GCM, Year) %>%
   summarise_at(vars(PrcpIn,OverHotTemp, OverHighQ, Tmax99, UnderColdTemp,UnderLowQ,  
                     NoPrecip, NoPrecipLength, OverPrecip95, OverPrecip99, PrecipOver1, PrecipOver2,
-                    FThaw, GDD,HI.EC,HI.Dan), sum)  
+                    FThaw, TavgFOver41,HI.EC,HI.Dan), sum)  
 
 Hmeans<-Baseline_all %>% group_by(CF, GCM, Year) %>%
   summarise_at(vars(TmaxF,TminF,TavgF,RHmean),mean)
@@ -495,15 +495,15 @@ H_annual <- merge(H_annual,H.WinterTemp,by=c("CF","GCM","Year")); rm(H.WinterTem
 
 
 # # Further Growing Season Calculations
-Baseline_GS <- as.data.table(subset(Baseline_all,select=c(Year,CF,GCM,Julian,GDD_count,N_GDD_count,halfyr)))
+Baseline_GS <- as.data.table(subset(Baseline_all,select=c(Year,CF,GCM,Julian,TavgFOver41_count,N_TavgFOver41_count,halfyr)))
 Baseline_GS[order("Date","GCM"),]
 Baseline_GU <- Baseline_GS %>% group_by(CF, GCM, Year) %>% 
-  filter(GDD_count ==7, halfyr == 1) %>% 
+  filter(TavgFOver41_count ==7, halfyr == 1) %>% 
   slice(1) %>% # takes the first occurrence if there is a tie
   ungroup()
 
 Baseline_SE <- Baseline_GS %>% group_by(CF, GCM, Year) %>% 
-  filter(N_GDD_count ==6, halfyr == 2) %>% 
+  filter(N_TavgFOver41_count ==6, halfyr == 2) %>% 
   slice(1) %>% # takes the first occurrence if there is a tie
   ungroup()
 Baseline_SE$"EndGrow"<-Baseline_SE$Julian - 6
@@ -528,7 +528,7 @@ H_annual<-merge(H_annual,Sp.Frost,by=c("CF","GCM","Year"), all=TRUE);rm(Sp.Frost
 F_annual <- Future_all %>% group_by(CF, GCM, Year) %>%
   summarise_at(vars(PrcpIn,OverHotTemp, OverHighQ, Tmax99, UnderColdTemp,UnderLowQ,  
                     NoPrecip, NoPrecipLength, OverPrecip95, OverPrecip99, PrecipOver1, PrecipOver2,
-                    FThaw, GDD,HI.EC,HI.Dan), sum)  
+                    FThaw, TavgFOver41,HI.EC,HI.Dan), sum)  
   
 Fmeans<-Future_all %>% group_by(CF, GCM, Year) %>%
   summarise_at(vars(TmaxF,TminF,TavgF,RHmean),mean)
@@ -542,15 +542,15 @@ F_annual <- merge(F_annual,F.WinterTemp,by=c("CF","GCM","Year")); rm(F.WinterTem
 
 
 # # Further Growing Season Calculations
-Future_GS <- as.data.table(subset(Future_all,select=c(Year,CF,GCM,Julian,GDD_count,N_GDD_count,halfyr)))
+Future_GS <- as.data.table(subset(Future_all,select=c(Year,CF,GCM,Julian,TavgFOver41_count,N_TavgFOver41_count,halfyr)))
 Future_GS[order("Date","GCM"),]
 Future_GU <- Future_GS %>% group_by(CF, GCM, Year) %>% 
-  filter(GDD_count ==7, halfyr == 1) %>% 
+  filter(TavgFOver41_count ==7, halfyr == 1) %>% 
   slice(1) %>% # takes the first occurrence if there is a tie
   ungroup()
 
 Future_SE <- Future_GS %>% group_by(CF, GCM, Year) %>% 
-  filter(N_GDD_count ==6, halfyr == 2) %>% 
+  filter(N_TavgFOver41_count ==6, halfyr == 2) %>% 
   slice(1) %>% # takes the first occurrence if there is a tie
   ungroup()
 Future_SE$"EndGrow"<-Future_SE$Julian - 6
