@@ -49,7 +49,7 @@ r<-LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Mean annu
 ggsave("Runoff.in-Timeseries.png", r+labs(title=paste0(SiteID,"-Historical and future\n mean annual runoff (inches/Yr)")), path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # SWEaccum
-s<-LT_plot(WBAvgs, max_pack.in, rollvar=SWEaccum.inRoll10,cols=col,yaxis="Mean annual accumulated SWE (in/year)",title="",CFmethod="I")
+s<-LT_plot(WBAvgs, max_pack.in, rollvar=SWEaccum.inRoll10,cols=col,yaxis="Mean annual accumulated SWE\n (in/year)",title="",CFmethod="I")
 ggsave("SWEaccum.in-Timeseries.png", s+labs(title=paste0(SiteID,"-Historical and future\n mean annual snow water equivalenat (SWE;inches/Yr)")),path = FigDir, height=PlotHeight, width=PlotWidth)
 
 
