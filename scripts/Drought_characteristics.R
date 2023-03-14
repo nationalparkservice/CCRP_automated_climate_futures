@@ -1,13 +1,14 @@
 ### Drought timeseries bar plot function
 
-SPEI_annual_bar <- function(data, period.box=T, title){
+SPEI_annual_bar <- function(data, period.box=T, title,CFmethod=""){
   ggplot(data = data, aes(x=as.numeric(as.character(Year)), y=SPEI,fill = col)) + 
     {if(period.box==T) geom_rect(xmin=Yr-Range/2, xmax=Yr+Range/2, ymin=-Inf, ymax=Inf, alpha=0.1, fill="darkgray", col="darkgray")} +
     geom_bar(stat="identity",aes(fill=col),col="black") + 
     geom_hline(yintercept=-.5,linetype=2,colour="black",size=1) +
     scale_fill_manual(name="",values =c("turquoise2","orange1"),drop=FALSE) +
     labs(title = title, 
-         x = "Date", y = "SPEI") +
+         x = "Date", y = "SPEI",caption=
+           if(MethodCaption == "Y"){CFmethod}) +
     guides(color=guide_legend(override.aes = list(size=7))) + PlotTheme
 }
 
@@ -54,22 +55,22 @@ all3$Year<-as.numeric(all3$Year)
 CF1<-subset(all3, CF %in% c("Historical",CFs[1]) )
 
 SPEI_annual_bar(subset(CF1,Year>=Yr-Range/2 & Year<=Yr+Range/2), period.box=T,
-                title=paste(SiteID, "-SPEI values for", CFs[1], "climate future", sep = " " )) 
+                title=paste(SiteID, "-SPEI values for", CFs[1], "climate future", sep = " " ),CFmethod="I") 
 ggsave("SPEI-CF1-Annual-bar.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
 SPEI_annual_bar(CF1, period.box=T,
-                title=paste(SiteID, "-SPEI values for", CFs[1], "climate future", sep = " " )) 
+                title=paste(SiteID, "-SPEI values for", CFs[1], "climate future", sep = " " ),CFmethod="I") 
 ggsave("SPEI-CF1-gridmet-Annual-bar.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
 # CF 2
 CF2<-subset(all3, CF %in% c("Historical",CFs[2]) )
 
 SPEI_annual_bar(subset(CF2,Year>=Yr-Range/2 & Year<=Yr+Range/2), period.box=T,
-                title=paste(SiteID, "-SPEI values for", CFs[2], "climate future", sep = " " )) 
+                title=paste(SiteID, "-SPEI values for", CFs[2], "climate future", sep = " " ),CFmethod="I") 
 ggsave("SPEI-CF2-Annual-bar.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
 SPEI_annual_bar(CF2, period.box=T,
-                title=paste(SiteID, "-SPEI values for", CFs[2], "climate future", sep = " " )) 
+                title=paste(SiteID, "-SPEI values for", CFs[2], "climate future", sep = " " ),CFmethod="I") 
 ggsave("SPEI-CF2-gridmet-Annual-bar.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
 
@@ -261,22 +262,22 @@ Drought_all = Drought_char
 Drought_all$CF = factor(Drought_all$CF, levels = c("Historical",CFs))
 
 #Drought duration barplot
-var_bar_plot(Drought_all,"Duration", colors3, paste0(SiteID, "-Average Drought Duration"), "Years")
+var_bar_plot(Drought_all,"Duration", colors3, paste0(SiteID, "-Average Drought Duration"), "Years",CFmethod="I")
 ggsave("DroughtDuration-Bar.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 #Drought severity barplot
 var_bar_plot(Drought_all,"Severity", colors3, paste0(SiteID, "-Average Drought Severity"), 
-             "Severity (Intensity * Duration)") + coord_cartesian(ylim = c(0, min(Drought_all$Severity)))
+             "Severity (Intensity * Duration)",CFmethod="I") + coord_cartesian(ylim = c(0, min(Drought_all$Severity)))
 ggsave("DroughtSeverity-Bar.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 #Drought intensity barplot
 var_bar_plot(Drought_all,"Intensity", colors3, paste0(SiteID, "-Average Drought Intensity"), 
-             "Intensity (Minimum SPEI values)") + coord_cartesian(ylim = c(0, min(Drought_all$Intensity)))
+             "Intensity (Minimum SPEI values)",CFmethod="I") + coord_cartesian(ylim = c(0, min(Drought_all$Intensity)))
 ggsave("DroughtIntensity-Bar.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 #Drought-free interval barplot
 var_bar_plot(Drought_all,"Drt.Free", colors3, paste0(SiteID, "-Average Drought-Free Interval"), 
-             "Years")
+             "Years",CFmethod="I")
 ggsave("DroughtFrequency-Bar.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 
@@ -302,7 +303,8 @@ drt.char <- grid.arrange(c+rremove("x.text"),d+rremove("x.text"),e,nrow=3,
                          top = textGrob(paste0(SiteID, "-Average drought \ncharacteristics"),gp=gpar(fontface="bold", col="black", fontsize=20,hjust=0.5)))
 
 g <- grid.arrange(spei.time, drt.char,ncol = 2, clip = FALSE)
-ggsave("DroughtCharacteristics-1-Panel.png",g, path = FigDir, height=PanelHeight, width=PanelWidth)
+annotate_figure(g,fig.lab=if(MethodCaption == "Y"){"I"},fig.lab.pos = "bottom.right")
+ggsave("DroughtCharacteristics-1-Panel.png",path = FigDir, height=PanelHeight, width=PanelWidth,bg = 'white')
 
 
 # Option 2
@@ -314,4 +316,5 @@ drt.char <-grid_arrange_shared_legend(c+ rremove("x.text"),d+ rremove("x.text"),
                                       ncol=3,nrow=1,position="bottom",
                                       top = textGrob(paste0(SiteID, "-Average drought characteristics"),gp=gpar(fontface="bold", col="black", fontsize=26,hjust=0.5)))
 g <- grid.arrange(spei.time, drt.char,nrow=2,ncol = 1, clip = FALSE)
-ggsave("DroughtCharacteristics-2-Panel.png",g, path = FigDir, height=PanelHeight, width=PanelWidth)                      
+annotate_figure(g,fig.lab=if(MethodCaption == "Y"){"I"},fig.lab.pos = "bottom.right")
+ggsave("DroughtCharacteristics-2-Panel.png",path = FigDir, height=PanelHeight, width=PanelWidth,bg = 'white')                      
