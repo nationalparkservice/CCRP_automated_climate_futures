@@ -30,27 +30,27 @@ WBAvgs <- aggregate(cbind(sum_d.in, runoff.in, max_pack.in)~Year+CF, AnnualWB, s
          Year = as.numeric(Year))
 
 # Tmean
-t<-LT_plot(yrAvgs,TavgF,rollvar=TavgRoll10,cols=col,yaxis="Mean annual temperature (\u00B0F)",title="") 
-ggsave("TavgF-Timeseries.png",t, path = FigDir, height=PlotHeight, width=PlotWidth)
+t<-LT_plot(yrAvgs,TavgF,rollvar=TavgRoll10,cols=col,yaxis="Mean annual temperature (\u00B0F)",title="",CFmethod="I")
+ggsave("TavgF-Timeseries.png",t+labs(title=paste0(SiteID,"-Historical and future\n mean annual temperature (\u00B0F)")), path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # Precip
-p<-LT_plot(yrAvgs,PrcpIn,rollvar=PrcpRoll10,cols=col,yaxis="Mean annual precipitation (inches/Yr)",title="")
-ggsave("PrcpIn-Timeseries.png", p, path = FigDir, height=PlotHeight, width=PlotWidth)
+p<-LT_plot(yrAvgs,PrcpIn,rollvar=PrcpRoll10,cols=col,yaxis="Mean annual precipitation (inches/Yr)",title="",CFmethod="I")
+ggsave("PrcpIn-Timeseries.png", p+labs(title=paste0(SiteID,"-Historical and future\n mean annual precipitation (inches/Yr)")), path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # Deficit
 
 col2 <- c("darkgray",rev(colors2)) 
 
-d<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic \nwater deficit (in/year)",title="")
-ggsave("D.in-Timeseries.png", d, path = FigDir, height=PlotHeight, width=PlotWidth)
+d<-LT_plot(WBAvgs,sum_d.in,rollvar=D.inRoll10,cols=col,yaxis="Mean annual climatic \nwater deficit (in/year)",title="",CFmethod="I")
+ggsave("D.in-Timeseries.png", d+labs(title=paste0(SiteID,"-Historical and future\n mean annual climatic water deficit (inches/Yr)")), path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # Runoff
-r<-LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Mean annual runoff (in/year)",title="")
-ggsave("Runoff.in-Timeseries.png", r, path = FigDir, height=PlotHeight, width=PlotWidth)
+r<-LT_plot(WBAvgs, runoff.in, rollvar=Runoff.inRoll10, cols=col,yaxis="Mean annual runoff (in/year)",title="",CFmethod="I")
+ggsave("Runoff.in-Timeseries.png", r+labs(title=paste0(SiteID,"-Historical and future\n mean annual runoff (inches/Yr)")), path = FigDir, height=PlotHeight, width=PlotWidth)
 
 # SWEaccum
-s<-LT_plot(WBAvgs, max_pack.in, rollvar=SWEaccum.inRoll10,cols=col,yaxis="Mean annual accumulated SWE (in/year)",title="")
-ggsave("SWEaccum.in-Timeseries.png", path = FigDir, height=PlotHeight, width=PlotWidth)
+s<-LT_plot(WBAvgs, max_pack.in, rollvar=SWEaccum.inRoll10,cols=col,yaxis="Mean annual accumulated SWE (in/year)",title="",CFmethod="I")
+ggsave("SWEaccum.in-Timeseries.png", s+labs(title=paste0(SiteID,"-Historical and future\n mean annual snow water equivalenat (SWE;inches/Yr)")),path = FigDir, height=PlotHeight, width=PlotWidth)
 
 
 ###### PANELS ##########
