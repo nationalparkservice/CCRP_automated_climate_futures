@@ -63,15 +63,14 @@ if(dir.exists(DataDir) == FALSE){
 
 ## `r SiteID`
 
-```{r site-info, message=FALSE, warning=FALSE, include = FALSE}
+```{r site-info, message=FALSE, warning=FALSE, include = FALSE,error=TRUE}
 
 source(here::here("scripts", "get_site_info.R")) # Extract local inputs; seconds to run
-oldw <- getOption("warn")
-options(warn = -1)
+
 source(here::here("scripts", "create_site_maps.R")) # Create site maps
 
 source(here::here("scripts", "get_params.R"))
-options(warn = oldw)
+
 ```
 
 ```{r user-inputs-2, warning=FALSE, include = FALSE}
@@ -158,6 +157,7 @@ colors2<- colors5[c(1,4)] # Select pair of climate futures - WarmWet/HotDry
 colors3<-c("white",colors2)
 col<- c("darkgray",colors2)  # WarmWet/HotDry
 #col<- c("darkgray","#F3D3CB","#12045C")  # HotWet/WarmDry
+MethodCaption="Y" # Indicates whether Q/I present at bottom of plot to ID CF method used
 
 CFDir = paste0(OutDir,"WarmWet_HotDry/") # for .csv's
 if(dir.exists(CFDir) == FALSE){
