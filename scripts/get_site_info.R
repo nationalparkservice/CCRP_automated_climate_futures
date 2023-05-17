@@ -13,7 +13,10 @@ US_States <- st_transform(US_States, st_crs(epsg))
 
 # select park
 
-park <- filter(nps_centroids, UNIT_CODE == SiteID)
+park <- filter(nps_centroids, UNIT_CODE == SiteID) 
+
+park <- if(nrow(park)>1) {park[!grepl("Preserve", park$UNIT_TYPE),]}
+#if 2 units and one has "preserve" in name, do not use
 s<-US_States %>% filter(STATE_ABBR == park$STATE)
 
 # TWO DIFFERENT OPTIONS FOR CENTROID - use 1st option if running a general RSS and using park centroid. Second option if using specific lat long.
