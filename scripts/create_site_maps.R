@@ -14,9 +14,11 @@ nps_centroids <- st_read('./data/general/spatial-data/nps_boundary_centroids/nps
 nps_centroids <- st_transform(nps_centroids, st_crs(maca))
 
 park <- filter(nps_boundary, UNIT_CODE == SiteID)
+park <- if(nrow(park)>1) {park[!grepl("Preserve", park$UNIT_TYPE),]}
 park <- st_transform(park, 4326) # in order to use auto zoom feature, must be in lat/long
 
 centroid <- filter(nps_centroids, UNIT_CODE == SiteID) # use this line if using park centroid
+centroid <- if(nrow(centroid)>1) {centroid[!grepl("Preserve", centroid$UNIT_TYPE),]}
 
 box = sf::st_bbox(park) # Get bbox before turning into sp object
 Sp_park= as(park, "Spatial")

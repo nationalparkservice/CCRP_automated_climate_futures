@@ -33,11 +33,13 @@ US_States <- st_transform(US_States, st_crs(maca))
 # select park
 
 park <- filter(nps_boundary, UNIT_CODE == SiteID)
+park <- if(nrow(park)>1) {park[!grepl("Preserve", park$UNIT_TYPE),]}
 State <- filter(US_States, STATE_NAME == state)
 
 # TWO DIFFERENT OPTIONS FOR CENTROID - use 1st option if running a general RSS and using park centroid. Second option if using specific lat long.
 
 centroid <- filter(nps_centroids, UNIT_CODE == SiteID) # use this line if using park centroid
+centroid <- if(nrow(centroid)>1) {centroid[!grepl("Preserve", centroid$UNIT_TYPE),]}
 
 if(exists("MACA_lat") == TRUE){
   centroid <- data.frame(Lat = MACA_lat, Lon = MACA_lon) %>% 
