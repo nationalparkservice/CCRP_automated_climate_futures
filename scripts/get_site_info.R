@@ -15,7 +15,9 @@ US_States <- st_transform(US_States, st_crs(epsg))
 
 park <- filter(nps_centroids, UNIT_CODE == SiteID) 
 
-park <- if(nrow(park)>1) {park[!grepl("Preserve", park$UNIT_TYPE),]}
+park <- if(nrow(park)>1) {
+  park[!grepl("Preserve", park$UNIT_TYPE),]
+  } else{park}
 #if 2 units and one has "preserve" in name, do not use
 s<-US_States %>% filter(STATE_ABBR == park$STATE)
 
