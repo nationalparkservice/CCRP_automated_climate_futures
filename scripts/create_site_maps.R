@@ -6,7 +6,7 @@
 
 
 maca <- raster('./data/general/spatial-data/Climate_grid/tdn_90d.nc')
-maca <- projectRaster(maca, crs = park)
+maca <- projectRaster(maca, crs = st_crs(park))
 # Park
 nps_boundary <- st_read('./data/general/spatial-data/nps_boundary/nps_boundary.shp')
 nps_boundary <- st_transform(nps_boundary, st_crs(maca))
