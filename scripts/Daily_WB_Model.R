@@ -245,7 +245,7 @@ ggplot(MonthlyWB_in %>% filter(CF==scenario)) +
   geom_ribbon(aes(Month, ymin = sum_pet.in, ymax=sum_p.in,fill="Surplus/Runoff",group="CF"),linetype = 0, alpha=1) +
   geom_ribbon(aes(Month, ymin = sum_aet.in, ymax=sum_pet.in,fill="Deficit",group="CF"),linetype = 0,alpha=1) +
   geom_ribbon(aes(Month, ymin = 0, ymax=sum_aet.in,fill="Utilization",group="CF"),linetype = 0,alpha=1) +
-  geom_line(data = WBMonthlyLong %>% filter(CF == scenario), aes(x=Month, y = water, group=Variable, linetype = Variable), size = 1.5, stat = "identity",colour="black") +
+  geom_line(data = WBMonthlyLong %>% filter(CF == scenario), aes(x=Month, y = water, group=Variable, linetype = Variable), linewidth = 1.5, stat = "identity",colour="black") +
   scale_fill_manual("",
                     values=c('Surplus/Runoff'="cornflowerblue",'Utilization'="palegreen3",'Deficit'="brown1")) +
   scale_linetype_manual(values=c("solid","twodash", "dotted")) +

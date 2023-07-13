@@ -166,7 +166,7 @@ LT_plot <-function(data,yvar, rollvar,cols,yaxis,title,CFmethod=""){
   ggplot(data, aes(x=Year, y={{yvar}}, col=CF, fill=CF)) + 
     geom_rect(xmin=Yr-Range/2, xmax=Yr+Range/2, ymin=0, ymax=100, alpha=0.1, fill="lightgray", col="lightgray") +
     # geom_ribbon(aes(x=as.numeric(as.character(year)), ymin=Tavg.min, ymax=Tavg.max, fill=CF), alpha=0.5) +
-    geom_line(linewidth=2) + geom_point(col="black", linewidth=2, shape=16) +
+    geom_line(linewidth=2) + geom_point(col="black", size=2, shape=16) +
     geom_point() +
     geom_line(aes(x=Year, y={{rollvar}}),linewidth=1.25,colour="black", na.rm=TRUE) +
     geom_line(aes(x=Year, y={{rollvar}},colour = CF), linewidth=.75 ,na.rm=TRUE) +
