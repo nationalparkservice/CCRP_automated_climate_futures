@@ -6,7 +6,7 @@
 
 
 maca <- raster('./data/general/spatial-data/Climate_grid/tdn_90d.nc')
-maca <- projectRaster(maca, crs = park)
+crs(maca) <- crs(park)
 # Park
 nps_boundary <- st_read('./data/general/spatial-data/nps_boundary/nps_boundary.shp')
 nps_boundary <- st_transform(nps_boundary, st_crs(maca))
@@ -14,7 +14,11 @@ Koppen_sites <- st_read('./data/general/spatial-data/Koppen_sites.shp')
 Koppen_sites <- st_transform(Koppen_sites, st_crs(maca))
 
 park <- filter(nps_boundary, UNIT_CODE == SiteID)
+park <- if(nrow(park)>1) {
+  park[!grepl("Preserve", park$UNIT_TYPE),]
+} else{park}
 park <- st_transform(park, 4326) # in order to use auto zoom feature, must be in lat/long
+Koppen_sites <- st_transform(Koppen_sites, 4326)
 
 Koppen_sites <- filter(Koppen_sites, Unit_gridc == Koppen_park$Unit_gridc) # use this line if using park centroid
 
@@ -36,7 +40,7 @@ ggmap(myMap)
 # Obtain MACA grid outline (not information within)
 
 Koppen_sites<- as_Spatial(Koppen_sites) # objects must be Spatial (sp) to work with raster package (cannot be sf)
-cell <- cellFromXY(maca, Koppen_sites) # find grid cell park centroid lies within
+cell <- cellFromXY(maca,SpatialPoints(Koppen_sites)) # find grid cell park centroid lies within
 maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
 maca.poly <- rasterToPolygons(maca_cell) # Create MACA polygon - original file in lat/long (note: datum differs from park shapefiles)
 
