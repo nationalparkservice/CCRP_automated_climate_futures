@@ -17,7 +17,7 @@ maca <- projectRaster(maca, crs = proj4)
 dem <- raster('./data/general/spatial-data/elevation_cropped.tif') 
 dem <- projectRaster(dem, crs = proj4)
 soil <- raster('./data/general/spatial-data/water_storage.tif') 
-soil <- projectRaster(soil, crs= proj4)
+soil <- projectRaster(soil, crs = proj4)
 
 # shapefiles - can use epsg code or existing object to define projection
 
@@ -32,24 +32,25 @@ US_States <- st_transform(US_States, st_crs(maca))
 Koppen_sites <- st_read('./data/general/spatial-data/Koppen_sites.shp')
 Koppen_sites <- st_transform(Koppen_sites, st_crs(maca))
 
-# select park
-
 park <- filter(nps_boundary, UNIT_CODE == SiteID)
-State <- filter(US_States, STATE_NAME == state)
-
-# TWO DIFFERENT OPTIONS FOR CENTROID - use 1st option if running a general RSS and using park centroid. Second option if using specific lat long.
+park <- if(nrow(park)>1) {
+  park[!grepl("Preserve", park$UNIT_TYPE),]
+} else{park}
+# park <- st_transform(park, 4326) # in order to use auto zoom feature, must be in lat/long
+# Koppen_sites <- st_transform(Koppen_sites, 4326)
 
 Koppen_sites <- filter(Koppen_sites, Unit_gridc == Koppen_park$Unit_gridc) # use this line if using park centroid
 
+State <- filter(US_States, STATE_NAME == state)
 
-if(exists("MACA_lat") == TRUE){
-  Koppen_sites <- data.frame(Lat = MACA_lat, Lon = MACA_lon) %>% 
-  st_as_sf(coords=c("Lon", "Lat"))
-  
-  Koppen_sites <- st_set_crs(Koppen_sites, "+proj=longlat +datum=NAD83 +no_defs")
-  Koppen_sites <- st_transform(Koppen_sites, st_crs(maca)) 
-}
-
+# if(exists("MACA_lat") == TRUE){
+#   Koppen_sites <- data.frame(Lat = MACA_lat, Lon = MACA_lon) %>% 
+#   st_as_sf(coords=c("Lon", "Lat"))
+#   
+#   Koppen_sites <- st_set_crs(Koppen_sites, "+proj=longlat +datum=NAD83 +no_defs")
+#   Koppen_sites <- st_transform(Koppen_sites, st_crs(maca)) 
+# }
+# Koppen_sites <- st_transform(Koppen_sites, 4326)
 # Check that spatial data looks OK so far. Precise projection doesn't matter at this point but should be close. 
 # You should see the park outline by itself, and also where it lies within the state.
 
@@ -64,7 +65,7 @@ park_and_centroid <- tm_shape(park) +
   tm_borders() +
   tm_fill(col = "lightgreen") + 
   tm_shape(Koppen_sites) + 
-  tm_dots(size = 1, shape = 3)
+  tm_dots(size = 1, shape = 19,col="black")
 
 tmap_arrange(state_and_park, park_and_centroid)
 
@@ -95,7 +96,10 @@ slope <- terrain(dem, opt = "slope", unit = "degrees", neighbors = 4) # 4 is bet
 aspect <- terrain(dem, opt = "aspect", unit = "degrees")
 
 # get 10 random points from soil raster and create SpatialPoints object
-points <- spsample(maca.poly2, n = 10, type = "random")
+park2 <- as_Spatial(park)
+park.maca.intersect <- crop(park2[1],maca.poly2)
+plot(park.maca.intersect)
+points <- spsample(park.maca.intersect, n = 10, type = "random")
 
 # plot to check points appear within borders of MACA cell. 
 
@@ -113,6 +117,7 @@ tm_shape(park) +
 
 latlong <- st_as_sf(points) # convert to sf object 
 latlong <- st_transform(latlong, crs = 4326) # project to lat/long
+
 
 wb_sites <- as.data.frame(st_coordinates(latlong)) # begin new dataframe for wb_sites
 
