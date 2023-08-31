@@ -14,8 +14,11 @@ US_States <- st_transform(US_States, st_crs(epsg))
 # select park
 Koppen_parks<-read.csv("./data/general/Climate_Zones_by_Unit.csv")
 
-park <- filter(nps_centroids, UNIT_CODE == SiteID)
-s<-US_States[st_intersects(park, US_States)[[1]],]
+park <- if(nrow(park)>1) {
+  park[!grepl("Preserve", park$UNIT_TYPE),]
+} else{park}
+#if 2 units and one has "preserve" in name, do not use
+s<-US_States %>% filter(STATE_ABBR == park$STATE)
 Koppen_park <- filter(Koppen_parks,Koppen_code == Koppen)
 
 
