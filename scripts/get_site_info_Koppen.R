@@ -14,6 +14,7 @@ US_States <- st_transform(US_States, st_crs(epsg))
 # select park
 Koppen_parks<-read.csv("./data/general/Climate_Zones_by_Unit.csv")
 
+park <- filter(nps_centroids, UNIT_CODE == SiteID)
 park <- if(nrow(park)>1) {
   park[!grepl("Preserve", park$UNIT_TYPE),]
 } else{park}
