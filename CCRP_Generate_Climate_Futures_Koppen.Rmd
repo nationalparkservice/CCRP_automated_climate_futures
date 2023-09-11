@@ -262,7 +262,7 @@ source(here::here("scripts", "Report_plots.R"))
 ```
 
 ```{r Copy-and-delete-files, message=FALSE, warning=FALSE, include = FALSE}
-
+SiteID <- Koppen
 source(here::here("scripts", "write_metadata.R"))
 
 source(here::here("scripts", "copy_paste_delete_files.R")) # copies files and folders to specified local folder
