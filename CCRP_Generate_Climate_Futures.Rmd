@@ -146,6 +146,8 @@ source(here::here("scripts", "Scatter_and_diagnostic.R"), local = knitr::knit_gl
 
 ```{r WarmWet/HotDry, message=FALSE, warning=FALSE, include = FALSE}
 # Specify Climate Futures
+DataFile <- list.files(path = DataDir, pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
+load(DataFile)
 
 FutureSubset <- CFs_all[c(1,5)]; CFs = FutureSubset  # Pick pair of climate futures.
 CF_abbreviation <- "WW-HD"
@@ -194,6 +196,8 @@ source(here::here("scripts", "Report_plots.R"))
 
 ```{r WarmDry/HotWet, message=FALSE, warning=FALSE, include = FALSE}
 # Specify Climate Futures
+DataFile <- list.files(path = DataDir, pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
+load(DataFile)
 
 FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futures.
 CF_abbreviation <- "WD-HW"

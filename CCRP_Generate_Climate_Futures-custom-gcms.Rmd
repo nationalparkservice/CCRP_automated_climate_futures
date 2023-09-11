@@ -155,13 +155,13 @@ If rerunning - start here -- reads in CFs, make any adjustments in next chunk
 # Specify Climate Futures
 OutDir <- "C:/Users/achildress/Documents/RCF_Testing/JOTR_07/"
 # OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/WHSA/'
-load(paste0(OutDir,"input-data/Final_Environment.RData"))
 OutDir <- "C:/Users/achildress/Documents/RCF_Testing/JOTR_07/"
 DataDir = paste0(OutDir,'input-data/') # for .csv's
 if(dir.exists(DataDir) == FALSE){
   dir.create(DataDir)
 }
-
+DataFile <- list.files(path = DataDir, pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
+load(DataFile)
 FutureSubset <- c("Warm Wet", "Hot Dry")
 CFs = FutureSubset 
 custom_GCMs = c("inmcm4.rcp45", "MIROC-ESM.rcp85") # In order as FutureSubset

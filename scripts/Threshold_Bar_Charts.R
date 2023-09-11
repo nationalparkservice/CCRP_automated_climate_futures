@@ -1,7 +1,4 @@
 # RSS_Plotting_Bar_Charts.R
-DataFile <- list.files(path = DataDir, pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
-load(DataFile)
-
 vars <- names(F_annual[,4:length(F_annual)])
 
 #################################################### SUBSET DATAFRAMES ###################################################
