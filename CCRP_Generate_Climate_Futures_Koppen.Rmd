@@ -90,6 +90,7 @@ centroids_csv <- "Y" #Switch for using Tercek csvs or downloading own data
 Indiv_method <- "pca" # Switch for method Indiv_method = c("corner", "pca")
 
 Percent_skill_cutoff = .1 #percentage of models to drop from ranking
+MethodCaption="Y" # Indicates whether Q/I present at bottom of plot to ID CF method used
 
 # --------- Information for Climate Futures Analyses (MACA) ------------------ #
 
@@ -169,7 +170,6 @@ colors2<- colors5[c(1,4)] # Select pair of climate futures - WarmWet/HotDry
 colors3<-c("white",colors2)
 col<- c("darkgray",colors2)  # WarmWet/HotDry
 #col<- c("darkgray","#F3D3CB","#12045C")  # HotWet/WarmDry
-MethodCaption="Y" # Indicates whether Q/I present at bottom of plot to ID CF method used
 
 CFDir = paste0(OutDir,"WarmWet_HotDry/") # for .csv's
 if(dir.exists(CFDir) == FALSE){
