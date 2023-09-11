@@ -143,7 +143,7 @@ if(centroids_csv == "Y") {
 source(here::here("scripts", "Plotting_Functions.R"), local = knitr::knit_global())
 SiteID=Park
 source(here::here("scripts", "Plot_Table_Creation.R"), local = knitr::knit_global()) # Requires "PARK_init_parsed.RData"; Output = "PARK_lat_long_Final_Environment.RData". 
-SiteID=Koppen
+SiteID=SiteName
 source(here::here("scripts", "Scatter_and_diagnostic.R"), local = knitr::knit_global()) # Creates scatter and diagnostic plots. Outputs to Figs MACA folder. 
 ```
 
