@@ -18,7 +18,7 @@ park <- if(nrow(park)>1) {
   park[!grepl("Preserve", park$UNIT_TYPE),]
 } else{park}
 park <- st_transform(park, 4326) # in order to use auto zoom feature, must be in lat/long
-Koppen_sites <- st_transform(Koppen_sites, 4326)
+# Koppen_sites <- st_transform(Koppen_sites, 4326)
 
 Koppen_sites <- filter(Koppen_sites, Unit_gridc == Koppen_park$Unit_gridc) # use this line if using park centroid
 
