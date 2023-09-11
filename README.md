@@ -2,7 +2,7 @@
 # CCRP Climate Futures Creation
 **Contact Amber Runyon prior to reuse of code for appropriate citation**
 
-
+**Added Koppen.Rmd to master branch to enable running off of modified plotting scripts**
 ### Instructions for running CCRP_Climate_Futures.Rmd
 
 Maintained by: Climate Change Response Program
