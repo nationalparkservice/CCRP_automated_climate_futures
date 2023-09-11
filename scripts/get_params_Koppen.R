@@ -32,7 +32,7 @@ US_States <- st_transform(US_States, st_crs(maca))
 Koppen_sites <- st_read('./data/general/spatial-data/Koppen_sites.shp')
 Koppen_sites <- st_transform(Koppen_sites, st_crs(maca))
 
-park <- filter(nps_boundary, UNIT_CODE == SiteID)
+park <- filter(nps_boundary, UNIT_CODE == Park)
 park <- if(nrow(park)>1) {
   park[!grepl("Preserve", park$UNIT_TYPE),]
 } else{park}

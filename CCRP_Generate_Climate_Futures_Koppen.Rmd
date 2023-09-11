@@ -30,7 +30,7 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "NIOB"  
+Park = "NIOB"  
 Koppen = "NIOB_21" #PARK_##
 SiteName = "NIOB-West" #optional - set at SiteID if don't want to use
 set.seed(50)
@@ -51,7 +51,7 @@ if(dir.exists(here::here( "PARK")) == FALSE){
   dir.create(here::here( "PARK"))
 }
 
-OutDir = paste0('./PARK/',SiteID,"/") # for .csv's
+OutDir = paste0('./PARK/',Koppen,"/") # for .csv's
 if(dir.exists(OutDir) == FALSE){
   dir.create(OutDir)
 }
@@ -141,9 +141,9 @@ if(centroids_csv == "Y") {
 }
 
 source(here::here("scripts", "Plotting_Functions.R"), local = knitr::knit_global())
-
+SiteID=Park
 source(here::here("scripts", "Plot_Table_Creation.R"), local = knitr::knit_global()) # Requires "PARK_init_parsed.RData"; Output = "PARK_lat_long_Final_Environment.RData". 
-
+SiteID=Koppen
 source(here::here("scripts", "Scatter_and_diagnostic.R"), local = knitr::knit_global()) # Creates scatter and diagnostic plots. Outputs to Figs MACA folder. 
 ```
 
