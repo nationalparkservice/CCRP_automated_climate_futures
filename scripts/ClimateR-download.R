@@ -64,7 +64,7 @@ end.time-start.time
 write.csv(future_all,"future_climate_0912.csv",row.names = F)
 
 # future_all <- read.csv("future_ClimateR.csv",header=T)
-# future_all$date <- as.POSIXct(future_all$date,format="%Y-%m-%d")
+future_all$date <- as.POSIXct(future_all$date,format="%Y-%m-%d")
 
 Future_all <- future_all |> mutate(Date=date,
                           GCM=paste(GCM,RCP,sep="."),
@@ -109,3 +109,4 @@ Gridmet <- historical_all |> mutate(Date=date,
          DOY = yday(Date))
 
 write.csv(Gridmet,str_c(DataDir,SiteName,"_historical.csv", sep=''),row.names = F)
+rm(historical_all,future_all)
