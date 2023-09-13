@@ -1,15 +1,14 @@
 library(climateR)
 library(AOI)
-library(dplyr)
-library(ggplot2)
-
-rm(list=ls())
 
 # Needs aoi to run -- dig back through original cft code at how to create aoi from lat/lon
 # AOI<-geocode(location = c("Fort Collins"), pt = TRUE) 
-AOI<- aoi_get(list(42.735558, -99.743792,.01,.01)) #Coordiantes of east NIOB location
+AOI<- aoi_get(list(Lat, Lon,.01,.01)) #Coordiantes of east NIOB location
 
 vars = c("tasmax", "tasmin", "pr", "rhsmax", "rhsmin")
+gcms = c("bcc-csm1-1", "bcc-csm1-1-m","BNU-ESM","CanESM2", "CNRM-CM5","CSIRO-Mk3-6-0", "GFDL-ESM2G","GFDL-ESM2M", "HadGEM2-CC365",
+         "HadGEM2-ES365","inmcm4","IPSL-CM5A-LR", "IPSL-CM5A-MR", "IPSL-CM5B-LR", "MIROC5","MIROC-ESM", "MIROC-ESM-CHEM",  
+         "MRI-CGCM3")
 
 TFtoC <- function(T){(T-32)/1.8}
 
@@ -32,26 +31,36 @@ VPD <- function(TminF, TmaxF, RHmin, RHmax){
 
 start.time <-Sys.time()
 future_all <- data.frame()
-for (i in 1:length(vars)){
-  future1 = getMACA(AOI, 
-                    model = 18, varname = vars[i], scenario  = "rcp45",
-                    startDate = "2023-01-01", endDate = "2099-12-31")
-  future2 = getMACA(AOI, 
-                    model = 18, varname = vars[i], scenario  = "rcp85",
-                    startDate = "2023-01-01", endDate = "2099-12-31")
-  future<- left_join(future1, future2, by="date")
-  
-  future_long = future |>  
-    tidyr::pivot_longer(-date)
-  FL <- future_long |> 
-    mutate(GCM = gsub("^[^_]*_([^_]+)_.*$", "\\1", future_long$name),
-           RCP = sub('.*_', '', future_long$name)) |> 
-    rename(!!vars[i]:=value) |> select(-c(name))
-  if(i==1) { future_all = FL } else {
-    future_all = left_join(future_all, FL, by=c("date","GCM","RCP"))
-    rm(future_long, FL,future1, future2, future)
-  }
-}
+for (i in 1:length(vars)){ 
+  for (j in 1:length(gcms)){ 
+    # if(i<3 & j %in% c(5,20)) next
+    # cat(i)
+    for (i in 1:length(vars)){ 
+      for (j in 1:length(gcms)){ 
+        # if(i<3 & j %in% c(5,20)) next
+        # cat(i)
+        future1 = getMACA(AOI, 
+                          model = gcms[j], varname = vars[i], scenario  = "rcp45",
+                          startDate = "2023-01-01", endDate = "2099-12-31")
+        future2 = getMACA(AOI, 
+                          model = gcms[j], varname = vars[i], scenario  = "rcp85",
+                          startDate = "2023-01-01", endDate = "2099-12-31")
+        if(j==1) { future = left_join(future1, future2, by="date")} else{
+          future = left_join(future,future1, future2, by="date")
+        }
+      }
+      
+      future_long = future |>  
+        tidyr::pivot_longer(-date)
+      FL <- future_long |> 
+        mutate(GCM = gsub("^[^_]*_([^_]+)_.*$", "\\1", future_long$name),
+               RCP = sub('.*_', '', future_long$name)) |> 
+        rename(!!vars[i]:=value) |> select(-c(name))
+      if(i==1) { future_all = FL } else {
+        future_all = left_join(future_all, FL, by=c("date","GCM","RCP"))
+        # rm(future_long, FL,future1, future2, future)
+      }
+    }
 end.time <- Sys.time()
 end.time-start.time
 
