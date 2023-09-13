@@ -72,7 +72,7 @@ source(here::here("scripts", "get_site_info_CustomLocation.R")) # Extract local 
 
 # source(here::here("scripts", "create_site_maps_Koppen.R")) # Create site maps
 
-source(here::here("scripts", "get_params_Koppen.R"))
+source(here::here("scripts", "get_params_CustomLocation.R"))
 
 ```
 

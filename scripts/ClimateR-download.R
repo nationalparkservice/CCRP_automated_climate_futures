@@ -31,14 +31,12 @@ VPD <- function(TminF, TmaxF, RHmin, RHmax){
 
 start.time <-Sys.time()
 future_all <- data.frame()
-for (i in 1:length(vars)){ 
-  for (j in 1:length(gcms)){ 
-    # if(i<3 & j %in% c(5,20)) next
-    # cat(i)
     for (i in 1:length(vars)){ 
       for (j in 1:length(gcms)){ 
+        print(paste("downloading",gcms[j],vars[i],sep=" "))
         # if(i<3 & j %in% c(5,20)) next
         # cat(i)
+        print(paste0())
         future1 = getMACA(AOI, 
                           model = gcms[j], varname = vars[i], scenario  = "rcp45",
                           startDate = "2023-01-01", endDate = "2099-12-31")
@@ -63,6 +61,7 @@ for (i in 1:length(vars)){
     }
 end.time <- Sys.time()
 end.time-start.time
+write.csv(future_all,"future_climate_0912.csv",row.names = F)
 
 # future_all <- read.csv("future_ClimateR.csv",header=T)
 # future_all$date <- as.POSIXct(future_all$date,format="%Y-%m-%d")
