@@ -9,6 +9,8 @@ vars = c("tasmax", "tasmin", "pr", "rhsmax", "rhsmin")
 gcms = c("bcc-csm1-1", "bcc-csm1-1-m","BNU-ESM","CanESM2", "CNRM-CM5","CSIRO-Mk3-6-0", "GFDL-ESM2G","GFDL-ESM2M", "HadGEM2-CC365",
          "HadGEM2-ES365","inmcm4","IPSL-CM5A-LR", "IPSL-CM5A-MR", "IPSL-CM5B-LR", "MIROC5","MIROC-ESM", "MIROC-ESM-CHEM",  
          "MRI-CGCM3")
+# This script does not include CCSM or NorESM because they do not have Rh and thus break the script.
+## They are both typically central tendency models
 
 TFtoC <- function(T){(T-32)/1.8}
 
@@ -36,7 +38,6 @@ future_all <- data.frame()
         print(paste("downloading",gcms[j],vars[i],sep=" "))
         # if(i<3 & j %in% c(5,20)) next
         # cat(i)
-        print(paste0())
         future1 = getMACA(AOI, 
                           model = gcms[j], varname = vars[i], scenario  = "rcp45",
                           startDate = "2023-01-01", endDate = "2099-12-31")
@@ -44,7 +45,8 @@ future_all <- data.frame()
                           model = gcms[j], varname = vars[i], scenario  = "rcp85",
                           startDate = "2023-01-01", endDate = "2099-12-31")
         if(j==1) { future = left_join(future1, future2, by="date")} else{
-          future = left_join(future,future1, future2, by="date")
+          future = left_join(future, future1, by='date') %>%
+            left_join(., future2, by='date')
         }
       }
       
@@ -61,7 +63,7 @@ future_all <- data.frame()
     }
 end.time <- Sys.time()
 end.time-start.time
-write.csv(future_all,"future_climate_0912.csv",row.names = F)
+# write.csv(future_all,"future_climate_0912.csv",row.names = F)
 
 # future_all <- read.csv("future_ClimateR.csv",header=T)
 future_all$date <- as.POSIXct(future_all$date,format="%Y-%m-%d")
