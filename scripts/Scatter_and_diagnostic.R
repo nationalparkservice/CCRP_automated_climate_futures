@@ -73,8 +73,8 @@ ggplot(FM, aes(DeltaTavg, DeltaPr*365, xmin=Tavg25, xmax=Tavg75, ymin=Pr25*365, 
   scale_fill_manual(name="Climate Futures",values = colors5) + 
   guides(color=guide_legend(title="Climate Futures\n",override.aes = list(size=7))) +
   geom_rect(color = "black", alpha=0) + 
-  geom_hline(aes(yintercept=mean(FM$DeltaPr*365)),linetype=2) + #change
-  geom_vline(aes(xintercept=mean(FM$DeltaTavg)),linetype=2)  #change
+  geom_hline(aes(yintercept=mean(DeltaPr*365)),linetype=2) + #change
+  geom_vline(aes(xintercept=mean(DeltaTavg)),linetype=2)  #change
 
 ggsave("TempVsPrcp_AllGCMs_ColorScatter.png", width = 15, height = 9, path = OutDir)
 rm(FM)
