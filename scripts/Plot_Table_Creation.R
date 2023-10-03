@@ -240,10 +240,13 @@ ggsave("PCA-loadings.png", plot=autoplot(pca, data = FM, loadings = TRUE,label=T
 
 pca.df<-as.data.frame(pca$x) 
 
+#Take the min/max of each of the PCs
 PCs <-rbind(data.frame(GCM = c(rownames(pca.df)[which.min(pca.df$PC1)],rownames(pca.df)[which.max(pca.df$PC1)]),PC="PC1"),
             data.frame(GCM = c(rownames(pca.df)[which.min(pca.df$PC2)],rownames(pca.df)[which.max(pca.df$PC2)]),PC="PC2"))
 
+#Assigns CFs to diagonals
 diagonals <- rbind(data.frame(CF = CFs_all[c(1,5)],diagonals=factor("diagonal1")),data.frame(CF = CFs_all[c(4,2)],diagonals=factor("diagonal2")))
+
 PCA <- CF_GCM %>% filter(GCM %in% PCs$GCM) %>% left_join(diagonals,by="CF") %>% right_join(PCs,by="GCM")
 
 ID.redundant.gcm <- function(PCA){
@@ -257,7 +260,7 @@ Future_Means %>% mutate(pca = ifelse(GCM %in% PCs$GCM[which(PCs$PC=="PC1")], as.
 
 if(length(setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca)) > 0){ #if a quadrant is missing 
   Future_Means$pca[which(Future_Means$corners == setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca))] = setdiff(CFs_all[CFs_all != "Central"],Future_Means$pca) #assign corners selection to that CF
-  Future_Means$pca[which(Future_Means$GCM == ID.redundant.gcm(PCA))] = NA
+  # Future_Means$pca[which(Future_Means$GCM == ID.redundant.gcm(PCA))] = NA
 }
 
 Future_Means %>% mutate(select = eval(parse(text=paste0("Future_Means$",Indiv_method)))) -> Future_Means
