@@ -30,14 +30,14 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "ORPI"  
+SiteID = "NATC"  
 set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
 
 project_root_dir <- here::here()
 
-local_rss_dir <- 'C:/Users/achildress/Documents/RCF_Testing/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
+local_rss_dir <- 'C:/Users/arunyon/3D Objects/Local-files/RCF_Testing/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
 local_rss_dir <- paste0(local_rss_dir,SiteID)
 
 if(dir.exists(local_rss_dir) == FALSE){
