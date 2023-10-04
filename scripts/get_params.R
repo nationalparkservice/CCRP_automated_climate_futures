@@ -78,6 +78,8 @@ cell <- cellFromXY(maca, centroid) # find grid cell park centroid lies within
 maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
 maca.poly <- rasterToPolygons(maca_cell) # Create MACA polygon - original file in lat/long (note: datum differs from park shapefiles)
 maca.poly2<- crop(maca.poly,as_Spatial(park))
+mp2<- crop(rasterToPolygons(crop(soil,park)),maca.poly2)
+mp3<-crop(rasterToPolygons(crop(dem,park)),mp2)
 
 
 # Plot to see that MACA cell is visible and appropriately located within park
@@ -98,7 +100,7 @@ slope <- terrain(dem, opt = "slope", unit = "degrees", neighbors = 4) # 4 is bet
 aspect <- terrain(dem, opt = "aspect", unit = "degrees")
 
 # get 10 random points from soil raster and create SpatialPoints object
-points <- spsample(maca.poly2, n = 10, type = "random")
+points <- spsample(mp3, n = 10, type = "random")
 
 # plot to check points appear within borders of MACA cell. 
 png(paste0(OutDir,"WBpoints.png"), width=4, height=4, units="in", res=300,)
@@ -134,9 +136,10 @@ wb_sites <- select(wb_sites, 7,2,1,3:6, 8:11) # reorder columns
 colnames(wb_sites) <- c("WB_site", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC.Max", "Wind", "Snowpack", "Soil.Init", "Shade.Coeff")
 
 wb_sites$SWC.Max = wb_sites$SWC.Max*10 # convert units for Soil Water-holding capacity
+wb_sites$Aspect[(which(wb_sites$Elev==0)&is.na(wb_sites$Aspect))] <- 0
+wb_sites$Slope[(which(wb_sites$Elev==0)&is.na(wb_sites$Slope))] <- 0
 wb_sites # check to be sure values are populated correctly. There should not be NA values. 
 
 write.csv(wb_sites, file = paste0(OutDir,"WB_site_parameters.csv"), row.names = FALSE)
-
 rm(proj4, epsg, dem, soil,US_States,US_Counties,state_and_park,State,slope,points,park_and_centroid,
    nps_centroids,nps_boundary,latlong,centroid,aspect)
