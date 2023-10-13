@@ -30,10 +30,10 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-Park = "NIOB"  
-SiteName = "NIOB-East" #optional - set at SiteID if don't want to use
-Lat = 42.735558
-Lon = -99.743792
+Park = "BLSC"  
+SiteName = "BLSC" #optional - set at SiteID if don't want to use
+Lat = 30.305797
+Lon = -104.022553
 set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
