@@ -1,7 +1,7 @@
 ###################################################################################################################
 
 Future_summary <- merge(ALL_FUTURE,CF_GCM,by="GCM")
-Baseline_summary <- Gridmet; Baseline_summary$CF = "Historical"
+Baseline_summary <- Gridmet; Baseline_summary$CF = "Historical";Baseline_summary$RCP = "Historical"
 all_summary <- rbind(Baseline_summary, Future_summary)
 all_summary <- subset(all_summary, GCM %in% WB_GCMs$GCM | GCM == "gridmet.historical")
 all_summary$CF <- factor(all_summary$CF, levels=c("Historical", CFs))
@@ -20,7 +20,8 @@ yrAvgs <- aggregate(cbind(TavgF, PrcpIn)~Year+CF,all_summary,mean)
 yrAvgs$PrcpIn <- yrAvgs$PrcpIn * 365
 yrAvgs <- yrAvgs %>% group_by(CF) %>% 
   mutate(TavgRoll10 = rollmean(TavgF, rollLen, fill=NA, align="right"),
-         PrcpRoll10 = rollmean(PrcpIn, rollLen, fill=NA, align="right"))
+         PrcpRoll10 = rollmean(PrcpIn, rollLen, fill=NA, align="right"),
+         Year = as.numeric(Year))
 
 WBAvgs <- aggregate(cbind(sum_d.in, runoff.in, max_pack.in)~Year+CF, AnnualWB, sum) %>% 
   group_by(CF) %>% 
