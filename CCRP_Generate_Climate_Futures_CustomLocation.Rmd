@@ -29,9 +29,9 @@ library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp);
 rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
-
+SiteID = "BLSC"
 Park = "BLSC"  
-SiteName = "BLSC" #optional - set at SiteID if don't want to use
+SiteName = SiteID #optional - set at SiteID if don't want to use
 Lat = 30.305797
 Lon = -104.022553
 set.seed(50)
@@ -148,15 +148,15 @@ source(here::here("scripts", "Scatter_and_diagnostic.R"), local = knitr::knit_gl
 
 ## Run this section if already downloaded data objects
 # OutDir <- "C:/Users/arunyon/3D Objects/Local-files/Git-repos/CCRP_automated_climate_futures/PARK/NIOB_21/"
-# DataDir = paste0(OutDir,'input-data/') # for .csv's
-######################################################
-# DataFile <- list.files(path = DataDir, pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
-# load(DataFile)
+DataDir = paste0(OutDir,'input-data/') # for .csv's
+#####################################################
+DataFile <- list.files(path = DataDir, pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
+load(DataFile)
 
 SiteID <- SiteName
 FutureSubset <- CFs_all[c(1,5)]; CFs = FutureSubset  # Pick pair of climate futures.
 CF_abbreviation <- "WW-HD"
-# WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
+WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
 colors2<- colors5[c(1,4)] # Select pair of climate futures - WarmWet/HotDry
 #colors2<- c("#F3D3CB","#12045C")  # Select pair of climate futures - HotWet/WarmDry
@@ -202,7 +202,7 @@ source(here::here("scripts", "Report_plots.R"))
 # Specify Climate Futures
 ## Run this section if already downloaded data objects
 # OutDir <- "C:/Users/arunyon/3D Objects/Local-files/Git-repos/CCRP_automated_climate_futures/PARK/NIOB_21/"
-# DataDir = paste0(OutDir,'input-data/') # for .csv's
+DataDir = paste0(OutDir,'input-data/') # for .csv's
 ######################################################
 DataFile <- list.files(path = DataDir, pattern = 'Final_Environment.RData', full.names = TRUE) # Environment needs to be added if not parsing MACA data
 load(DataFile)
@@ -211,7 +211,7 @@ SiteID <- SiteName
 FutureSubset <- CFs_all[c(4,2)]; CFs = FutureSubset  # Pick pair of climate futures.
 CF_abbreviation <- "WD-HW"
 
-# WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
+WB_GCMs <- subset(WB_GCMs, CF %in% CFs)
 
 # colors2<- c("#9A9EE5","#E10720")  # Select pair of climate futures - WarmWet/HotDry
 colors2<- colors5[c(3,2)] # Select pair of climate futures - HotWet/WarmDry
