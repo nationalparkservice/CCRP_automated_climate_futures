@@ -3,6 +3,7 @@ library(AOI)
 
 # Needs aoi to run -- dig back through original cft code at how to create aoi from lat/lon
 # AOI<-geocode(location = c("Fort Collins"), pt = TRUE) 
+options(timeout=300)
 AOI<- aoi_get(list(Lat, Lon,.01,.01)) #Coordiantes of east NIOB location
 
 vars = c("tasmax", "tasmin", "pr", "rhsmax", "rhsmin")
@@ -111,4 +112,4 @@ Gridmet <- historical_all |> mutate(Date=date,
          DOY = yday(Date))
 
 write.csv(Gridmet,str_c(DataDir,SiteName,"_historical.csv", sep=''),row.names = F)
-rm(historical_all,future_all)
+rm(historical_all,future_all, future_long, FL,future1, future2, future)
