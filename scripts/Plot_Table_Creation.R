@@ -239,7 +239,7 @@ pca <- prcomp(FM, center = TRUE,scale. = TRUE)
 ggsave("PCA-loadings.png", plot=autoplot(pca, data = FM, loadings = TRUE,label=TRUE),width = PlotWidth, height = PlotHeight, path = OutDir) 
 
 pca.df<-as.data.frame(pca$x) 
-write.csv(pca.df, "PCA-loadings.csv")
+write.csv(pca.df, paste0(OutDir, "PCA-loadings.csv"))
 
 #Take the min/max of each of the PCs
 PCs <-rbind(data.frame(GCM = c(rownames(pca.df)[which.min(pca.df$PC1)],rownames(pca.df)[which.max(pca.df$PC1)]),PC="PC1"),
