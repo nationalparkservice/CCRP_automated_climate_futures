@@ -29,7 +29,6 @@ library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp);
 rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
-
 Park = "NIOB"  
 Koppen = "NIOB_21" #PARK_##
 SiteName = "NIOB-West" #optional - set at SiteID if don't want to use
