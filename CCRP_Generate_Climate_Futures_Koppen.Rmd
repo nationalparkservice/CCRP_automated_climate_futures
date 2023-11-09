@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 library(here); library(plyr); # Use here::here when package lubridate is used
 library(plotrix); library(zoo); library(ggplot2); library(grid); library(cowplot); library(reshape2); library(raster); library(ncdf4); library(reshape2); library(WriteXLS); library(data.table); library(RColorBrewer); library(ggrepel); library(lubridate); library(dplyr); library(forcats); library(openxlsx); library("WaterBalance"); library(sf); library(raster); library(rgdal); library(R.utils); library(tmap); library(tmaptools); library(ggmap); library(ggspatial);
-library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes)
+library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes);library(sp);library(terra)
 
 
 ```
@@ -39,7 +39,7 @@ set.seed(50)
 project_root_dir <- here::here() 
 
 local_rss_dir <- 'C:/Users/arunyon/3D Objects/Local-files/RCF_Testing/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
-local_rss_dir <- paste0(local_rss_dir,SiteID)
+local_rss_dir <- paste0(local_rss_dir,Koppen)
 
 if(dir.exists(local_rss_dir) == FALSE){
   dir.create(local_rss_dir)
