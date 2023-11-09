@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 library(here); library(plyr); # Use here::here when package lubridate is used
 library(plotrix); library(zoo); library(ggplot2); library(grid); library(cowplot); library(reshape2); library(raster); library(ncdf4); library(reshape2); library(WriteXLS); library(data.table); library(RColorBrewer); library(ggrepel); library(lubridate); library(dplyr); library(forcats); library(openxlsx); library("WaterBalance"); library(sf); library(raster); library(rgdal); library(R.utils); library(tmap); library(tmaptools); library(ggmap); library(ggspatial);
-library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes)
+library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes); library(sp);library(terra)
 
 
 ```
@@ -30,7 +30,7 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "NATC"  
+SiteID = "GRCA"  
 set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
@@ -80,8 +80,10 @@ CFs_all <- c("Warm Wet", "Hot Wet", "Central", "Warm Dry", "Hot Dry")
 ##Color schemes
 
 #Colors for CF values plotted side by side (match order of CFs vector)
-colors5 <-  c("#6EB2D4", "#05689F", "#F6B294", "#CA0020","grey")
-colors5.2 <- c("#6EB2D4", "#05689F", "grey", "#F6B294", "#CA0020")
+# colors5 <-  c("#6EB2D4", "#05689F", "#F6B294", "#CA0020","grey")#Old colors
+colors5 <- c("#2B83BA", "#ABDDA4","#FDAE61", "#D7191C", "grey") #RColorBrewer Spectral
+# colors5.2 <- c("#6EB2D4", "#05689F", "grey", "#F6B294", "#CA0020")#Old colors
+colors5.2 <- c("#2B83BA", "#ABDDA4", "grey","#FDAE61", "#D7191C") #RColorBrewer Spectral
 
 centroids_csv <- "Y" #Switch for using Tercek csvs or downloading own data
 
