@@ -5,7 +5,7 @@ SPEI_annual_bar <- function(data, period.box=T, title,CFmethod=""){
     {if(period.box==T) geom_rect(xmin=Yr-Range/2, xmax=Yr+Range/2, ymin=-Inf, ymax=Inf, alpha=0.1, fill="darkgray", col="darkgray")} +
     geom_bar(stat="identity",aes(fill=col),col="black") + 
     geom_hline(yintercept=-.5,linetype=2,colour="black",size=1) +
-    scale_fill_manual(name="",values =c("turquoise2","orange1"),drop=FALSE) +
+    scale_fill_manual(name="",values =c("turquoise2","darkorange3"),drop=FALSE) +
     labs(title = title, 
          x = "Date", y = "SPEI",caption=
            if(MethodCaption == "Y"){CFmethod}) +
@@ -251,6 +251,8 @@ for (i in 1:length(Drought_char$CF)){
 }
 
 Drought_char<-rbind(Hist_char,Drought_char) 
+Drought_char$Severity = Drought_char$Severity*-1
+Drought_char$Intensity = Drought_char$Intensity*-1
 
 # csv for averages for each CF for hist and future periods
 write.csv(Drought_char,paste0(TableDir,"Drought_characteristics.csv"),row.names=FALSE)
@@ -267,12 +269,12 @@ ggsave("DroughtDuration-Bar.png", path = FigDir, height=PlotHeight, width=PlotWi
 
 #Drought severity barplot
 var_bar_plot(Drought_all,"Severity", colors3, paste0(SiteID, "-Average Drought Severity"), 
-             "Severity (Intensity * Duration)",CFmethod="I") + coord_cartesian(ylim = c(0, min(Drought_all$Severity)))
+             "Severity (Intensity * Duration)",CFmethod="I") + coord_cartesian(ylim = c(0, max(Drought_all$Severity)))
 ggsave("DroughtSeverity-Bar.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 #Drought intensity barplot
 var_bar_plot(Drought_all,"Intensity", colors3, paste0(SiteID, "-Average Drought Intensity"), 
-             "Intensity (Minimum SPEI values)",CFmethod="I") + coord_cartesian(ylim = c(0, min(Drought_all$Intensity)))
+             "Intensity (Minimum SPEI values)",CFmethod="I") + coord_cartesian(ylim = c(0, max(Drought_all$Intensity)))
 ggsave("DroughtIntensity-Bar.png", path = FigDir, height=PlotHeight, width=PlotWidth)
 
 #Drought-free interval barplot
@@ -292,7 +294,7 @@ c <- var_bar_plot(Drought_all,"Duration", colors3, "Duration", "Years")
 d <- var_bar_plot(Drought_all,"Drt.Free", colors3, "Drought-free\ninterval", 
              "Years")
 e<- var_bar_plot(Drought_all,"Severity", colors3, "Severity", 
-                  "Severity \n(Intensity * Duration)")+ coord_cartesian(ylim = c(0, min(Drought_all$Severity)))
+                  "Severity \n(Intensity * Duration)")+ coord_cartesian(ylim = c(0, max(Drought_all$Severity)))
 
 spei.time <- grid_arrange_shared_legend(a + rremove("ylab") + rremove("x.text"),b +  rremove("ylab"),
                                         nrow=2,ncol=1,position="bottom")
