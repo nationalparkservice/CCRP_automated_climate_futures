@@ -276,17 +276,17 @@ rm(lx,ux,ly,uy,ww,wd,hw,hd, pts, FM, pca,pca.df,PCs,diagonals,PCA)
 
 
 #######################
-## CHANGE CF NAMES FOR DRY/DAMP
-dry.quadrant = CFs_all[grepl('Dry', CFs_all)]
-split <- Future_Means %>% filter(CF == dry.quadrant) %>% summarise(PrcpMean=mean(DeltaPr*365))
-CFs_all <- if(split$PrcpMean>0.5) {gsub("Dry","Damp",CFs_all)} else(CFs_all)
-WB_GCMs <- WB_GCMs %>% rowwise() %>% mutate(CF = ifelse(split$PrcpMean>1, gsub("Dry","Damp",CF),CF))
-
-Future_Means %>% rowwise() %>% 
-  mutate(CF = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",CF),CF)) %>% 
-  mutate(corners = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",corners),corners)) %>% 
-  mutate(pca = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",pca),pca)) %>% 
-  mutate(select = ifelse(split$PrcpMean>0.5, gsub("Dry","Damp",select),select))-> Future_Means
+# ## CHANGE CF NAMES FOR DRY/DAMP
+# dry.quadrant = CFs_all[grepl('Damp', CFs_all)]
+# split <- Future_Means %>% filter(CF == dry.quadrant) %>% summarise(PrcpMean=mean(DeltaPr*365))
+# CFs_all <- if(split$PrcpMean>1.5) {gsub("Dry","Damp",CFs_all)} else(CFs_all)
+# WB_GCMs <- WB_GCMs %>% rowwise() %>% mutate(CF = ifelse(split$PrcpMean>1.5, gsub("Dry","Damp",CF),CF))
+# 
+# Future_Means %>% rowwise() %>% 
+#   mutate(CF = ifelse(split$PrcpMean>1.5, gsub("Dry","Damp",CF),CF)) %>% 
+#   mutate(corners = ifelse(split$PrcpMean>1.5, gsub("Dry","Damp",corners),corners)) %>% 
+#   mutate(pca = ifelse(split$PrcpMean>1.5, gsub("Dry","Damp",pca),pca)) %>% 
+#   mutate(select = ifelse(split$PrcpMean>1.5, gsub("Dry","Damp",select),select))-> Future_Means
 
 Future_Means$CF=as.factor(Future_Means$CF)
 Future_Means$CF = factor(Future_Means$CF,ordered=TRUE,levels=CFs_all)
