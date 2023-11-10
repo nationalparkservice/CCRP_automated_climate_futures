@@ -294,7 +294,7 @@ ggsave("sum_d.in-Monthly-line.png", path = FigDir, width = PlotWidth, height = P
 
 ## runoff.in
 Month_line_plot(MonthlyWB_delta, Month, runoff.in, grp=CF, cols=colors2, 
-                title= paste(SiteID, " Change in average monthly runoff \nin", Yr, "vs Historical (",BasePeriod,")"),
+                title= paste(SiteID, " Change in average monthly surplus/runoff \nin", Yr, "vs Historical (",BasePeriod,")"),
                 xlab="Month", ylab="Change in runoff (inches)",CFmethod="I")
 ggsave("sum_runoff.in-Monthly-line.png", path = FigDir, width = PlotWidth, height = PlotHeight)
 
@@ -367,9 +367,9 @@ CF2.runoff<-spaghetti_plot_wateryr(subset(WBData,CF %in% CFs[2]),"Runoff.in",col
 
 runoffgrid <- ggarrange(Hist.runoff, CF1.runoff, CF2.runoff, ncol = 1, nrow = 3,common.legend = T)
 
-annotate_figure(runoffgrid, left = textGrob("Runoff (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
+annotate_figure(runoffgrid, left = textGrob("Surplus/runoff (in)", rot = 90, vjust = 1, gp = gpar(cex = 1.3)),
                 bottom = textGrob("Water year day", gp = gpar(cex = 1.3)),
-                top = textGrob(paste0(SiteID, " Daily Runoff for each climate future by water year"),
+                top = textGrob(paste0(SiteID, " Daily Surplus/runoff for each climate future by water year"),
                                gp=gpar(fontface="bold", col="black",  fontsize=22)),
                 fig.lab=if(MethodCaption == "Y"){"I"},fig.lab.pos = "bottom.right")
 ggsave("Runoff.in-spaghetti.jpg", width = 15, height = 9, path = FigDir)
