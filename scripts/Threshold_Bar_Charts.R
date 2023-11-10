@@ -240,6 +240,20 @@ var_line_plot(Annual_all_gcms, var=OverHighQ, cols=col, title=paste0(SiteID,"-Av
 ggsave("OverHighQ-Annual-timeseries.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
+## Tmax99
+var_bar_plot(Annual, "Tmax99", cols=colors3, ylab="Days/Yr",
+             title=paste0(SiteID,"-Average Days/Yr > Historical 99th Percentile (", round(HistTmax99, 1), "\u00B0F) \nin ", Yr, " vs ", BasePeriod),CFmethod="Q")
+ggsave("Tmax99-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "Tmax99", cols=colors3, ylab="Days/Yr",
+             title=paste0(SiteID,"-Average Days/Yr > Historical 99th Percentile (", round(HistTmax99, 1), "\u00B0F) \nin ", Yr, " vs ", BasePeriod),CFmethod="Q")
+ggsave("Tmax99-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual_all_gcms, var=Tmax99, cols=col, title=paste0(SiteID,"-Average Days/Yr > Historical 99th Percentile (", round(HistTmax99, 1), "\u00B0F)"),
+              ylab="Days/Yr",CFmethod="Q")
+ggsave("Tmax99-Annual-timeseries.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+
 ## OverPrecip95
 var_bar_plot(Annual, "OverPrecip95", cols=colors3, ylab="Days/Yr",
              title=paste0(SiteID,"-Average Days/Yr Precipitation > Historical 95th\n Percentile (", round(HistPrecip95, 1), " in) in ", Yr, " vs ", BasePeriod),CFmethod="Q")
@@ -252,6 +266,19 @@ ggsave("OverPrecip95-Annual-box.png", width = PlotWidth, height = PlotHeight, pa
 var_line_plot(Annual_all_gcms, var=OverPrecip95, cols=col, title=paste0(SiteID,"-Average Days/Yr Precipitation > Historical 95th\n Percentile (", round(HistPrecip95, 1), " in)"),
               ylab="Days/Yr",CFmethod="Q")
 ggsave("OverPrecip95-Annual-timeseries.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+## OverPrecip99
+var_bar_plot(Annual, "OverPrecip99", cols=colors3, ylab="Days/Yr",
+             title=paste0(SiteID,"-Average Days/Yr Precipitation > Historical 99th\n Percentile (", round(HistPr99, 1), " in) in ", Yr, " vs ", BasePeriod),CFmethod="Q")
+ggsave("OverPrecip99-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_box_plot(Annual, "OverPrecip99", cols=colors3, ylab="Days/Yr",
+             title=paste0(SiteID,"-Average Days/Yr Precipitation > Historical 99th\n Percentile (", round(HistPr99, 1), " in) in ", Yr, " vs ", BasePeriod),CFmethod="Q")
+ggsave("OverPrecip99-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+
+var_line_plot(Annual_all_gcms, var=OverPrecip99, cols=col, title=paste0(SiteID,"-Average Days/Yr Precipitation > Historical 99th\n Percentile (", round(HistPr99, 1), " in)"),
+              ylab="Days/Yr",CFmethod="Q")
+ggsave("OverPrecip99-Annual-timeseries.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ## PrecipOver1
