@@ -329,7 +329,7 @@ var_bar_plot(Annual, "TavgFOver41", cols=colors3, ylab="Days/Yr",
 ggsave("TavgFOver41-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_box_plot(Annual, "TavgFOver41", cols=colors3, ylab="Days/Yr",
-             title=paste0(SiteID,"-Average Days/Yr Tavg > 41 Tavg > 41 (\u00B0F) \nin ", Yr, " vs ", BasePeriod),CFmethod="Q")
+             title=paste0(SiteID,"-Average Days/Yr Tavg > 41 (\u00B0F) \nin ", Yr, " vs ", BasePeriod),CFmethod="Q")
 ggsave("TavgFOver41-Annual-box.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 var_line_plot(Annual_all_gcms, var=TavgFOver41, cols=col, title=paste0(SiteID,"-Days/Yr Tavg > 41 (\u00B0F)"),
