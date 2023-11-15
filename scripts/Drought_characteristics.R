@@ -319,4 +319,9 @@ drt.char <-grid_arrange_shared_legend(c+ rremove("x.text"),d+ rremove("x.text"),
                                       top = textGrob(paste0(SiteID, "-Average drought characteristics"),gp=gpar(fontface="bold", col="black", fontsize=26,hjust=0.5)))
 g <- grid.arrange(spei.time, drt.char,nrow=2,ncol = 1, clip = FALSE)
 annotate_figure(g,fig.lab=if(MethodCaption == "Y"){"I"},fig.lab.pos = "bottom.right")
-ggsave("DroughtCharacteristics-2-Panel.png",path = FigDir, height=PanelHeight, width=PanelWidth,bg = 'white')                      
+ggsave("DroughtCharacteristics-2-Panel.png",path = FigDir, height=PanelHeight, width=PanelWidth,bg = 'white') 
+
+# Only SPEI plots
+g <- grid.arrange(spei.time,nrow=1,ncol = 1, clip = FALSE)
+annotate_figure(g,fig.lab=if(MethodCaption == "Y"){"I"},fig.lab.pos = "bottom.right")
+ggsave("DroughtCharacteristics-2-Panel.png",path = FigDir, height=PanelHeight/2, width=PanelWidth,bg = 'white')
