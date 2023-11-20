@@ -81,9 +81,9 @@ CFs_all <- c("Warm Wet", "Hot Wet", "Central", "Warm Dry", "Hot Dry")
 
 #Colors for CF values plotted side by side (match order of CFs vector)
 # colors5 <-  c("#6EB2D4", "#05689F", "#F6B294", "#CA0020","grey")#Old colors
-colors5 <- c("#2B83BA", "#ABDDA4","#FDAE61", "#D7191C", "grey") #RColorBrewer Spectral
+colors5 <- c(#76B8E0, #4DAA40, #FDAE61, #D7191C, "grey") #New colors
 # colors5.2 <- c("#6EB2D4", "#05689F", "grey", "#F6B294", "#CA0020")#Old colors
-colors5.2 <- c("#2B83BA", "#ABDDA4", "grey","#FDAE61", "#D7191C") #RColorBrewer Spectral
+colors5.2 <- c(#76B8E0, #4DAA40, "grey","#FDAE61", "#D7191C") #New colors
 
 centroids_csv <- "Y" #Switch for using Tercek csvs or downloading own data
 
