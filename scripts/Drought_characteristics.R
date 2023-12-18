@@ -191,7 +191,9 @@ for (c in 1:length(CF.split)){
   }
   
   ND<- which((CF.split[[c]]$length == 0) * unlist(lapply(rle(CF.split[[c]]$length)$lengths, seq_len)) == 1)
-  if(ND[1]==1 & length(D)>0) ND<-ND[2:length(ND)]
+  if(length(ND)==0) { print("all drought")} else{
+    if(ND[1]==1 & length(D)>0) {ND<-ND[2:length(ND)]} 
+  }
   if(CF.split[[c]]$Drought[length(CF.split[[c]]$Drought)]==1) ND[length(ND)+1]<-length(CF.split[[c]]$length)
   
   for (i in 1:length(ND)){
@@ -253,6 +255,9 @@ for (i in 1:length(Drought_char$CF)){
 Drought_char<-rbind(Hist_char,Drought_char) 
 Drought_char$Severity = Drought_char$Severity*-1
 Drought_char$Intensity = Drought_char$Intensity*-1
+Drought_char$Frequency[is.na(Drought_char$Frequency)] <- 0
+Drought_char$Severity[is.na(Drought_char$Severity)] <- 0
+Drought_char$Drt.Free[is.na(Drought_char$Drt.Free)] <- 0
 
 # csv for averages for each CF for hist and future periods
 write.csv(Drought_char,paste0(TableDir,"Drought_characteristics.csv"),row.names=FALSE)
