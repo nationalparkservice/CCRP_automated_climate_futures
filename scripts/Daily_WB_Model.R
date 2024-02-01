@@ -323,7 +323,7 @@ var_bar_plot(AnnualWB_in, "max_pack.in", cols=colors3, ylab="Max SWE (in)",
              title=paste0(SiteID, " Average annual max SWE in ", Yr, " vs ", BasePeriod),CFmethod="I")
 ggsave("max_pack.in-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
-var_line_plot(AnnualWB_in, var=max_pack.in, cols=col, title=paste0(SiteID, " Average annual max SWE in", Yr, " vs ", BasePeriod),
+var_line_plot(AnnualWB_in, var=max_pack.in, cols=col, title=paste0(SiteID, " Average annual max SWE in ", Yr, " vs ", BasePeriod),
               ylab="Max SWE (in)",CFmethod="I")
 ggsave("max_SWEaccum.in-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
