@@ -136,7 +136,7 @@ wb_sites <- select(wb_sites, 7,2,1,3:6, 8:11) # reorder columns
 colnames(wb_sites) <- c("WB_site", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC.Max", "Wind", "Snowpack", "Soil.Init", "Shade.Coeff")
 
 wb_sites$SWC.Max = wb_sites$SWC.Max*10 # convert units for Soil Water-holding capacity
-wb_sites$SWC.Max[is.na(wb_sites$SWC.Max)] <- 0
+wb_sites$SWC.Max[is.na(wb_sites$SWC.Max)] <- mean(wb_sites$SWC.Max,na.rm=TRUE)
 wb_sites$Aspect[(which(wb_sites$Elev==0)&is.na(wb_sites$Aspect))] <- 0
 wb_sites$Slope[(which(wb_sites$Elev==0)&is.na(wb_sites$Slope))] <- 0
 wb_sites # check to be sure values are populated correctly. There should not be NA values. 
