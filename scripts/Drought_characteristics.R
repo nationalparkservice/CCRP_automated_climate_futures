@@ -156,10 +156,10 @@ length(Future.drt$CF)/length(unique(Future.drt$CF))
 # Give each drought period an ID
 FutureDrought<-data.frame()
 FutureDrought<-setNames(data.frame(matrix(ncol=10,nrow=0)),c("DID","Start","End","Year","per","CF","duration","severity","peak","freq"))
-FutureDrought.i <- FutureDrought
+FutureDrought.i <- FutureDrought #Create empty CF to be used later
 
 Future.drt$CF <- droplevels(Future.drt$CF)
-CF.split<-split(Future.drt,Future.drt$CF)
+CF.split<-split(Future.drt,Future.drt$CF) #split so can run on each CF df individually
 
 # Calculate drought characteristics for each CF -- have to split by CF to avoid mixing up counts
 for (c in 1:length(CF.split)){
@@ -167,39 +167,45 @@ for (c in 1:length(CF.split)){
   
   
   CF.split[[c]]$count<-rep(seq(1, length(CF.split[[c]]$CF)/length(unique(CF.split[[c]]$CF)), 
-                               1),length(unique(CF.split[[c]]$CF))) # repeat # of CFs 
+                               1),length(unique(CF.split[[c]]$CF))) # repeat # of CFs - doesn't actually need to be done now that split dfs -- just seq
   
-  CF.split[[c]]$length<-0
-  CF.split[[c]]$length <- CF.split[[c]]$Drought * unlist(lapply(rle(CF.split[[c]]$Drought)$lengths, seq_len))
-  mean(CF.split[[c]]$length[CF.split[[c]]$length>0])
+  CF.split[[c]]$length<-0 
+  CF.split[[c]]$length <- CF.split[[c]]$Drought * unlist(lapply(rle(CF.split[[c]]$Drought)$lengths, seq_len)) #Create sequence of each drought event, between each 1st Drought==1 and Drought==0
+  mean(CF.split[[c]]$length[CF.split[[c]]$length>0]) #Avg length of drought event
+ 
+  # To get duration, now just remove those that are not droughts and do calculations on length
   
-  D<-which(CF.split[[c]]$length==1)
-  fd <- FutureDrought.i
-  if(length(D)>0) {
-    fd[length(D),] <- NA
+  # Give each drought period an ID
+  
+  D<-which(CF.split[[c]]$length==1) #D is df with row that is start of each drought period
+  fd <- FutureDrought.i #pull back up empty df
+  if(length(D)>0) { #If there are any future droughts
+    fd[length(D),] <- NA #create an empty row to hold each drought event, set all values to NA
   } else {
-    fd[1,] <- 0
+    fd[1,] <- 0 #otherwise set all values to 0
   }
   
-  fd$per<-as.factor("F")
-  fd$CF = name
+  fd$per<-as.factor("F") #set period
+  fd$CF = name #set CF 
   
   for (i in 1:length(D)){
-    fd$DID[i]<-i
-    fd$Start[i]<-as.character(as.Date(paste0(CF.split[[c]]$Year[D[i]],"-01-01"),format="%Y-%m-%d"))
-    fd$Year[i]<-CF.split[[c]]$Year[D[i]]
+    fd$DID[i]<-i #Create ID for each drought event
+    fd$Start[i]<-as.character(as.Date(paste0(CF.split[[c]]$Year[D[i]],"-01-01"),format="%Y-%m-%d")) #Date as start yaer
+    fd$Year[i]<-CF.split[[c]]$Year[D[i]] #start year
   }
   
-  ND<- which((CF.split[[c]]$length == 0) * unlist(lapply(rle(CF.split[[c]]$length)$lengths, seq_len)) == 1)
-  if(length(ND)==0) { print("all drought")} else{
-    if(ND[1]==1 & length(D)>0) {ND<-ND[2:length(ND)]} 
+  ND<- which((CF.split[[c]]$length == 0) * unlist(lapply(rle(CF.split[[c]]$length)$lengths, seq_len)) == 1) #Index of 1st period of non drought for non-drought runs
+  if(length(ND)==0) { print("all drought")} else{ #If no periods without drought
+    if(ND[1]==1 & length(D)>0) {ND<-ND[2:length(ND)]} #if non-drought starts on 1st year and there is a drought
   }
-  if(CF.split[[c]]$Drought[length(CF.split[[c]]$Drought)]==1) ND[length(ND)+1]<-length(CF.split[[c]]$length)
+  if(CF.split[[c]]$Drought[length(CF.split[[c]]$Drought)]==1) ND[length(ND)+1]<-length(CF.split[[c]]$length) # If final year is drought, adds another value that is the final year
   
   for (i in 1:length(ND)){
-    fd$End[i]<-as.character(as.Date(paste0(CF.split[[c]]$Year[ND[i]],"-01-01"),format="%Y-%m-%d"))
+    fd$End[i]<- if(is.na(fd$End[i])) {
+      as.character(as.Date(paste0(max(CF.split[[c]]$Year),"-01-01"),format="%Y-%m-%d"))
+      } else {as.character(as.Date(paste0(CF.split[[c]]$Year[ND[i]],"-01-01"),format="%Y-%m-%d")) }
     if(length(D) > 0){
-      fd$severity[i]<-sum(CF.split[[c]]$SPEI[D[i]:(ND[i]-1)])
+      fd$severity[i]<-sum(CF.split[[c]]$SPEI[D[i]:(ND[i]-1)]) # This is where breaking - lengh(ND)=1 so get NA
       fd$peak[i]<-min(CF.split[[c]]$SPEI[D[i]:(ND[i]-1)])
       fd$duration[i]<-CF.split[[c]]$length[ND[i]-1]
     } else {
