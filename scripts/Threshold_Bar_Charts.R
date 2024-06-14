@@ -394,7 +394,7 @@ ggsave("HI.Dan-Annual-timeseries.png", width = PlotWidth, height = PlotHeight, p
 
 
 ############################################### PRINT TABLES #################################################################
-A<-aggregate(.~CF,Annual[,c(1,3:27)], mean) 
+A<-aggregate(.~CF,Annual[,c(1,3:27)], mean,na.action = na.pass) 
 Annual_delta <- A %>%  mutate_if(is.numeric, funs(c(first(.), (. - first(.))[-1])) )
 S<-aggregate(.~CF,Annual[,c(1,3:27)],sd) #Withing CF
 WB_GCM_all <- rbind(H_annual,subset(F_annual, GCM %in% WB_GCMs$GCM))
