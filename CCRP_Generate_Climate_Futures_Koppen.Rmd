@@ -29,9 +29,9 @@ library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp);
 rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
-Park = "NIOB"  
-Koppen = "NIOB_21" #PARK_##
-SiteName = "NIOB-West" #optional - set at SiteID if don't want to use
+Park = "MORA"  
+Koppen = "MORA_27" #PARK_##
+SiteName = "MORA" #"MORA-Paradise VC" #optional - set at SiteID if don't want to use
 set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
@@ -81,8 +81,9 @@ CFs_all <- c("Warm Wet", "Hot Wet", "Central", "Warm Dry", "Hot Dry")
 ##Color schemes
 
 #Colors for CF values plotted side by side (match order of CFs vector)
-colors5 <-  c("#6EB2D4", "#05689F", "#F6B294", "#CA0020","grey")
-colors5.2 <- c("#6EB2D4", "#05689F", "grey", "#F6B294", "#CA0020")
+colors5 <- c("#2B83BA", "#ABDDA4","#FDAE61", "#D7191C", "grey") #RColorBrewer Spectral
+# colors5.2 <- c("#6EB2D4", "#05689F", "grey", "#F6B294", "#CA0020")#Old colors
+colors5.2 <- c("#2B83BA", "#ABDDA4", "grey","#FDAE61", "#D7191C") #RColorBrewer Spectral
 
 centroids_csv <- "Y" #Switch for using Tercek csvs or downloading own data
 
@@ -150,7 +151,7 @@ source(here::here("scripts", "Scatter_and_diagnostic.R"), local = knitr::knit_gl
 # Specify Climate Futures
 
 ## Run this section if already downloaded data objects
-OutDir <- "C:/Users/arunyon/3D Objects/Local-files/Git-repos/CCRP_automated_climate_futures/PARK/NIOB_21/"
+OutDir <- "C:/Users/arunyon/3D Objects/Local-files/Git-repos/CCRP_automated_climate_futures/PARK/MORA_27/"
 # OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/WHSA/'
 # OutDir <- "C:/Users/achildress/Documents/RCF_Testing/JOTR_07/"
 DataDir = paste0(OutDir,'input-data/') # for .csv's
@@ -206,7 +207,7 @@ source(here::here("scripts", "Report_plots.R"))
 ```{r WarmDry/HotWet, message=FALSE, warning=FALSE, include = FALSE}
 # Specify Climate Futures
 ## Run this section if already downloaded data objects
-OutDir <- "C:/Users/arunyon/3D Objects/Local-files/Git-repos/CCRP_automated_climate_futures/PARK/NIOB_21/"
+OutDir <- "C:/Users/arunyon/3D Objects/Local-files/Git-repos/CCRP_automated_climate_futures/PARK/MORA_27/"
 # OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/WHSA/'
 # OutDir <- "C:/Users/achildress/Documents/RCF_Testing/JOTR_07/"
 DataDir = paste0(OutDir,'input-data/') # for .csv's

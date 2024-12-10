@@ -158,7 +158,7 @@ FutureDrought<-data.frame()
 FutureDrought<-setNames(data.frame(matrix(ncol=10,nrow=0)),c("DID","Start","End","Year","per","CF","duration","severity","peak","freq"))
 FutureDrought.i <- FutureDrought #Create empty CF to be used later
 
-Future.drt$CF <- droplevels(Future.drt$CF)
+Future.drt$CF <- droplevels(as.factor(Future.drt$CF))
 CF.split<-split(Future.drt,Future.drt$CF) #split so can run on each CF df individually
 
 # Calculate drought characteristics for each CF -- have to split by CF to avoid mixing up counts

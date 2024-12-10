@@ -14,9 +14,9 @@ knitr::opts_chunk$set(
   message = TRUE # set to FALSE when done
 )
 
-library(here); library(plyr); # Use here::here when package lubridate is used
+library(here); library(plyr);# Use here::here when package lubridate is used
 library(plotrix); library(zoo); library(ggplot2); library(grid); library(cowplot); library(reshape2); library(raster); library(ncdf4); library(reshape2); library(WriteXLS); library(data.table); library(RColorBrewer); library(ggrepel); library(lubridate); library(dplyr); library(forcats); library(openxlsx); library("WaterBalance"); library(sf); library(raster); library(rgdal); library(R.utils); library(tmap); library(tmaptools); library(ggmap); library(ggspatial);
-library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes);library(data.table);library(sp);library(terra)
+library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr);  library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes);library(data.table);library(sp);library(terra)
 
 
 ```
@@ -29,11 +29,11 @@ library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp);
 rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
-SiteID = "BLSC"
-Park = "BLSC"  
+SiteID = "BLRV"
+Park = "BLRV"  
 SiteName = SiteID #optional - set at SiteID if don't want to use
-Lat = 30.305797
-Lon = -104.022553
+Lat = 41.939028
+Lon = -71.431884
 set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
@@ -134,7 +134,7 @@ SPEI_end <- 2012
 
 ```{r Climate-Futures, message=FALSE, warning=FALSE, include = FALSE}
 SiteID = SiteName
-source(here::here("scripts", "ClimateR-download.R"), local = knitr::knit_global())
+source(here::here("scripts", "Drobo_terra.R"), local = knitr::knit_global())
 
 source(here::here("scripts", "Plotting_Functions.R"), local = knitr::knit_global())
 SiteID=Park

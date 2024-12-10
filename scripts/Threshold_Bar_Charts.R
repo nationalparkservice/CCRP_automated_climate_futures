@@ -408,7 +408,7 @@ for (i in 1:length(WB_GCM_YOY)){
     lag(WB_GCM_YOY[[i]][,4:24] ,1) - WB_GCM_YOY[[i]][,4:24] 
 }
 
-WB_GCM_YOY <- ldply(WB_GCM_YOY, data.frame)
+WB_GCM_YOY <- plyr::ldply(WB_GCM_YOY, data.frame)
 YOY <- aggregate(.~CF,WB_GCM_YOY[,c(2,5:length(WB_GCM_YOY))], FUN=mean, na.rm=TRUE)
 
 write.xlsx(list("Means"=A,"Annual"=Annual,"D_Annual"=Annual_delta,"Season"=Season,"D_Season"=Season_delta,"Monthly"=Monthly,"Monthly_delta"=Monthly_delta,

@@ -497,9 +497,10 @@ Hmeans<-Baseline_all %>% group_by(CF, GCM, Year) %>%
 H_annual<-merge(H_annual,Hmeans,by=c("CF","GCM","Year"), all=TRUE);rm(Hmeans)
 
 # Agrregate mean w/ temps only W months
-H.WinterTemp<- Baseline_all %>% group_by(CF, GCM, Year) %>% 
-  filter(Month<3 | Month>11) %>% 
-  summarise(W.Temp=mean(TavgF)) 
+H.WinterTemp <- Baseline_all |>   
+  filter(Month<3 | Month>11) |> 
+  group_by(CF, GCM, Year) |> 
+  dplyr::summarise(W.Temp=mean(TavgF)) 
 H_annual <- merge(H_annual,H.WinterTemp,by=c("CF","GCM","Year")); rm(H.WinterTemp)
 
 
@@ -518,7 +519,7 @@ Baseline_SE <- Baseline_GS %>% group_by(CF, GCM, Year) %>%
 Baseline_SE$"EndGrow"<-Baseline_SE$Julian - 6
 
 H<-Baseline_GU %>% group_by(CF, GCM, Year) %>%
-  summarise(BegGrow = mean(Julian))
+  dplyr::summarise(BegGrow = mean(Julian))
 H<-merge(H,Baseline_SE[,c("CF","GCM","Year","EndGrow")],by=c("CF","GCM","Year"), all=TRUE)
 H$EndGrow[is.na(H$EndGrow)]<-365
 H$GrowLen<- H$EndGrow - H$BegGrow
@@ -528,7 +529,7 @@ rm(Baseline_GS,Baseline_GU,Baseline_SE,H)
 # Frost length calculations - late spring freeze events
 Sp.Frost<-Baseline_all %>% group_by(CF, GCM, Year) %>%
   filter(Julian < 180) %>% 
-  summarise(Sp.Frost = sum(Frost))
+  dplyr::summarise(Sp.Frost = sum(Frost))
 H_annual<-merge(H_annual,Sp.Frost,by=c("CF","GCM","Year"), all=TRUE);rm(Sp.Frost)
 
 
@@ -546,7 +547,7 @@ F_annual<-merge(F_annual,Fmeans,by=c("CF","GCM","Year"), all=TRUE);rm(Fmeans)
 # Agrregate mean w/ temps only W months
 F.WinterTemp<- Future_all %>% group_by(CF, GCM, Year) %>% 
   filter(Month<3 | Month>11) %>% 
-  summarise(W.Temp=mean(TavgF)) 
+  dplyr::summarise(W.Temp=mean(TavgF)) 
 F_annual <- merge(F_annual,F.WinterTemp,by=c("CF","GCM","Year")); rm(F.WinterTemp)
 
 
@@ -565,7 +566,7 @@ Future_SE <- Future_GS %>% group_by(CF, GCM, Year) %>%
 Future_SE$"EndGrow"<-Future_SE$Julian - 6
 
 F<-Future_GU %>% group_by(CF, GCM, Year) %>%
-  summarise(BegGrow = mean(Julian))
+  dplyr::summarise(BegGrow = mean(Julian))
 F<-merge(F,Future_SE[,c("CF","GCM","Year","EndGrow")],by=c("CF","GCM","Year"), all=TRUE)
 F$EndGrow[is.na(F$EndGrow)]<-365
 F$GrowLen<- F$EndGrow - F$BegGrow
@@ -575,7 +576,7 @@ rm(Future_GS,Future_GU,Future_SE,F)
 # Frost length calculations - late spring freeze events
 Sp.Frost<-Future_all %>% group_by(CF, GCM, Year) %>%
   filter(Julian < 180) %>% 
-  summarise(Sp.Frost = sum(Frost))
+  dplyr::summarise(Sp.Frost = sum(Frost))
 F_annual<-merge(F_annual,Sp.Frost,by=c("CF","GCM","Year"), all=TRUE);rm(Sp.Frost)
 
 

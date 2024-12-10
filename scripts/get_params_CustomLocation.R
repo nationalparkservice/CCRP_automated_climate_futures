@@ -29,7 +29,7 @@ US_Counties <- st_read('./data/general/spatial-data//US_Counties/tl_2016_us_coun
 US_Counties <- st_transform(US_Counties, st_crs(maca))
 US_States <- st_read('./data/general/spatial-data/State_Shapefile/Contig_US_Albers.shp')
 US_States <- st_transform(US_States, st_crs(maca))
-s <- data.frame(place="NIOB-East",lat=Lat,lon=Lon)
+s <- data.frame(place=SiteID,lat=Lat,lon=Lon)
 Site <- st_as_sf(s,coords = c(3,2)) 
 # Site <- st_set_crs(Site, "+proj=longlat +datum=NAD83 +no_defs")
 Site <- st_set_crs(Site, 4326)

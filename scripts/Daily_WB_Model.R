@@ -236,7 +236,7 @@ ggsave("avg_SM.in-Density.png", path = FigDir, width = PlotWidth, height = PlotH
 
 ### Monthly Plots
 WBMonthlyLong <- MonthlyWB_in %>% select(.,-c("sum_snow.in","max_pack.in","avg_soil.in","sum_d.in","runoff.in")) %>% 
-  rename(PET=sum_pet.in, AET=sum_aet.in, Ppt=sum_p.in) %>% 
+  dplyr::rename(PET=sum_pet.in, AET=sum_aet.in, Ppt=sum_p.in) %>% 
   gather(Variable, water, -c(CF, Month)) 
 WBMonthlyLong$Variable <- factor(WBMonthlyLong$Variable,levels = c("Ppt","PET","AET"))
 
@@ -313,7 +313,7 @@ ggsave("sum_aet.in-Monthly-line.png", path = FigDir, width = PlotWidth, height =
 
 ### Additional plots
 # Max SWE
-AnnualWB_in <- rename(AnnualWB_in, Year=year)
+AnnualWB_in <- dplyr::rename(AnnualWB_in, Year=year)
 # AnnualWB$max_SWEaccum.in <- aggregate(SWEaccum.in ~ Year+GCM, data=aggregate(SWEaccum.in~Year+GCM,data=WBData,sum), mean)[,3]
 density_plot(AnnualWB_in, xvar=max_pack.in,cols=col,title=paste(SiteID," maximum annual SWE \nin", Yr,  "and Historical Period (", BasePeriod,")",sep=" "),
              xlab="Max SWE (in)",CFmethod="I")
@@ -323,9 +323,9 @@ var_bar_plot(AnnualWB_in, "max_pack.in", cols=colors3, ylab="Max SWE (in)",
              title=paste0(SiteID, " Average annual max SWE in ", Yr, " vs ", BasePeriod),CFmethod="I")
 ggsave("max_pack.in-Annual-bar.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
-var_line_plot(AnnualWB_in, var=max_pack.in, cols=col, title=paste0(SiteID, " Average annual max SWE in ", Yr, " vs ", BasePeriod),
-              ylab="Max SWE (in)",CFmethod="I")
-ggsave("max_SWEaccum.in-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
+# var_line_plot(AnnualWB_in, var=max_pack.in, cols=col, title=paste0(SiteID, " Average annual max SWE in ", Yr, " vs ", BasePeriod),
+#               ylab="Max SWE (in)",CFmethod="I")
+# ggsave("max_SWEaccum.in-Annual-line.png", width = PlotWidth, height = PlotHeight, path = FigDir)
 
 
 ### Adjust water year for spaghetti plots
@@ -339,7 +339,7 @@ WBData$WaterYr <- hydro.day.new(WBData$Date)
 
 ## Add CFs to WBData
 
-WBData <- WBData %>% drop_na %>% rename(Year=year) %>% mutate(
+WBData <- WBData %>% drop_na %>% dplyr::rename(Year=year) %>% mutate(
   PACK.in=PACK/ 25.4,
   Runoff.in=W_ET_DSOIL /25.4,
   AET.in = AET / 25.4, 

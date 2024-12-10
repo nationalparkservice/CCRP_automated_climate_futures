@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 library(here); library(plyr); # Use here::here when package lubridate is used
 library(plotrix); library(zoo); library(ggplot2); library(grid); library(cowplot); library(reshape2); library(raster); library(ncdf4); library(reshape2); library(WriteXLS); library(data.table); library(RColorBrewer); library(ggrepel); library(lubridate); library(dplyr); library(forcats); library(openxlsx); library("WaterBalance"); library(sf); library(raster); library(rgdal); library(R.utils); library(tmap); library(tmaptools); library(ggspatial); library(basemaps)
-library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes); library(sp);library(terra);library(rasterVis); library(sf)
+library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr);  library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes); library(sp);library(terra);library(rasterVis); library(sf)
 
 
 ```
@@ -30,14 +30,14 @@ rm(list = ls())
 
 # -------------- Input site information -------------------------------------- #
 
-SiteID = "GRCA"  
+SiteID = "FOMR"  
 set.seed(50)
 
 # --------------- Input local folder information ----------------------------- #
 
 project_root_dir <- here::here()
 
-local_rss_dir <- 'C:/Users/arunyon/3D Objects/Local-files/RCF_Testing/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
+local_rss_dir <- 'C:/Users/arunyon/3D Objects/Local-files/RCF_Testing/MT-DNR-2024/' # local directory where you want this repo copied. Should be something like 'C:/Users/adillon/Documents/RSS/'. Next lines create folder for park
 local_rss_dir <- paste0(local_rss_dir,SiteID)
 
 if(dir.exists(local_rss_dir) == FALSE){
@@ -81,9 +81,9 @@ CFs_all <- c("Warm Wet", "Hot Wet", "Central", "Warm Dry", "Hot Dry")
 
 #Colors for CF values plotted side by side (match order of CFs vector)
 # colors5 <-  c("#6EB2D4", "#05689F", "#F6B294", "#CA0020","grey")#Old colors
-colors5 <- c(#76B8E0, #4DAA40, #FDAE61, #D7191C, "grey") #New colors
+colors5 <- c("#2B83BA", "#ABDDA4","#FDAE61", "#D7191C", "grey") #RColorBrewer Spectral
 # colors5.2 <- c("#6EB2D4", "#05689F", "grey", "#F6B294", "#CA0020")#Old colors
-colors5.2 <- c(#76B8E0, #4DAA40, "grey","#FDAE61", "#D7191C") #New colors
+colors5.2 <- c("#2B83BA", "#ABDDA4", "grey","#FDAE61", "#D7191C") #RColorBrewer Spectral
 
 centroids_csv <- "Y" #Switch for using Tercek csvs or downloading own data
 
