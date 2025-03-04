@@ -6,11 +6,12 @@ all_summary <- rbind(Baseline_summary, Future_summary)
 all_summary <- subset(all_summary, GCM %in% WB_GCMs$GCM | GCM == "gridmet.historical")
 all_summary$CF <- factor(all_summary$CF, levels=c("Historical", CFs))
 
-AnnualWB <- read.csv(paste0(TableDir,"WB-Annual.csv")) %>% 
+AnnualWB <- read.csv(paste0(TableDir,"WB-Annual.csv")) |> 
   mutate(max_pack.in = max_pack.mm/ 25.4,
          runoff.in = runoff.mm/ 25.4,
          sum_d.in = sum_d.mm/ 25.4,
-         sum_aet.in = sum_aet.mm/ 25.4) %>% dplyr::rename(Year=year) %>% left_join(WB_GCMs,by="GCM") %>% 
+         sum_aet.in = sum_aet.mm/ 25.4) %>% dplyr::rename(Year=year) |> 
+left_join(WB_GCMs,by="GCM") |> 
   mutate(CF = ifelse(is.na(CF), "Historical", CF),
          CF = factor(CF, levels=c("Historical",CFs))) 
 
