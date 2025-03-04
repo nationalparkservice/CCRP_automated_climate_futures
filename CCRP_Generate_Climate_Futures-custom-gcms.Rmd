@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 library(here); library(plyr); # Use here::here when package lubridate is used
 library(plotrix); library(zoo); library(ggplot2); library(grid); library(cowplot); library(reshape2); library(raster); library(ncdf4); library(reshape2); library(WriteXLS); library(data.table); library(RColorBrewer); library(ggrepel); library(lubridate); library(dplyr); library(forcats); library(openxlsx); library("WaterBalance"); library(sf); library(raster); library(rgdal); library(R.utils); library(tmap); library(tmaptools); library(ggmap); library(ggspatial);
-library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(cft); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes)
+library(gridExtra); library(SPEI); library(tidyr); library(tibble); library(sp); library(skimr); library(stringr); library(ggpubr); library(lemon); library(ggfortify); library(extRemes)
 
 
 ```
@@ -154,9 +154,9 @@ If rerunning - start here -- reads in CFs, make any adjustments in next chunk
 
 ```{r Custom-CFs, message=FALSE, warning=FALSE, include = FALSE}
 # Specify Climate Futures
-OutDir <- "C:/Users/achildress/Documents/RCF_Testing/JOTR_07/"
+OutDir <- "C:/Users/arunyon/3D Objects/Local-files/RCF_Testing/SWQ/SWQ/"
 # OutDir <- 'C:/Users/achildress/Documents/RCF_Testing/WHSA/'
-OutDir <- "C:/Users/achildress/Documents/RCF_Testing/JOTR_07/"
+OutDir <- "C:/Users/arunyon/3D Objects/Local-files/RCF_Testing/SWQ/SWQ/"
 DataDir = paste0(OutDir,'input-data/') # for .csv's
 if(dir.exists(DataDir) == FALSE){
   dir.create(DataDir)
