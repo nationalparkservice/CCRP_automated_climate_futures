@@ -19,12 +19,12 @@ park <- if(nrow(park)>1) {
   park[!grepl("Preserve", park$UNIT_TYPE),]
   } else{park}
 #if 2 units and one has "preserve" in name, do not use
-s<-US_States %>% filter(STATE_ABBR == park$STATE)
+# s<-US_States %>% filter(STATE_ABBR == park$STATE)
 
 # TWO DIFFERENT OPTIONS FOR CENTROID - use 1st option if running a general RSS and using park centroid. Second option if using specific lat long.
-state = s$STATE_NAME
+# state = s$STATE_NAME
 Lat = park$Lat
 Lon = park$Lon
 region = park$REGION
   
-rm(nps_centroids, US_States,s)
+rm(nps_centroids, US_States)
