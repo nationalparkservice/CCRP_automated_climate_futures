@@ -1,7 +1,6 @@
 #####################################################################
 ###   Pulling Site Parameters for D. Thoma Water Balance Model ######
 #####################################################################
-
 # Set projection to be used for all spatial data:
 
 proj4 <-"+init=epsg:5070" #  North America Albers Equal Area Conic
@@ -22,44 +21,51 @@ test.reproj.rast <- function(poly, r){
 }
 
 
-
-###  Spatial Data  #####
+###  Add Spatial Data  #####
 # This data is available from NPS
-maca <- raster('./data/general/spatial-data/Climate_grid/tdn_90d.nc') 
-maca <- projectRaster(maca, crs = proj4)
+maca <- rast('./data/general/spatial-data/Climate_grid/tdn_90d.nc') 
+dem <- rast('./data/general/spatial-data/elevation_cropped.tif') 
+soil <- rast('./data/general/spatial-data/water_storage.tif') 
 
-dem <- raster('./data/general/spatial-data/elevation_cropped.tif') 
-dem <- projectRaster(dem, crs = proj4)
 
-soil <- raster('./data/general/spatial-data/water_storage.tif') 
-soil <- projectRaster(soil, crs= proj4)
 
-land <- raster("~/GIS/NLCD_2023/ncld.land.tif")
-
-# shapefiles - can use epsg code or existing object to define projection
+# shapefiles - can uland# shapefiles - can use epsg code or existing object to define projection
 nps_boundary <- st_read("~/GIS/CONUS Refuge Boundary/CONUS Refuge Boundary 3_18_2024/CONUS_NWR_Approved.shp")
-nps_boundary <- test.reproj.poly(nps_boundary, maca)
-
 nps_centroids <- st_read("~/GIS/CONUS NWRS Centroids/CONUS NWRS Centroids/CONUS_refuge_centroids.shp")
-nps_centroids <- test.reproj.poly(nps_centroids, maca)
-
 US_States <- st_read('./data/general/spatial-data/State_Shapefile/Contig_US_Albers.shp')
-US_States <- test.reproj.poly(US_States, maca)
+
+
+land = st_read("~/GIS/NLCD_2023/Output_shapefile/land_shp_reproj.shp")
+saveRDS(land, file = "~/GIS/NLCD_2023/Output_shapefile/land_wgs.rds")
+
+land = readRDS("~/GIS/NLCD_2023/Output_shapefile/land_wgs.rds") #same projection as MACA
+
+plot(land)
+
+land.reproj = test.reproj.poly(land, maca)
+
+land.reproj = st_make_valid(land.reproj)
+land_park = st_intersection(land.reproj, park)
+
+# Reproject data
+dem <- terra::project(dem, terra::crs(land))
+nps_boundary <- test.reproj.poly(nps_boundary, maca)
 
 # select park
 nps_boundary$UNIT_CODE <- nps_boundary$LIT
-park <- filter(nps_boundary, UNIT_CODE == SiteID)
+park <- filter(nps_boundary, LIT == SiteID)
 
 State <- filter(US_States, STATE_ABBR == state)
 s <- test.reproj.poly(State,land)
-land <- crop(land,s); rm(s)
-land <- projectRaster(land, crs= proj4)
-land <- test.reproj.rast(park, land) #this will take a long time
-land2 <- rasterToPolygons(mask(land, park[1]))
+land_subset <- crop(land,s); rm(s)
+
+park_reproj = test.reproj.poly(park,land_subset)
+land_park <- as.polygons(mask(land_subset, park_reproj[1]))
 
 # TWO DIFFERENT OPTIONS FOR CENTROID - use 1st option if running a general RSS and using park centroid. Second option if using specific lat long.
 nps_centroids$UNIT_CODE <- nps_centroids$LIT
 centroid <- filter(nps_centroids, UNIT_CODE == SiteID) 
+centroid_reproj = test.reproj.poly(centroid,land_subset)
 # centroid <- filter(nps_centroids, UNIT_CODE == SiteID) # use this line if using park centroid
 
 
@@ -82,14 +88,20 @@ park_and_centroid <- tm_shape(park) +
 tmap_arrange(state_and_park, park_and_centroid)
 
 # Obtain MACA grid outline (not information within)
-park <- as_Spatial(park)
-centroid<- as_Spatial(centroid) # objects must be Spatial (sp) to work with raster package (cannot be sf)
-cell <- cellFromXY(maca, centroid) # find grid cell park centroid lies within
-maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
-maca.poly <- rasterToPolygons(maca_cell) # Create MACA polygon - original file in lat/long (note: datum differs from park shapefiles)
+park <- as_Spatial(park_reproj)
+centroid<- as_Spatial(centroid_reproj) # objects must be Spatial (sp) to work with raster package (cannot be sf)
+
+# coords_matrix = as.matrix(sf::st_coordinates(centroid_reproj))
+# cell_numbers <- terra::cellFromXY(maca, coords_matrix)
+
+maca_cell = crop(maca, st_buffer(centroid_reproj, 100))
+
+# cell <- cellFromXY(maca, centroid_reproj) # find grid cell park centroid lies within
+# maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
+maca.poly <- as.polygons(maca_cell) # Create MACA polygon - original file in lat/long (note: datum differs from park shapefiles)
 
 intersect.shp <- st_intersection(st_as_sf(maca.poly),st_as_sf(park[1])) #intersect maca cell to park boundary
-intersect.shp <- st_intersection(intersect.shp,st_as_sf(land2))
+intersect.shp <- st_intersection(intersect.shp,st_as_sf(land_park))
 sampling.boundary <- as_Spatial((intersect.shp))
 
 
@@ -107,11 +119,12 @@ tm_shape(park) +
 
 # Create slope and aspect rasters
 
-slope <- terrain(dem, opt = "slope", unit = "degrees", neighbors = 4) # 4 is better for "smooth" surfaces; 8 is better for rough. See https://www.rdocumentation.org/packages/raster/versions/3.1-5/topics/terrain
-aspect <- terrain(dem, opt = "aspect", unit = "degrees")
+slope <- terrain(dem, "slope") # 4 is better for "smooth" surfaces; 8 is better for rough. See https://www.rdocumentation.org/packages/raster/versions/3.1-5/topics/terrain
+aspect <- terrain(dem,"aspect")
 
 # get 10 random points from soil raster and create SpatialPoints object
 points <- spsample(sampling.boundary, n = 10, type = "random")
+p = st_as_sf(points)
 
 # plot to check points appear within borders of MACA cell. 
 png(paste0(OutDir,"WBpoints.png"), width=4, height=4, units="in", res=300,)
@@ -134,8 +147,8 @@ latlong <- st_transform(latlong, crs = 4326) # project to lat/long
 
 wb_sites <- as.data.frame(st_coordinates(latlong)) # begin new dataframe for wb_sites
 
-wb_sites[,3] <- raster::extract(dem, points)
-wb_sites[,4] <- raster::extract(aspect, points)
+wb_sites[,3] <- terra::extract(dem, p)
+wb_sites[,4] <- terra::extract(aspect, p)
 wb_sites[,5] <- raster::extract(slope, points)
 wb_sites[,6] <- raster::extract(soil, points)
 wb_sites[,7] <- seq.int(nrow(wb_sites))
